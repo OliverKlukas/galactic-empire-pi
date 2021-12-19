@@ -1,0 +1,2 @@
+c1541 -format diskname,id d64 galacticEmpire.d64 -attach galacticEmpire.d64 -write galacticEmpire.prg galacticEmpire
+

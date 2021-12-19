@@ -4,7 +4,7 @@
 #include <conio.h>
 #include <stdbool.h>
 #include <tgi.h>
-
+// #include <math.h>
 
 #ifndef DYN_DRV
     #  define DYN_DRV       0
@@ -36,8 +36,7 @@ int mapXLength = 20;
 int mapYLength = 20;
 
 int i;
-
-
+int linesHalfThickness;
 
 static void CheckError (const char* S)
 {
@@ -70,21 +69,45 @@ static void DoWarning (void)
 
 
 
+void drawThickVerticalLine(const int startX, const int startY, const int length, int thickness)
+{
+    // Only works for straight lines ! 
+    // thickness has to be an uneven number
+
+    if (thickness > 1 && thickness % 2)
+    {
+        thickness += 1;
+    }
+    
+    linesHalfThickness = (int) thickness/2;
+
+    for (i = -linesHalfThickness; i <=linesHalfThickness; ++i)
+    {
+        tgi_line(startX + i, startY, startX + i, startY + length);
+    }
+}
 
 
 // functions
 void drawMap()
 {
     tgi_clear ();
-    tgi_line(0,0,10,10);
+    tgi_line(2,2,2,10);
+    tgi_line(3,2,3,10);
 
+    drawThickVerticalLine(10,10,10,1);
+    drawThickVerticalLine(15,10,10,2);
+    
+    tgi_bar (20, 20, 30, 30);
+
+
+    chlinexy(5, 5, 10); 
 
     /*
     chlinexy(0, 0, 10);
     cputsxy(10, 0, "A");
     chlinexy(12, 0, 10);
     chlinexy(0, 1, 10);
-
 
 
     for (i = 0; i < mapXLength; ++i)
