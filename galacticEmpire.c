@@ -14,8 +14,8 @@
 #  define DYN_DRV       0
 #endif
 
-#define COLOR_BACK      TGI_COLOR_GREEN
-#define COLOR_FORE      TGI_COLOR_WHITE
+#define COLOR_BACK      TGI_COLOR_WHITE
+#define COLOR_FORE      TGI_COLOR_BLACK
 #define COLOR_BORD      COLOR_GREEN
 
 
@@ -38,12 +38,12 @@ struct World {
 /*****************************************************************************/
 
 
-// Display variables
+// Display variables.
 static unsigned MaxX;
 static unsigned MaxY;
 static unsigned AspectRatio;
 
-// Game specific variables
+// Game specific variables.
 int numPlayers = 1;
 char *playerNames;
 int numWorlds = 10;
@@ -51,6 +51,9 @@ int year = 0;
 bool defensiveShips = true;
 int events = true;
 struct World **worlds;
+
+// Globally used color Palette.
+static const unsigned char ColorPalette[2] = { COLOR_BACK, COLOR_FORE };
 
 
 /*****************************************************************************/
@@ -114,6 +117,7 @@ static void updateInput(void) {}
  * <p>Updates the displayed graphics based on the global variables. Read only.
  */
 static void drawTable(void) {
+
     // Margin of outer table rectangle.
     int margin = 10;
 
@@ -128,7 +132,6 @@ static void drawTable(void) {
     tgi_lineto((3 * MaxX / 4), MaxY - (2 * margin));
 
     // Print the current game year.
-    cputsxy(10, 0, "A");
     tgi_outtextxy((MaxX / 2) + margin, MaxY - margin, "Year : ");
     tgi_outtext("0");
 }
@@ -160,6 +163,7 @@ static void game(void){
  * @return Returns SUCCESS in case of completed game or FAILURE in case or errors.
  */
 int main() {
+    // Save the previous border color to reset later on.
     unsigned char Border;
 
 #if DYN_DRV
@@ -184,8 +188,9 @@ int main() {
     MaxY = tgi_getmaxy();
     AspectRatio = tgi_getaspectratio();
 
-    // Set the palette, set the border color.
+    // Set the palette and border colors.
     Border = bordercolor (COLOR_BORD);
+    tgi_setpalette (ColorPalette);
 
     // Clear the initial tgi drawing board.
     tgi_clear ();
