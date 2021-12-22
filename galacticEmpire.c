@@ -65,8 +65,14 @@ int mapSquareSize = 9;
 // Outer margin of game.
 int margin = 5;
 
+// Number offset for plotting digits.
+int numOffset = 48;
+
 // Space between alphabet letters.
-int charSpacing = 8;
+int letterSpacing = 8;
+
+// Center 8x8 letters to coordinates.
+int centerLetter = 4;
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -99,7 +105,7 @@ static void CheckError(const char *S) {
  *
  * <p>Source: https://github.com/cc65/cc65/blob/master/samples/tgidemo.c
  */
-static void DoWarning (void)
+static void DoWarning ()
 /*  */
 {
     printf ("Warning: This program needs the TGI\n"
@@ -119,11 +125,11 @@ static void DoWarning (void)
  * <p>Write given letter bit by bit onto the screen while overwriting the content that was located at the given x and y.
  * The letters are 8x8 dimensioned and most ascii signs are supported.
  *
- * @param x - X coordinate of letter center. // TODO: is this really the center?
- * @param y - Y coordinate of letter center
+ * @param x - X coordinate of letter, upper left corner.
+ * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
-static void plotLetter(unsigned char x, unsigned char y, int letter) { // TODO COLOR
+static void plotLetter(unsigned x, unsigned y, int letter) { // TODO COLOR
 
     // Variables to plot pixels.
     int i, j, plot;
@@ -157,16 +163,40 @@ static void plotLetter(unsigned char x, unsigned char y, int letter) { // TODO C
 }
 
 /**
+ * Writes a sentence on the screen.
+ *
+ * <p>Write given sentence bit by bit onto the screen while overwriting the content that was located at the given x and
+ * y. The letters are 8x8 dimensioned and most ascii signs are supported. Distance between letters depends on spacing.
+ *
+ * @param x - Start X coordinate of sentence.
+ * @param y - Start Y coordinate of sentence.
+ * @param sentence - String Sentence to be plotted.
+ */
+static void plotText(unsigned x, unsigned y, char *sentence){
+    // Loop variables.
+    int i;
+
+    // Iterate over the sentence and plot each char.
+    for(i = 0; sentence[i] != 0; i++){
+        plotLetter(x + i * letterSpacing, y, sentence[i]);
+    }
+}
+
+/**
  * TODO: print all characters new or rather just the colors? Probably need to reprint them right?
  */
-static void updateMap(void) {
+static void updateMap() {
+    plotLetter(margin - centerLetter, margin - centerLetter, 'a'); // TODO figure out placement here
+    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c');
+    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F');
+    plotLetter(margin - centerLetter, margin - centerLetter, 'b');
 
 }
 
 /**
  * TODO: print and update the current user input
  */
-static void updateInput(void) {
+static void updateInput() {
 
 }
 
@@ -174,42 +204,83 @@ static void updateInput(void) {
  * Draws the latest game table and year.
  *
  * <p>Updates the displayed graphics based on the global variables. Read only.
+ * // TODO: this is quite expensive as I draw by pixel, can I only update the ones that are changed?
  */
-static void updateTable(void) {
-    // Update current year
-    if (year < 10) {
-        plotLetter((MaxX / 2) + (2 * margin) + 5 * charSpacing, MaxY - (2 * margin), year + 48);
+static void updateTable() {
+    // Loop variables.
+    int row, column;
+
+    // Table text coordinates.
+    char letter = 'a';
+    int tableTextX = (MaxX / 2) + (2 * margin);
+    int tableTextY = margin + 2;
+
+    // Update current year.
+    if (year < 10) { // TODO: make a custom plot numbers
+        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), year + numOffset);
     } else {
-        plotLetter((MaxX / 2) + (2 * margin) + 5 * charSpacing, MaxY - (2 * margin), (year / 10) + 48);
-        plotLetter((MaxX / 2) + (2 * margin) + 6 * charSpacing, MaxY - (2 * margin), (year % 10) + 48);
+        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), (year / 10) + numOffset);
+        plotLetter(tableTextX + 6 * letterSpacing, MaxY - (2 * margin), (year % 10) + numOffset);
     }
 
-    // TODO: Update current planet occupations.
+    // Update first column of current planet occupations.
+    for(column = 0; column < 2; column++){
+        for (row = 1; row < 22; row++) {
+            // World.
+            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter);
+            letter += 1;
+
+            // Production. // TODO: make a custom plot numbers
+            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset);
+
+            // Ships.
+            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset);
+        }
+        tableTextX += 75;
+        letter = 'A';
+    }
 }
 
 /**
  * Initializes the standard game graphics.
  */
-static void initGame(void) {
-    // Init parameters.
-    int i, j, boxLeftX, boxRightX, boxUpperY, boxLowerY;
+static void initGameGraphics() {
+    // Loop parameters.
+    int i, j, column;
+
+    // Table text (X, Y) params.
+    int tableTextX = (MaxX / 2) + (2 * margin);
+    int tableTextY = margin + 2;
+
+    // Table corner (X, Y) params.
+    int tableUpperY = margin;
+    int tableLowerY = MaxY - (3 * margin);
+    int tableLeftX = (MaxX / 2) + margin;
+    int tableRightX = MaxX - margin;
+
+    // Input box corner (X, Y) params.
+    int boxUpperY = mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (2 * margin);
+    int boxLowerY = MaxY - margin;
+    int boxLeftX = margin;
+    int boxRightX = (MaxX / 2) - margin + 1;
 
     // Print the outer lines of the table.
-    tgi_gotoxy((3 * MaxX / 4), margin);
-    tgi_lineto((MaxX / 2) + margin, margin);
-    tgi_lineto((MaxX / 2) + margin, MaxY - (3 * margin));
-    tgi_lineto((3 * MaxX / 4), MaxY - (3 * margin));
-    tgi_lineto((3 * MaxX / 4), margin);
-    tgi_lineto(MaxX - margin, margin);
-    tgi_lineto(MaxX - margin, MaxY - (3 * margin));
-    tgi_lineto((3 * MaxX / 4), MaxY - (3 * margin));
+    tgi_line(tableLeftX, tableUpperY, tableRightX, tableUpperY);
+    tgi_line(tableLeftX, tableUpperY, tableLeftX, tableLowerY);
+    tgi_line(tableLeftX, tableLowerY, tableRightX, tableLowerY);
+    tgi_line(tableRightX, tableUpperY, tableRightX, tableLowerY);
+    tgi_line((3 * MaxX / 4), tableUpperY, (3 * MaxX / 4), tableLowerY);
+
+    // Print first row of the table.
+    for(column = 0; column < 2; column++){
+        tableTextX += column * 75;
+        plotLetter(tableTextX, tableTextY, 'W');
+        plotText(tableTextX + 2 * letterSpacing, tableTextY, "Pn");
+        plotText(tableTextX + 5 * letterSpacing, tableTextY, "Shp");
+    }
 
     // Print the game year.
-    plotLetter((MaxX / 2) + (2 * margin), MaxY - (2 * margin), 'Y');
-    plotLetter((MaxX / 2) + (2 * margin) + 1 * charSpacing, MaxY - (2 * margin), 'e');
-    plotLetter((MaxX / 2) + (2 * margin) + 2 * charSpacing, MaxY - (2 * margin), 'a');
-    plotLetter((MaxX / 2) + (2 * margin) + 3 * charSpacing, MaxY - (2 * margin), 'r');
-    plotLetter((MaxX / 2) + (2 * margin) + 4 * charSpacing, MaxY - (2 * margin), ':');
+    plotText((MaxX / 2) + (2 * margin), MaxY - (2 * margin), "Year:");
 
     // Print map vertical lines.
     for (i = 0; i <= mapNLinesVertical; ++i) {
@@ -230,11 +301,6 @@ static void initGame(void) {
     }
 
     // Print textual output box.
-    boxUpperY = mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (2*margin);
-    boxLowerY = MaxY - margin;
-    boxLeftX = margin;
-    boxRightX = (MaxX / 2) - margin + 1;
-
     tgi_line(boxLeftX, boxUpperY, boxRightX, boxUpperY);
     tgi_line(boxLeftX, boxUpperY, boxLeftX, boxLowerY);
     tgi_line(boxLeftX, boxLowerY, boxRightX, boxLowerY);
@@ -244,9 +310,9 @@ static void initGame(void) {
 /**
  * Main galactic empire game logic.
  */
-static void game(void) {
+static void game() {
     // Initialize everything that shouldn't be changed on the map.
-    initGame();
+    initGameGraphics();
 
     // TODO: add map, input and further game functionality here and replace with game while loop
     updateTable();
