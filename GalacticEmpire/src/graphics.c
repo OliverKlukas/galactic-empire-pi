@@ -314,5 +314,147 @@ char *getPlayerName(unsigned player){
     }
 
     tgi_clear();
-    return &name;
+    return name;
 }
+
+
+/**
+ * Retrieves the desired number of worlds.
+ *
+ * <p>Number of worlds needs to be between 10 and 40.
+ *
+ * @return - Returns number of worlds.
+ */
+unsigned getNumWorlds() {
+    unsigned numWorlds = 0;
+    unsigned numDigits = 0;
+    int digit;
+
+    // Plot question.
+    plotText(margin, margin, "How many worlds [10-40]?", GreenPalette);
+
+    // Retrieve the number of worlds.
+    while (numDigits != 2) {
+        digit = cgetc();
+        plotLetter(205 + numDigits * letterSpacing, margin, digit, GreenPalette);
+        digit -= numOffset;
+
+        // Add digit to number.
+        if(numDigits == 0){
+            numWorlds = numWorlds + (10*digit);
+        } else{
+            numWorlds += digit;
+        }
+
+        // Check if input is valid.
+        if (digit < 0 || digit > 9 || numWorlds > 40 ) {
+            plotText(margin, margin + 2 * letterSpacing, "The number of worlds needs to be 10-40!", GreenPalette);
+            tgi_clear();
+            numDigits = 0;
+            numWorlds = 0;
+            plotText(margin, margin, "How many worlds [10-40]?", GreenPalette);
+        } else {
+            numDigits++;
+        }
+    }
+    tgi_clear();
+    return numWorlds;
+}
+
+
+/**
+ * Retrieves the desired number of years.
+ *
+ * <p>Number of years needs to be between 10 and 99.
+ *
+ * @return - Returns number of years.
+ */
+unsigned getYears() {
+    unsigned numYears = 0;
+    unsigned numDigits = 0;
+    int digit;
+
+    // Plot question.
+    plotText(margin, margin, "How many years in the game [10-99]?", GreenPalette);
+
+    // Retrieve the number of worlds.
+    while (numDigits != 2) {
+        digit = cgetc();
+        plotLetter(295 + numDigits * letterSpacing, margin, digit, GreenPalette);
+        digit -= numOffset;
+
+        // Add digit to number.
+        if(numDigits == 0){
+            numYears = numYears + (10*digit);
+        } else{
+            numYears += digit;
+        }
+
+        // Check if input is valid.
+        if (digit < 0 || digit > 9 || numYears > 40 ) {
+            plotText(margin, margin + 2 * letterSpacing, "The number of years needs to be 10-99!", GreenPalette);
+            tgi_clear();
+            numDigits = 0;
+            numYears = 0;
+            plotText(margin, margin, "How many years in the game [10-99]?", GreenPalette);
+        } else {
+            numDigits++;
+        }
+    }
+    tgi_clear();
+    return numYears;
+}
+
+/**
+ * Retrieve if defensive ships should be build on pirate planets.
+ *
+ * @return - Returns 1 for true or 0 for false.
+ */
+unsigned getDefensive(){
+    unsigned answer = 1;
+
+    // Retrieve if defensive ships should be build.
+    while (answer) {
+        plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", GreenPalette);
+        answer = cgetc();
+        plotLetter(312, margin, answer, GreenPalette);
+
+        // Check if input is valid.
+        if (answer != 'y' && answer != 'n') {
+            plotText(margin, margin + 2 * letterSpacing, "Please answer with [y/n]!", GreenPalette);
+            answer = 1;
+        } else {
+            tgi_clear();
+            return answer;
+        }
+        tgi_clear();
+    }
+}
+
+/**
+* Retrieve if special events should occur.
+ *
+ * @return - Returns 1 for true or 0 for false.
+*/
+unsigned getEvents(){
+    unsigned answer = 1;
+
+    // Retrieve if special events should occur.
+    while (answer) {
+        plotText(margin, margin, "Should special events occur [y/n]?", GreenPalette);
+        answer = cgetc();
+        plotLetter(288, margin, answer, GreenPalette);
+
+        // Check if input is valid.
+        if (answer != 'y' && answer != 'n') {
+            plotText(margin, margin + 2 * letterSpacing, "Please answer with [y/n]!", GreenPalette);
+            answer = 1;
+        } else {
+            tgi_clear();
+            return answer;
+        }
+        tgi_clear();
+    }
+
+}
+

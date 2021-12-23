@@ -54,7 +54,28 @@ void startScreen();
 */
 unsigned getNumPlayers();
 
-/*
+/**
  * Retrieve a player name.
  */
 char *getPlayerName(unsigned player);
+
+/**
+* Retrieve the number of worlds.
+*/
+unsigned getNumWorlds();
+
+/**
+* Retrieve the number of years.
+*/
+unsigned getYears();
+
+/**
+* Retrieve if defensive ships should be build on pirate planets.
+*/
+unsigned getDefensive();
+
+/**
+* Retrieve if special events should occur.
+*/
+unsigned getEvents();
+

@@ -44,9 +44,10 @@ unsigned MaxY;
 
 // Game specific variables.
 unsigned numPlayers = 5;
-char **playerNames[5];
+char *playerNames[5];
 unsigned numWorlds = 10;
 unsigned year = 0;
+unsigned totalYears = 0;
 int defensiveShips = 1;
 int events = 1;
 struct World **worlds;
@@ -110,13 +111,14 @@ void initGameInputs(){
     }
 
     // Get number of worlds.
+    numWorlds = getNumWorlds();
 
-
-    // Get number of years.
-
+    // Get number of totalYears.
+    totalYears = getYears();
 
     // Get special events settings.
-
+    defensiveShips = getDefensive();
+    events = getEvents();
 }
 
 /**
@@ -129,11 +131,13 @@ void game() {
 
     // Handle initial questions.
     initGameInputs();
+    tgi_clear();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics(MaxX, MaxY);
 
     // Generate game map.
+    //TODO: first static then algorithmus for this.
 
     // Start the actual game
     // TODO: add map, input and further game functionality here and replace with game while loop
