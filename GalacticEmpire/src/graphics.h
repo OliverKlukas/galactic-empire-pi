@@ -43,3 +43,8 @@ void updateTable();
  * Initializes the standard game graphics.
  */
 void initGameGraphics();
+
+/**
+ * Plots the game initialisation screen.
+ */
+void startScreen();

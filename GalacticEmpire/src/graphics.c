@@ -5,16 +5,6 @@
 #include <tgi.h>
 #include "font8x8_basic.h"
 
-
-
-/*****************************************************************************/
-/*                                 Macros                                    */
-/*****************************************************************************/
-
-#define COLOR_BACK      TGI_COLOR_BLACK
-#define COLOR_FORE      TGI_COLOR_WHITE
-
-
 /*****************************************************************************/
 /*                            Global variables                               */
 /*****************************************************************************/
@@ -38,6 +28,10 @@ int letterSpacing = 8;
 // Center 8x8 letters to coordinates.
 int centerLetter = 4;
 
+// Globally used color Palettes.
+static const unsigned char StandardPalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK};
+static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
+
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
@@ -52,11 +46,14 @@ int centerLetter = 4;
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
-void plotLetter(unsigned x, unsigned y, int letter, unsigned char colorForeground, unsigned char colorBackground) {
+void plotLetter(unsigned x, unsigned y, int letter, const unsigned char* palette) {
 
     // Variables to plot pixels.
     int i, j, plot;
     char *bitmap;
+
+    // Chosen color palette.
+    tgi_setpalette(palette);
 
     // Receive bit config of letter with moder ascii.
     if (letter > 192 && letter < 219) {
@@ -72,17 +69,17 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned char colorForegroun
         for (j = 0; j < 8; j++) {
             plot = bitmap[i] & 1 << j;
             if (plot) {
-                tgi_setcolor(colorForeground);
+                tgi_setcolor(1);
                 tgi_setpixel(x + j, y + i);
             } else {
-                tgi_setcolor(colorBackground);
+                tgi_setcolor(0);
                 tgi_setpixel(x + j, y + i);
             }
         }
     }
 
     // Restore current foreground color.
-    tgi_setcolor(colorForeground);
+    tgi_setcolor(1);
 }
 
 /**
@@ -95,13 +92,13 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned char colorForegroun
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
  */
-void plotText(unsigned x, unsigned y, char *sentence, unsigned char colorForeground, unsigned char colorBackground){
+void plotText(unsigned x, unsigned y, char *sentence, const unsigned char* palette){
     // Loop variables.
     int i;
 
     // Iterate over the sentence and plot each char.
     for(i = 0; sentence[i] != 0; i++){
-        plotLetter(x + i * letterSpacing, y, sentence[i], colorForeground, colorBackground);
+        plotLetter(x + i * letterSpacing, y, sentence[i], palette);
     }
 }
 
@@ -109,10 +106,10 @@ void plotText(unsigned x, unsigned y, char *sentence, unsigned char colorForegro
  * TODO: print all characters new or rather just the colors? Probably need to reprint them right?
  */
 void updateMap() {
-    plotLetter(margin - centerLetter, margin - centerLetter, 'a', COLOR_FORE, COLOR_BACK); // TODO figure out placement here
-    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c', COLOR_FORE, COLOR_BACK);
-    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F', COLOR_FORE, COLOR_BACK);
-    plotLetter(margin - centerLetter, margin - centerLetter, 'b', COLOR_FORE, COLOR_BACK);
+    plotLetter(margin - centerLetter, margin - centerLetter, 'a', StandardPalette); // TODO figure out placement here
+    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c', StandardPalette);
+    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F', StandardPalette);
+    plotLetter(margin - centerLetter, margin - centerLetter, 'b', StandardPalette);
 
 }
 
@@ -140,24 +137,24 @@ void updateTable(unsigned MaxX, unsigned MaxY, unsigned year) {
 
     // Update current year.
     if (year < 10) { // TODO: make a custom plot numbers
-        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), year + numOffset, COLOR_FORE, COLOR_BACK);
+        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), year + numOffset, StandardPalette);
     } else {
-        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), (year / 10) + numOffset, COLOR_FORE, COLOR_BACK);
-        plotLetter(tableTextX + 6 * letterSpacing, MaxY - (2 * margin), (year % 10) + numOffset, COLOR_FORE, COLOR_BACK);
+        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), (year / 10) + numOffset, StandardPalette);
+        plotLetter(tableTextX + 6 * letterSpacing, MaxY - (2 * margin), (year % 10) + numOffset, StandardPalette);
     }
 
     // Update first column of current planet occupations.
     for(column = 0; column < 2; column++){
         for (row = 1; row < 22; row++) {
             // World.
-            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, COLOR_FORE, COLOR_BACK);
+            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, StandardPalette);
             letter += 1;
 
             // Production. // TODO: make a custom plot numbers
-            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset, COLOR_FORE, COLOR_BACK);
+            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset, StandardPalette);
 
             // Ships.
-            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset, COLOR_FORE, COLOR_BACK);
+            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset, StandardPalette);
         }
         tableTextX += 75;
         letter = 'A';
@@ -197,13 +194,13 @@ void initGameGraphics(unsigned MaxX, unsigned MaxY) {
     // Print first row of the table.
     for(column = 0; column < 2; column++){
         tableTextX += column * 75;
-        plotLetter(tableTextX, tableTextY, 'W', COLOR_FORE, COLOR_BACK);
-        plotText(tableTextX + 2 * letterSpacing, tableTextY, "Pn", COLOR_FORE, COLOR_BACK);
-        plotText(tableTextX + 5 * letterSpacing, tableTextY, "Shp", COLOR_FORE, COLOR_BACK);
+        plotLetter(tableTextX, tableTextY, 'W', StandardPalette);
+        plotText(tableTextX + 2 * letterSpacing, tableTextY, "Pn", StandardPalette);
+        plotText(tableTextX + 5 * letterSpacing, tableTextY, "Shp", StandardPalette);
     }
 
     // Print the game year.
-    plotText((MaxX / 2) + (2 * margin), MaxY - (2 * margin), "Year:", COLOR_FORE, COLOR_BACK);
+    plotText((MaxX / 2) + (2 * margin), MaxY - (2 * margin), "Year:", StandardPalette);
 
     // Print map vertical lines.
     for (i = 0; i <= mapNLinesVertical; ++i) {
@@ -228,4 +225,25 @@ void initGameGraphics(unsigned MaxX, unsigned MaxY) {
     tgi_line(boxLeftX, boxUpperY, boxLeftX, boxLowerY);
     tgi_line(boxLeftX, boxLowerY, boxRightX, boxLowerY);
     tgi_line(boxRightX, boxUpperY, boxRightX, boxLowerY);
+}
+
+/**
+ * Draws the start screen.
+ *
+ * <p> Waits for any button to be pressed to continue to the game.
+ *
+ * @param MaxX - Maximal unsigned Pixel value on x axis.
+ * @param MaxY - Maximal unsigned Pixel value on y axis.
+ */
+void startScreen(unsigned MaxX, unsigned MaxY){
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
+    // Write game description.
+    plotText(MaxX / 3, MaxY / 2 - 15, "GALACTIC EMPIRE", GreenPalette);
+    plotText(MaxX / 3 + 4, (2*MaxY) / 3 - 15, "klukas edition", GreenPalette);
+
+    // Wait for any button to be pressed.
+    plotText(70, MaxY - 10, "press any key to continue", GreenPalette);
+    cgetc();
 }

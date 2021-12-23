@@ -51,9 +51,6 @@ int defensiveShips = 1;
 int events = 1;
 struct World **worlds;
 
-// Globally used color Palette.
-static const unsigned char ColorPalette[2] = {COLOR_FORE, COLOR_BACK};
-
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
@@ -103,6 +100,13 @@ static void DoWarning ()
  * Main galactic empire game logic.
  */
 void game() {
+    // Plot start screen.
+    startScreen(MaxX, MaxY);
+    tgi_clear();
+
+    // Plot initial questions.
+
+
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics(MaxX, MaxY);
 
@@ -152,9 +156,8 @@ int main() {
     MaxX = tgi_getmaxx();
     MaxY = tgi_getmaxy();
 
-    // Set the palette and border colors.
+    // Set the border colors.
     Border = bordercolor(COLOR_BORD);
-    tgi_setpalette(ColorPalette);
 
     // Clear the initial tgi drawing board.
     tgi_clear();
