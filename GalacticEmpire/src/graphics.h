@@ -1,9 +1,6 @@
 /**
  * Places a character anywhere on the screen.
  *
- * <p>Write given letter bit by bit onto the screen while overwriting the content that was located at the given x and y.
- * The letters are 8x8 dimensioned and most ascii signs are supported.
- *
  * @param x - X coordinate of letter, upper left corner.
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
@@ -13,9 +10,6 @@ void plotLetter(unsigned x, unsigned y, int letter);
 /**
  * Writes a sentence on the screen.
  *
- * <p>Write given sentence bit by bit onto the screen while overwriting the content that was located at the given x and
- * y. The letters are 8x8 dimensioned and most ascii signs are supported. Distance between letters depends on spacing.
- *
  * @param x - Start X coordinate of sentence.
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
@@ -23,14 +17,14 @@ void plotLetter(unsigned x, unsigned y, int letter);
 void plotText(unsigned x, unsigned y, char *sentence);
 
 /**
- * TODO: print all characters new or rather just the colors? Probably need to reprint them right?
+ * Updates the game map.
  */
 void updateMap();
 
 /**
- * TODO: print and update the current user input
+ * Retrieves the inputs of all players in one round.
  */
-void updateInput();
+void retrieveInputs();
 
 /**
  * Draws the latest game table and year.
@@ -50,32 +44,51 @@ void initGameGraphics();
 void startScreen();
 
 /**
-* Retrieve the number of players.
-*/
+ * Retrieve the number of players.
+ *
+ * @return - Returns the number of players retrieved from the input.
+ */
 unsigned getNumPlayers();
 
 /**
  * Retrieve a player name.
+ *
+ * @param player - Number of respective player.
+ * @return - Returns the name of the player as a String.
  */
 char *getPlayerName(unsigned player);
 
 /**
-* Retrieve the number of worlds.
-*/
+ * Retrieve the number of worlds.
+ *
+ * @return - Returns the number of worlds set by the player.
+ */
 unsigned getNumWorlds();
 
 /**
-* Retrieve the number of years.
-*/
+ * Retrieve the number of years.
+ *
+ * @return - Returns the number of years set by the player.
+ */
 unsigned getYears();
 
 /**
-* Retrieve if defensive ships should be build on pirate planets.
-*/
+ * Retrieve if defensive ships should be build on pirate planets.
+ *
+ * @return - Returns if defensive ships should be build by pirates.
+ */
 unsigned getDefensive();
 
 /**
-* Retrieve if special events should occur.
-*/
+ * Retrieve if special events should occur.
+ *
+ * @return - Returns if special events should occur.
+ */
 unsigned getEvents();
 
+/**
+* Asks for acceptance of map.
+ *
+ * @return - Returns 1 for not accepting and 0 for acceptance.
+*/
+unsigned mapAcceptance();

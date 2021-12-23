@@ -28,6 +28,16 @@ int letterSpacing = 8;
 // Center 8x8 letters to coordinates.
 int centerLetter = 4;
 
+// Screen dimensions.
+unsigned MaxX = 320;
+unsigned MaxY = 200;
+
+// Table coordinates.
+unsigned tableCorner = 1; // TODO
+
+// Input box coordinates.
+
+
 // Globally used color Palettes.
 static const unsigned char StandardPalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK};
 static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
@@ -103,7 +113,14 @@ void plotText(unsigned x, unsigned y, char *sentence, const unsigned char *palet
 }
 
 /**
- * TODO: print all characters new or rather just the colors? Probably need to reprint them right?
+ * TODO: print and update the current user input
+ */
+void retrieveInputs() {
+
+}
+
+/**
+ * TODO: only the worlds that were changed should be updated!
  */
 void updateMap() {
     plotLetter(margin - centerLetter, margin - centerLetter, 'a', StandardPalette); // TODO figure out placement here
@@ -116,17 +133,10 @@ void updateMap() {
 }
 
 /**
- * TODO: print and update the current user input
- */
-void updateInput() {
-
-}
-
-/**
  * Draws the latest game table and year.
  *
  * <p>Updates the displayed graphics based on the global variables. Read only.
- * // TODO: this is quite expensive as I draw by pixel, can I only update the ones that are changed?
+ * // TODO: similar to updateMap() we need a way to only update the worlds that were changed!
  */
 void updateTable(unsigned MaxX, unsigned MaxY, unsigned year) {
     // Loop variables.
@@ -314,7 +324,7 @@ char *getPlayerName(unsigned player){
     }
 
     tgi_clear();
-    return name;
+    return name; // TODO: adress of stack memory is returned, change to reference?
 }
 
 
@@ -411,23 +421,26 @@ unsigned getYears() {
  * @return - Returns 1 for true or 0 for false.
  */
 unsigned getDefensive(){
-    unsigned answer = 1;
+    char answer;
 
     // Retrieve if defensive ships should be build.
-    while (answer) {
-        plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", GreenPalette);
-        answer = cgetc();
-        plotLetter(312, margin, answer, GreenPalette);
+    plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", GreenPalette);
+    answer = cgetc();
 
-        // Check if input is valid.
-        if (answer != 'y' && answer != 'n') {
-            plotText(margin, margin + 2 * letterSpacing, "Please answer with [y/n]!", GreenPalette);
-            answer = 1;
-        } else {
-            tgi_clear();
-            return answer;
-        }
-        tgi_clear();
+    // Check if input is valid.
+    while (answer != 'y' && answer != 'n') {
+        answer = cgetc();
+    }
+
+    // Plot answer.
+    plotLetter(312, margin, answer, GreenPalette);
+
+    // Clear the page and return the answer.
+    tgi_clear();
+    if(answer == 'y'){
+        return 1;
+    } else{
+        return 0;
     }
 }
 
@@ -437,24 +450,59 @@ unsigned getDefensive(){
  * @return - Returns 1 for true or 0 for false.
 */
 unsigned getEvents(){
-    unsigned answer = 1;
+    char answer;
 
     // Retrieve if special events should occur.
-    while (answer) {
-        plotText(margin, margin, "Should special events occur [y/n]?", GreenPalette);
-        answer = cgetc();
-        plotLetter(288, margin, answer, GreenPalette);
+    plotText(margin, margin, "Should special events occur [y/n]?", GreenPalette);
 
-        // Check if input is valid.
-        if (answer != 'y' && answer != 'n') {
-            plotText(margin, margin + 2 * letterSpacing, "Please answer with [y/n]!", GreenPalette);
-            answer = 1;
-        } else {
-            tgi_clear();
-            return answer;
-        }
-        tgi_clear();
+    // Check if input is valid.
+    while (answer != 'y' && answer != 'n') {
+        answer = cgetc();
     }
 
+    // Plot answer.
+    plotLetter(288, margin, answer, GreenPalette);
+
+    // Clear the page and return the answer.
+    tgi_clear();
+    if(answer == 'y'){
+        return 1;
+    } else{
+        return 0;
+    }
 }
 
+/**
+* Asks for acceptance of map.
+ *
+ * @return - Returns 1 for not accepting and 0 for acceptance.
+*/
+unsigned mapAcceptance(){
+    // Player acceptance;
+    char acceptance;
+
+    // Plot question.
+    plotText(2*margin,
+             mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (3 * margin),
+             "Would you like a",
+             StandardPalette);
+    plotText(2*margin,
+             mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (3 * margin) + letterSpacing + 4,
+             "different map [y/n]?",
+             StandardPalette);
+
+    // Retrieve and check input.
+    acceptance = cgetc();
+    while(acceptance != 'y' && acceptance != 'n'){
+        acceptance = cgetc();
+    }
+
+    // Return acceptance.
+    if(acceptance == 'y'){
+        return 0;
+    } else{
+        return 1;
+    }
+
+    // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
+}

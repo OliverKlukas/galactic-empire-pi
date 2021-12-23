@@ -15,8 +15,6 @@
 #  define DYN_DRV       0
 #endif
 
-#define COLOR_BACK      TGI_COLOR_BLACK
-#define COLOR_FORE      TGI_COLOR_WHITE
 #define COLOR_BORD      COLOR_GREEN
 
 
@@ -25,10 +23,10 @@
 /*****************************************************************************/
 
 
-struct World {
+struct world {
     unsigned x;
     unsigned y;
-    char owner[4];
+    char owner[3];
     unsigned prod;
     unsigned ships;
 };
@@ -38,10 +36,6 @@ struct World {
 /*                            Global variables                               */
 /*****************************************************************************/
 
-// Display variables.
-unsigned MaxX;
-unsigned MaxY;
-
 // Game specific variables.
 unsigned numPlayers = 5;
 char *playerNames[5];
@@ -50,7 +44,7 @@ unsigned year = 0;
 unsigned totalYears = 0;
 int defensiveShips = 1;
 int events = 1;
-struct World **worlds;
+struct world galaxy[40];
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -96,6 +90,28 @@ static void DoWarning ()
 #endif
 
 /**
+ * Initializes the world. // TODO: here obviously a smart algorithm is needed: spheres, tree, random?
+ */
+void generateGalaxy(){
+    // Loop variables.
+    int i, j;
+    int player = rand() % numPlayers;
+
+    // Iteratively generate the game galaxy.
+    for(i = 0; i < numWorlds; i++){
+        galaxy[i].x = rand() % 15;
+        galaxy[i].y = rand() % 15;
+        galaxy[i].prod = rand() % 11;
+        galaxy[i].ships = ((rand() % 5) + 1) * galaxy[i].prod;
+
+        // Set owner of planet
+        for(j = 0; j < 3; j++){
+            galaxy[i].owner[j] = playerNames[player][j];
+        }
+    }
+}
+
+/**
  * Initialises the game questions.
  */
 void initGameInputs(){
@@ -121,6 +137,7 @@ void initGameInputs(){
     events = getEvents();
 }
 
+
 /**
  * Main galactic empire game logic.
  */
@@ -136,16 +153,20 @@ void game() {
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics(MaxX, MaxY);
 
-    // Generate game map.
-    //TODO: first static then algorithmus for this.
+    // Initialize world and map based on player acceptance.
+    generateGalaxy();
+    while(mapAcceptance()){
+        updateMap(indicies, galaxy);
+    }
 
-    // Start the actual game
-    // TODO: add map, input and further game functionality here and replace with game while loop
-    updateTable(MaxX, MaxY, year);
-    updateMap();
-    updateInput();
-    // TODO: replace by game loop
-    cgetc();
+    // Play the game until running out of years.
+    while(year != totalYears){
+        retrieveInputs();
+        updateTable(MaxX, MaxY, year);
+        updateMap();
+    }
+
+    // TODO: display final stats like winner etc.
 }
 
 /*****************************************************************************/
