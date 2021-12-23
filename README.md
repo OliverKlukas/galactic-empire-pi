@@ -4,21 +4,17 @@
 # instructions
 ## compile
 ```bash
-# Compile as .prg file
-cl65 -O galacticEmpire.prg galacticEmpire.c -t c64
-
-# (Optional) Convert .prg into disk .d64 file
-c1541 -format diskname,id d64 galacticEmpire.d64 -attach galacticEmpire.d64 -write galacticEmpire.prg galacticEmpire
-
+# Compile as .c64 file
+make
 ```
 
 ## run
 ```bash
 # Option 1: execute on VICE c64 real time simulation
-x64sc galacticEmpire.prg
+x64sc GalacticEmpire.prg
 
 # Option 2: execute on VICE c64 warp simulation
-x64 galacticEmpire.prg
+x64 GalacticEmpire.prg
 ```
 
 # c64 specifications
