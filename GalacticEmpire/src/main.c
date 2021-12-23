@@ -26,11 +26,11 @@
 
 
 struct World {
-    int x;
-    int y;
+    unsigned x;
+    unsigned y;
     char owner[4];
-    int prod;
-    int ships;
+    unsigned prod;
+    unsigned ships;
 };
 
 
@@ -43,10 +43,10 @@ unsigned MaxX;
 unsigned MaxY;
 
 // Game specific variables.
-int numPlayers = 1;
-char *playerNames;
-int numWorlds = 10;
-int year = 0;
+unsigned numPlayers = 5;
+char **playerNames[5];
+unsigned numWorlds = 10;
+unsigned year = 0;
 int defensiveShips = 1;
 int events = 1;
 struct World **worlds;
@@ -94,7 +94,30 @@ static void DoWarning ()
 }
 #endif
 
+/**
+ * Initialises the game questions.
+ */
+void initGameInputs(){
+    // Loop variables.
+    int i;
 
+    // Get number of players.
+    numPlayers = getNumPlayers();
+
+    // Get player names.
+    for(i = 0; i < numPlayers; i++){
+        playerNames[i] = getPlayerName(i);
+    }
+
+    // Get number of worlds.
+
+
+    // Get number of years.
+
+
+    // Get special events settings.
+
+}
 
 /**
  * Main galactic empire game logic.
@@ -104,22 +127,22 @@ void game() {
     startScreen(MaxX, MaxY);
     tgi_clear();
 
-    // Plot initial questions.
-
+    // Handle initial questions.
+    initGameInputs();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics(MaxX, MaxY);
 
+    // Generate game map.
+
+    // Start the actual game
     // TODO: add map, input and further game functionality here and replace with game while loop
     updateTable(MaxX, MaxY, year);
     updateMap();
     updateInput();
-
     // TODO: replace by game loop
     cgetc();
 }
-
-
 
 /*****************************************************************************/
 /*                                Main                                       */

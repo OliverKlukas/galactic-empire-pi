@@ -46,7 +46,7 @@ static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
-void plotLetter(unsigned x, unsigned y, int letter, const unsigned char* palette) {
+void plotLetter(unsigned x, unsigned y, int letter, const unsigned char *palette) {
 
     // Variables to plot pixels.
     int i, j, plot;
@@ -92,12 +92,12 @@ void plotLetter(unsigned x, unsigned y, int letter, const unsigned char* palette
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
  */
-void plotText(unsigned x, unsigned y, char *sentence, const unsigned char* palette){
+void plotText(unsigned x, unsigned y, char *sentence, const unsigned char *palette) {
     // Loop variables.
     int i;
 
     // Iterate over the sentence and plot each char.
-    for(i = 0; sentence[i] != 0; i++){
+    for (i = 0; sentence[i] != 0; i++) {
         plotLetter(x + i * letterSpacing, y, sentence[i], palette);
     }
 }
@@ -107,8 +107,10 @@ void plotText(unsigned x, unsigned y, char *sentence, const unsigned char* palet
  */
 void updateMap() {
     plotLetter(margin - centerLetter, margin - centerLetter, 'a', StandardPalette); // TODO figure out placement here
-    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c', StandardPalette);
-    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F', StandardPalette);
+    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c',
+               StandardPalette);
+    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F',
+               StandardPalette);
     plotLetter(margin - centerLetter, margin - centerLetter, 'b', StandardPalette);
 
 }
@@ -144,17 +146,19 @@ void updateTable(unsigned MaxX, unsigned MaxY, unsigned year) {
     }
 
     // Update first column of current planet occupations.
-    for(column = 0; column < 2; column++){
+    for (column = 0; column < 2; column++) {
         for (row = 1; row < 22; row++) {
             // World.
             plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, StandardPalette);
             letter += 1;
 
             // Production. // TODO: make a custom plot numbers
-            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset, StandardPalette);
+            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset,
+                       StandardPalette);
 
             // Ships.
-            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset, StandardPalette);
+            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset,
+                       StandardPalette);
         }
         tableTextX += 75;
         letter = 'A';
@@ -192,7 +196,7 @@ void initGameGraphics(unsigned MaxX, unsigned MaxY) {
     tgi_line((3 * MaxX / 4), tableUpperY, (3 * MaxX / 4), tableLowerY);
 
     // Print first row of the table.
-    for(column = 0; column < 2; column++){
+    for (column = 0; column < 2; column++) {
         tableTextX += column * 75;
         plotLetter(tableTextX, tableTextY, 'W', StandardPalette);
         plotText(tableTextX + 2 * letterSpacing, tableTextY, "Pn", StandardPalette);
@@ -235,15 +239,80 @@ void initGameGraphics(unsigned MaxX, unsigned MaxY) {
  * @param MaxX - Maximal unsigned Pixel value on x axis.
  * @param MaxY - Maximal unsigned Pixel value on y axis.
  */
-void startScreen(unsigned MaxX, unsigned MaxY){
+void startScreen(unsigned MaxX, unsigned MaxY) {
     // Color background.
     tgi_setpalette(GreenPalette);
 
     // Write game description.
     plotText(MaxX / 3, MaxY / 2 - 15, "GALACTIC EMPIRE", GreenPalette);
-    plotText(MaxX / 3 + 4, (2*MaxY) / 3 - 15, "klukas edition", GreenPalette);
+    plotText(MaxX / 3 + 4, (2 * MaxY) / 3 - 15, "klukas edition", GreenPalette);
 
     // Wait for any button to be pressed.
-    plotText(70, MaxY - 10, "press any key to continue", GreenPalette);
+    plotText(MaxX / 3 + 15, MaxY - 10, "press a key", GreenPalette);
     cgetc();
+}
+
+/**
+ * Retrieves the desired number of players.
+ *
+ * <p>Maximum number is 5.
+ *
+ * @return - Returns number of players.
+ */
+unsigned getNumPlayers() {
+    int numPlayers = 1;
+
+    // Retrieve the number of players.
+    while (numPlayers) {
+        plotText(margin, margin, "How many players [1-5]?", GreenPalette);
+        numPlayers = cgetc();
+        numPlayers -= numOffset;
+        plotLetter(200, margin, numPlayers + numOffset, GreenPalette);
+
+        // Check if input is valid.
+        if (numPlayers < 1 || numPlayers > 5) {
+            plotText(margin, margin + 2 * letterSpacing, "The number of players needs to be 1-5!", GreenPalette);
+            numPlayers = 1;
+        } else {
+            tgi_clear();
+            return numPlayers;
+        }
+        tgi_clear();
+    }
+}
+
+/**
+ * Retrieves the name of a player.
+ *
+ * <p>Only names with 3 letters are accepted.
+ *
+ * @player - Number of player.
+ * @return - Returns the name of the Player as string.
+ */
+char *getPlayerName(unsigned player){
+    int numChars = 0;
+    char name[3];
+
+    // Plot the question.
+    char *question = "Player number 0 is?";
+    question[14] = player+1 + '0';
+    plotText(margin, margin, question, GreenPalette);
+
+    // Retrieve a three letter name.
+    while(numChars != 3){
+        name[numChars] = cgetc();
+        plotLetter(165 + numChars * letterSpacing, margin, name[numChars], GreenPalette);
+        // Check if input letter is valid.
+        if ((name[numChars] > 192 && name[numChars] < 219) || (name[numChars] > 64 && name[numChars] < 91)) {
+            numChars++;
+        } else {
+            plotText(margin, margin + 2 * letterSpacing, "Name needs to be 3 letters!", GreenPalette);
+            tgi_clear();
+            numChars = 0;
+            plotText(margin, margin, question, GreenPalette);
+        }
+    }
+
+    tgi_clear();
+    return &name;
 }

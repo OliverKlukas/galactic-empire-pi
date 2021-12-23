@@ -48,3 +48,13 @@ void initGameGraphics();
  * Plots the game initialisation screen.
  */
 void startScreen();
+
+/**
+* Retrieve the number of players.
+*/
+unsigned getNumPlayers();
+
+/*
+ * Retrieve a player name.
+ */
+char *getPlayerName(unsigned player);
