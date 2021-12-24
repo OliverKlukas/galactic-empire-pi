@@ -33,7 +33,7 @@ unsigned MaxX = 320;
 unsigned MaxY = 200;
 
 // Table coordinates.
-unsigned tableCorner = 1; // TODO
+unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 
 // Input box coordinates.
 
