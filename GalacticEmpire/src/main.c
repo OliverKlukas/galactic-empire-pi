@@ -96,20 +96,20 @@ static void DoWarning ()
 /**
  * Initializes the world. // TODO: here obviously a smart algorithm is needed: spheres, tree, random?
  */
-void generateGalaxy(){
+void generateGalaxy() {
     // Loop variables.
     int i, j;
     int player = rand() % numPlayers;
 
     // Iteratively generate the game galaxy.
-    for(i = 0; i < numWorlds; i++){
+    for (i = 0; i < numWorlds; i++) {
         galaxy[i].x = rand() % 15;
         galaxy[i].y = rand() % 15;
         galaxy[i].prod = rand() % 11;
         galaxy[i].ships = ((rand() % 5) + 1) * galaxy[i].prod;
 
         // Set owner of planet
-        for(j = 0; j < 3; j++){
+        for (j = 0; j < 3; j++) {
             galaxy[i].owner[j] = playerNames[player][j];
         }
     }
@@ -118,7 +118,7 @@ void generateGalaxy(){
 /**
  * Initialises the game questions.
  */
-void initGameInputs(){
+void initGameInputs() {
     // Loop variables.
     int i;
 
@@ -126,7 +126,7 @@ void initGameInputs(){
     numPlayers = getNumPlayers();
 
     // Get player names.
-    for(i = 0; i < numPlayers; i++){
+    for (i = 0; i < numPlayers; i++) {
         playerNames[i] = getPlayerName(i);
     }
 
@@ -159,15 +159,21 @@ void game() {
 
     // Initialize world and map based on player acceptance.
     generateGalaxy();
-    while(mapAcceptance()){
+    while (mapAcceptance()) {
         updateMap();//TODO: (indicies, galaxy);
     }
 
     // Play the game until running out of years.
-    while(year != totalYears){
-        retrieveInputs();
+    while (year != totalYears) {
+        // Fight & Updates mechanics of ships that should reach their destination in that year.
+
+
+        // Update map based on state.
         updateTable(MaxX, MaxY, year);
         updateMap();
+
+        // Retrieve inputs of all players.
+        retrieveInputs();
     }
 
     // TODO: display final stats like winner etc.
