@@ -5,7 +5,6 @@
 #include <tgi.h>
 #include "graphics.h"
 
-
 /*****************************************************************************/
 /*                                 Macros                                    */
 /*****************************************************************************/
@@ -49,6 +48,9 @@ unsigned totalYears = 0;
 int defensiveShips = 1;
 int events = 1;
 struct world galaxy[40];
+
+// Available planet locations.
+int availableLocations[400];
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -94,24 +96,143 @@ static void DoWarning ()
 #endif
 
 /**
- * Initializes the world. // TODO: here obviously a smart algorithm is needed: spheres, tree, random?
+ * Checks if a planet location is not already taken and occupies it if possible.
+ *
+ * @return - Returns 0 if available and 1 if not.
+ */
+unsigned occupyLocation(unsigned x, unsigned y) {
+    if (availableLocations[x + y * 20] != 0) {
+        // Location is not available.
+        return 1;
+    } else {
+        // Location is available, occupy it.
+        availableLocations[x + y * 20] = 1;
+        return 0;
+    }
+}
+
+/**
+ * Initializes the world.
  */
 void generateGalaxy() {
     // Loop variables.
     int i, j;
-    int player = rand() % numPlayers;
+    unsigned planetIndex;
 
-    // Iteratively generate the game galaxy.
-    for (i = 0; i < numWorlds; i++) {
-        galaxy[i].x = rand() % 15;
-        galaxy[i].y = rand() % 15;
-        galaxy[i].prod = rand() % 11;
-        galaxy[i].ships = ((rand() % 5) + 1) * galaxy[i].prod;
+    // Scenario variables.
+    unsigned maxProduction = 20;
+    unsigned homePlanetProduction = 10;
+    unsigned homePlanetBorderDistance = 2;
+    unsigned homePlanetInitialShips = 200;
+    unsigned totalProductionCapacity = maxProduction * (numWorlds / 2);
+    unsigned excessProductionBonus = 5;
 
-        // Set owner of planet
+    // Available sphere divisions.
+    unsigned sphereDivisions[][][] = {
+            {
+                    {0, 0, 19, 19},             // 1 player
+                    {0,  0,  0,  0},
+                    {0,  0,  0,  0},
+                    {0,  0,  0,  0},
+                    {0,  0, 0,  0}
+            },
+            {
+                    {0, 0, 9,  9},              // 2 player
+                    {10, 10, 19, 19},
+                    {0,  0,  0,  0},
+                    {0,  0,  0,  0},
+                    {0,  0, 0,  0}
+            },
+            {
+                    {0, 0, 19, 8},              // 3 player
+                    {0,  9,  9,  19},
+                    {10, 9,  19, 19},
+                    {0,  0,  0,  0},
+                    {0,  0, 0,  0}
+            },
+            {
+                    {0, 0, 9,  9},              // 4 player
+                    {10, 0,  19, 9},
+                    {0,  10, 9,  19},
+                    {10, 10, 19, 19},
+                    {0,  0, 0,  0}
+            },
+            {
+                    {0, 0, 3,  19},             // 5 player
+                    {4,  0,  7,  19},
+                    {8,  0,  11, 19},
+                    {12, 0,  15, 19},
+                    {16, 0, 19, 19}
+            }
+
+    };
+
+    // Divide galaxy into spheres depending on player number.
+    unsigned numWorldsPerSphere[5];
+    int availableProduction[5];
+    for (i = 0; i < numPlayers; i++) {
+        numWorldsPerSphere[i] = numWorlds / numPlayers;
+        availableProduction[i] = totalProductionCapacity / numPlayers;
+    }
+
+    // Account for not fitting world numbers.
+    if (((numWorlds / numPlayers) * numPlayers) < numWorlds) {
+        numWorldsPerSphere[numPlayers - 1] += 1;
+    }
+
+    // Build all player spheres.
+    for (i = 0; i < numPlayers; i++) {
+        // Place home planet with border distance into sphere.
+        do {
+            galaxy[i].x = rand() % (sphereDivisions[numPlayers][i][2] - (2 * homePlanetBorderDistance));      // random mod (maxX - 2*border)
+            galaxy[i].x = galaxy[i].x + homePlanetBorderDistance + sphereDivisions[numPlayers][i][0];       // + border + minX
+            galaxy[i].y = rand() % (sphereDivisions[numPlayers][i][3] - (2 * homePlanetBorderDistance));      // random mod (maxY - 2*border)
+            galaxy[i].y = galaxy[i].y + homePlanetBorderDistance + sphereDivisions[numPlayers][i][1]; // + border + minY
+        } while (occupyLocation(galaxy[i].x, galaxy[i].y));
+
+        // Set home planet production.
+        galaxy[i].prod = homePlanetProduction;
+
+        // Set owner of home planet.
         for (j = 0; j < 3; j++) {
-            galaxy[i].owner[j] = playerNames[player][j];
+            galaxy[i].owner[j] = playerNames[i][j];
         }
+
+        // Generate sphere of current player.
+        for (j = 0; j < numWorldsPerSphere[i] - 1; j++) {
+            // Calculate planet index.
+            planetIndex = numPlayers + j + i * (numWorlds / numPlayers);
+
+            // Set owner of planet.
+            for (j = 0; j < 3; j++) {
+                galaxy[planetIndex].owner[j] = playerNames[i][j];
+            }
+
+            // Randomly place planet into sphere.
+            do {
+                galaxy[planetIndex].x = rand() % sphereDivisions[numPlayers][i][2];      // random mod maxX
+                galaxy[planetIndex].x = galaxy[planetIndex].x + sphereDivisions[numPlayers][i][0];       // + minX
+                galaxy[planetIndex].y = rand() % sphereDivisions[numPlayers][i][3];      // random mod maxY
+                galaxy[planetIndex].y = galaxy[planetIndex].y + sphereDivisions[numPlayers][i][1];       // + minY
+            } while (occupyLocation(galaxy[planetIndex].x, galaxy[planetIndex].y));
+
+            // Assign placed planet random amount of production based on sphereLimit.
+            if (availableProduction[i] < 0){
+                galaxy[planetIndex].prod = 0;
+            } else{
+                galaxy[planetIndex].prod = rand() % maxProduction;
+                availableProduction[i] -= galaxy[planetIndex].prod;
+            }
+
+            // Give every planet their production as start ships.
+            galaxy[planetIndex].ships = galaxy[planetIndex].prod;
+        }
+    }
+
+    // Calculate initial ships of home planets based on production of three nearest pirate planets and amount of production in their sphere.
+    for (i = 0; i < numPlayers; i++) {
+        galaxy[i].ships = homePlanetInitialShips + (availableProduction[i] * excessProductionBonus); // TODO three closest
+
     }
 }
 
@@ -165,8 +286,8 @@ void game() {
 
     // Play the game until running out of years.
     while (year != totalYears) {
-        // Fight & Updates mechanics of ships that should reach their destination in that year.
-
+        // Fight & Updates Production mechanics of ships that should reach their destination in that year.
+        // TODO defensive ships here!
 
         // Update map based on state.
         updateTable(MaxX, MaxY, year);
