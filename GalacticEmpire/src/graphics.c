@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <tgi.h>
 #include "font8x8_basic.h"
+#include "main.h"
 
 /*****************************************************************************/
 /*                            Global variables                               */
@@ -57,6 +58,15 @@ unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 // Globally used color Palettes.
 static const unsigned char StandardPalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK};
 static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
+
+static const unsigned char playerPalettes[6][2] = {
+        {TGI_COLOR_WHITE, TGI_COLOR_BLACK},
+        {TGI_COLOR_WHITE, TGI_COLOR_GREEN},
+        {TGI_COLOR_WHITE, TGI_COLOR_RED},
+        {TGI_COLOR_WHITE, TGI_COLOR_BLUE},
+        {TGI_COLOR_WHITE, TGI_COLOR_YELLOW},
+        {TGI_COLOR_WHITE, TGI_COLOR_ORANGE}
+};
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -135,29 +145,45 @@ void retrieveInputs() {
 
 }
 
-void placeLetterOnMap(unsigned xPos, unsigned yPos, char letter) {
-    // xPos, yPos: in map coordinates from 0 to 20
-        
-    if (xPos > mapNLinesVertical - 1 || yPos > mapNLinesHorizontal)
-    {
+/**
+ * Places a letter on the map depending.
+ *
+ * @param xPos - x position in 20x20 raster.
+ * @param yPos - y position in 20x20 raster.
+ * @param letter - letter that should be placed.
+ * @param palette - coloring.
+ */
+void placeLetterOnMap(unsigned xPos, unsigned yPos, char letter, const unsigned char *palette) {
+    if (xPos > mapNLinesVertical - 1 || yPos > mapNLinesHorizontal) {
         // todo: throw error
     }
-    plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness/2 - 4, 
-               yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness/2 - 4, 
-               letter, StandardPalette);
+    plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+               yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+               letter, palette);
 }
 
 /**
- * TODO: only the worlds that were changed should be updated!
+ * Updates the map given a list of indices of planets to be changed.
+ *
+ * @param indices - Integer list of length 40 while only indices >= 0 are evaluated.
+ * @param galaxy - Current state of galaxy.
  */
-void updateMap() {
-    plotLetter(margin - centerLetter, margin - centerLetter, 'a', StandardPalette); // TODO figure out placement here
-    plotLetter(margin - centerLetter + 2 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'c',
-               StandardPalette);
-    plotLetter(margin - centerLetter + 3 * mapSquareSize, margin - centerLetter + 2 * mapSquareSize, 'F',
-               StandardPalette);
-    plotLetter(margin - centerLetter, margin - centerLetter, 'b', StandardPalette);
+void updateMap(int *indices, struct world *galaxy) {
+    // Loop variable.
+    int i;
 
+    // Place to be updated worlds on map.
+    for(i = 0; i < 40; i++){
+        // Check if map should be updated.
+        if(indices[i] >= 0){
+            // Differentiate between small and capital letters.
+            if(i < 20){
+                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i+97, playerPalettes[galaxy[i].owner]);
+            } else{
+                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i+65, playerPalettes[galaxy[i].owner]);
+            }
+        }
+    }
 }
 
 /**
@@ -178,14 +204,14 @@ void updateTable(unsigned year) {
     // Update current year.
     // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
 
-    
+
     if (year < 10) { // TODO: make a custom plot numbers 
         plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, StandardPalette);
     } else {
         plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, StandardPalette);
         plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, StandardPalette);
     }
-    
+
     // Update first column of current planet occupations.
     for (column = 0; column < 2; column++) {
         for (row = 1; row < 22; row++) {
@@ -207,25 +233,23 @@ void updateTable(unsigned year) {
 }
 
 /**
- * Initializes the standard game graphics.
+ * Initializes the standard game graphics. // todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
  */
-
-
-// todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
 void initGameGraphics() {
-    
+
     // Loop parameters.
-    int i, j, column;
+    int i, j;
 
     // larger margin as spacing between map and other tables
-    int largeMargin =  2 * (margin + 1);
+    int largeMargin = 2 * (margin + 1);
 
 
     int tableLineThickness = 2;
 
     // value closest to left screen edge
-    int tableBorderXMin = margin + 1 + mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + largeMargin;
-    
+    int tableBorderXMin =
+            margin + 1 + mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + largeMargin;
+
     // value closest to right screen edge
     int tableBorderXMax = maxX - (margin + 1);
 
@@ -234,7 +258,7 @@ void initGameGraphics() {
 
     // value closest to bottom edge 
     int tableBorderYMax = (margin + 1) + 2 * tableLineThickness + 20 * (8 + 1);
-    
+
     int tableBorderXMiddle = 0;
 
 
@@ -242,11 +266,10 @@ void initGameGraphics() {
 
     int textFieldXMax = mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2;
 
-    int textFieldYMin = mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
+    int textFieldYMin =
+            mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
 
     int textFieldYMax = maxY - (margin + 1);
-
-
 
     //// 1. Draw map lines
     // Print map vertical lines.
@@ -256,18 +279,18 @@ void initGameGraphics() {
                      margin + 1,
                      i * (mapLineThickness + mapSquareSize) + j + margin + 1,
                      mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2
-                    );
+            );
         }
     }
 
     // Print map horizontal lines.
     for (i = 0; i < mapNLinesHorizontal; ++i) {
         for (j = 0; j < mapLineThickness; ++j) {
-            tgi_line(margin + 1, 
+            tgi_line(margin + 1,
                      i * (mapLineThickness + mapSquareSize) + j + margin + 1,
                      mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2,
                      i * (mapLineThickness + mapSquareSize) + j + margin + 1
-                    );
+            );
         }
     }
 
@@ -279,7 +302,7 @@ void initGameGraphics() {
         tgi_line(tableBorderXMax, tableBorderYMax - i, tableBorderXMin, tableBorderYMax - i);
         tgi_line(tableBorderXMin + i, tableBorderYMax, tableBorderXMin + i, tableBorderYMin);
     }
-    
+
     // draw inner line of the table
     tableBorderXMiddle = tableBorderXMin + (tableBorderXMax - tableBorderXMin) / 2;
     tgi_line(tableBorderXMiddle, tableBorderYMin, tableBorderXMiddle, tableBorderYMax);
@@ -306,52 +329,11 @@ void initGameGraphics() {
 
     textLine1XMin = textFieldXMin + 4;
     textLine1YMin = textFieldYMin + tableLineThickness + 4; // last number is top/bottom spacing
-    
-    textLine2XMin = textFieldXMin + 4;
-    textLine2YMin = textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 - 2 * 4;
-    
-    // just for testing
-    placeLetterOnMap(5,0,'a');
-    placeLetterOnMap(5,1,'b');
-    placeLetterOnMap(5,2,'c');
-    placeLetterOnMap(5,3,'d');
-    placeLetterOnMap(5,4,'e');
-    placeLetterOnMap(5,5,'f');
-    placeLetterOnMap(5,6,'g');
-    placeLetterOnMap(5,7,'h');
-    placeLetterOnMap(5,8,'i');
-    placeLetterOnMap(5,9,'j');
-    placeLetterOnMap(5,10,'k');
-    placeLetterOnMap(5,11,'l');
-    placeLetterOnMap(5,12,'m');
-    placeLetterOnMap(5,13,'n');
-    placeLetterOnMap(5,14,'o');
-    placeLetterOnMap(5,15,'p');
-    placeLetterOnMap(5,16,'q');
-    placeLetterOnMap(5,17,'r');
-    placeLetterOnMap(5,18,'s');
-    placeLetterOnMap(5,19,'t');
 
-    placeLetterOnMap(7,0,'A');
-    placeLetterOnMap(7,1,'B');
-    placeLetterOnMap(7,2,'C');
-    placeLetterOnMap(7,3,'D');
-    placeLetterOnMap(7,4,'E');
-    placeLetterOnMap(7,5,'F');
-    placeLetterOnMap(7,6,'G');
-    placeLetterOnMap(7,7,'H');
-    placeLetterOnMap(7,8,'I');
-    placeLetterOnMap(7,9,'J');
-    placeLetterOnMap(7,10,'K');
-    placeLetterOnMap(7,11,'L');
-    placeLetterOnMap(7,12,'M');
-    placeLetterOnMap(7,13,'N');
-    placeLetterOnMap(7,14,'O');
-    placeLetterOnMap(7,15,'P');
-    placeLetterOnMap(7,16,'Q');
-    placeLetterOnMap(7,17,'R');
-    placeLetterOnMap(7,18,'S');
-    placeLetterOnMap(7,19,'T');
+    textLine2XMin = textFieldXMin + 4;
+    textLine2YMin =
+            textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 -
+            2 * 4;
 }
 
 /**
@@ -410,17 +392,17 @@ unsigned getNumPlayers() {
  * @player - Number of player.
  * @return - Returns the name of the Player as string.
  */
-char *getPlayerName(unsigned player){
+char *getPlayerName(unsigned player) {
     int numChars = 0;
     char name[3];
 
     // Plot the question.
     char *question = "Player number 0 is?";
-    question[14] = player+1 + '0';
+    question[14] = player + 1 + '0';
     plotText(margin, margin, question, GreenPalette);
 
     // Retrieve a three letter name.
-    while(numChars != 3){
+    while (numChars != 3) {
         name[numChars] = cgetc();
         plotLetter(165 + numChars * letterSpacing, margin, name[numChars], GreenPalette);
         // Check if input letter is valid.
@@ -461,14 +443,14 @@ unsigned getNumWorlds() {
         digit -= numOffset;
 
         // Add digit to number.
-        if(numDigits == 0){
-            numWorlds = numWorlds + (10*digit);
-        } else{
+        if (numDigits == 0) {
+            numWorlds = numWorlds + (10 * digit);
+        } else {
             numWorlds += digit;
         }
 
         // Check if input is valid.
-        if (digit < 0 || digit > 9 || numWorlds > 40 ) {
+        if (digit < 0 || digit > 9 || numWorlds > 40) {
             plotText(margin, margin + 2 * letterSpacing, "The number of worlds needs to be 10-40!", GreenPalette);
             tgi_clear();
             numDigits = 0;
@@ -505,14 +487,14 @@ unsigned getYears() {
         digit -= numOffset;
 
         // Add digit to number.
-        if(numDigits == 0){
-            numYears = numYears + (10*digit);
-        } else{
+        if (numDigits == 0) {
+            numYears = numYears + (10 * digit);
+        } else {
             numYears += digit;
         }
 
         // Check if input is valid.
-        if (digit < 0 || digit > 9 || numYears > 40 ) {
+        if (digit < 0 || digit > 9 || numYears > 40) {
             plotText(margin, margin + 2 * letterSpacing, "The number of years needs to be 10-99!", GreenPalette);
             tgi_clear();
             numDigits = 0;
@@ -531,7 +513,7 @@ unsigned getYears() {
  *
  * @return - Returns 1 for true or 0 for false.
  */
-unsigned getDefensive(){
+unsigned getDefensive() {
     char answer;
 
     // Retrieve if defensive ships should be build.
@@ -548,9 +530,9 @@ unsigned getDefensive(){
 
     // Clear the page and return the answer.
     tgi_clear();
-    if(answer == 'y'){
+    if (answer == 'y') {
         return 1;
-    } else{
+    } else {
         return 0;
     }
 }
@@ -560,7 +542,7 @@ unsigned getDefensive(){
  *
  * @return - Returns 1 for true or 0 for false.
 */
-unsigned getEvents(){
+unsigned getEvents() {
     char answer;
 
     // Retrieve if special events should occur.
@@ -576,9 +558,9 @@ unsigned getEvents(){
 
     // Clear the page and return the answer.
     tgi_clear();
-    if(answer == 'y'){
+    if (answer == 'y') {
         return 1;
-    } else{
+    } else {
         return 0;
     }
 }
@@ -588,7 +570,7 @@ unsigned getEvents(){
  *
  * @return - Returns 1 for not accepting and 0 for acceptance.
 */
-unsigned mapAcceptance(){
+unsigned mapAcceptance() {
     // Player acceptance;
     char acceptance;
 
@@ -604,14 +586,14 @@ unsigned mapAcceptance(){
 
     // Retrieve and check input.
     acceptance = cgetc();
-    while(acceptance != 'y' && acceptance != 'n'){
+    while (acceptance != 'y' && acceptance != 'n') {
         acceptance = cgetc();
     }
 
     // Return acceptance.
-    if(acceptance == 'y'){
+    if (acceptance == 'y') {
         return 0;
-    } else{
+    } else {
         return 1;
     }
 

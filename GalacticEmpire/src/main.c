@@ -23,11 +23,11 @@
 
 
 struct world {
-    unsigned x;
-    unsigned y;
-    char owner[3];
-    unsigned prod;
-    unsigned ships;
+    unsigned x;             // 0-19 x axis position on map
+    unsigned y;             // 0-19 y axis position on map
+    unsigned owner;         // 0 is pirate, 1 - 5 players
+    unsigned prod;          // 0 - x production
+    unsigned ships;         // 0 - x number of ships
 };
 
 
@@ -109,7 +109,7 @@ unsigned occupyLocation(unsigned x, unsigned y) {
 }
 
 /**
- * Initializes the world.
+ * Generates a playable initial galaxy.
  */
 void generateGalaxy() {
     // Loop variables.
@@ -190,20 +190,16 @@ void generateGalaxy() {
         // Set home planet production.
         galaxy[i].prod = homePlanetProduction;
 
-        // Set owner of home planet.
-        for (j = 0; j < 3; j++) {
-            galaxy[i].owner[j] = playerNames[i][j];
-        }
+        // Set owner of home planet to current player.
+        galaxy[i].owner = i+1;
 
         // Generate sphere of current player.
         for (j = 0; j < numWorldsPerSphere[i] - 1; j++) {
             // Calculate planet index.
             planetIndex = numPlayers + j + i * (numWorlds / numPlayers);
 
-            // Set owner of planet.
-            for (j = 0; j < 3; j++) {
-                galaxy[planetIndex].owner[j] = playerNames[i][j];
-            }
+            // Set owner of planet to pirate.
+            galaxy[planetIndex].owner = 0;
 
             // Randomly place planet into sphere.
             do {
@@ -264,22 +260,34 @@ void initGameInputs() {
  * Main galactic empire game logic.
  */
 void game() {
+    // Initialize list of planets to be updated.
+    int i;
+    int updateIndices[40];
+    for(i = 0; i < 40; i++){
+        if(i < numWorlds){
+            updateIndices[i] = i;
+        } else {
+            updateIndices[i] = -1;
+        }
+    }
+
     // Plot start screen.
-    //startScreen();
+    //startScreen(); //TODO
     tgi_clear();
 
     // Handle initial questions.
-    //initGameInputs();
+    initGameInputs();
     tgi_clear();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
     // Initialize world and map based on player acceptance.
-    generateGalaxy();
-    while (mapAcceptance()) {
-        updateMap();//TODO: (indicies, galaxy);
-    }
+    do {
+        generateGalaxy();
+        // TODO: redraw map empty!
+        updateMap(&updateIndices, &galaxy);
+    } while(!mapAcceptance());
 
     // Play the game until running out of years.
     while (year != totalYears) {
@@ -287,8 +295,8 @@ void game() {
         // TODO defensive ships here!
 
         // Update map based on state.
-        updateTable(year);
-        updateMap();
+        updateTable(&updateIndices, &galaxy, year);
+        updateMap(&updateIndices, &galaxy);
 
         // Retrieve inputs of all players.
         retrieveInputs();
