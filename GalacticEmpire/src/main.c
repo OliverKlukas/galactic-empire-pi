@@ -36,9 +36,6 @@ struct world {
 /*                            Global variables                               */
 /*****************************************************************************/
 
-// Screen dimensions. // TODO: delete
-unsigned MaxX = 320;
-unsigned MaxY = 200;
 
 // Game specific variables.
 unsigned numPlayers = 5;
@@ -147,15 +144,15 @@ void initGameInputs() {
  */
 void game() {
     // Plot start screen.
-    startScreen(MaxX, MaxY);
+    //startScreen();
     tgi_clear();
 
     // Handle initial questions.
-    initGameInputs();
+    //initGameInputs();
     tgi_clear();
 
     // Initialize everything that shouldn't be changed on the map.
-    initGameGraphics(MaxX, MaxY);
+    initGameGraphics();
 
     // Initialize world and map based on player acceptance.
     generateGalaxy();
@@ -169,7 +166,7 @@ void game() {
 
 
         // Update map based on state.
-        updateTable(MaxX, MaxY, year);
+        updateTable(year);
         updateMap();
 
         // Retrieve inputs of all players.
@@ -209,10 +206,6 @@ int main() {
     // Initialize the loaded graphics driver.
     tgi_init();
     CheckError("tgi_init");
-
-    // Set global resolution variables.
-    MaxX = tgi_getmaxx();
-    MaxY = tgi_getmaxy();
 
     // Set the border colors.
     Border = bordercolor(COLOR_BORD);

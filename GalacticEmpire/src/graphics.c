@@ -10,14 +10,30 @@
 /*****************************************************************************/
 
 
-// Map settings.
-int mapNLinesVertical = 15;
-int mapNLinesHorizontal = 15;
-int mapLineThickness = 1;
-int mapSquareSize = 9;
+// Screen dimensions: these are the maximum pixel positions displayable
+const unsigned maxX = 319;
+const unsigned maxY = 199;
 
-// Outer margin of game.
-int margin = 5;
+// Map settings.
+int mapNLinesVertical = 20;
+int mapNLinesHorizontal = 20;
+int mapLineThickness = 2;
+int mapSquareSize = 6;
+
+// Number of pixels free between the game border and map/table lines
+int margin = 2;
+
+// definition of text Line 1 in the input text field of the main game display
+int textLine1XMin = 0;
+int textLine1YMin = 0;
+
+// definition of text Line 1 in the input text field of the main game display
+int textLine2XMin = 0;
+int textLine2YMin = 0;
+
+int yearLineXMin = 0;
+int yearLineYMin = 0;
+
 
 // Number offset for plotting digits.
 int numOffset = 48;
@@ -29,8 +45,8 @@ int letterSpacing = 8;
 int centerLetter = 4;
 
 // Screen dimensions.
-//unsigned MaxX = 320; //TODO
-//unsigned MaxY = 200;
+//unsigned maxX = 320; //TODO
+//unsigned maxY = 200;
 
 // Table coordinates.
 unsigned tableCorner = 1; // TODO change all usages to this and delete below.
@@ -119,6 +135,18 @@ void retrieveInputs() {
 
 }
 
+void placeLetterOnMap(unsigned xPos, unsigned yPos, char letter) {
+    // xPos, yPos: in map coordinates from 0 to 20
+        
+    if (xPos > mapNLinesVertical - 1 || yPos > mapNLinesHorizontal)
+    {
+        // todo: throw error
+    }
+    plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness/2 - 4, 
+               yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness/2 - 4, 
+               letter, StandardPalette);
+}
+
 /**
  * TODO: only the worlds that were changed should be updated!
  */
@@ -138,23 +166,26 @@ void updateMap() {
  * <p>Updates the displayed graphics based on the global variables. Read only.
  * // TODO: similar to updateMap() we need a way to only update the worlds that were changed!
  */
-void updateTable(unsigned MaxX, unsigned MaxY, unsigned year) {
+void updateTable(unsigned year) {
     // Loop variables.
     int row, column;
 
     // Table text coordinates.
     char letter = 'a';
-    int tableTextX = (MaxX / 2) + (2 * margin);
+    int tableTextX = (maxX / 2) + (2 * margin);
     int tableTextY = margin + 2;
 
     // Update current year.
-    if (year < 10) { // TODO: make a custom plot numbers
-        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), year + numOffset, StandardPalette);
-    } else {
-        plotLetter(tableTextX + 5 * letterSpacing, MaxY - (2 * margin), (year / 10) + numOffset, StandardPalette);
-        plotLetter(tableTextX + 6 * letterSpacing, MaxY - (2 * margin), (year % 10) + numOffset, StandardPalette);
-    }
+    // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
 
+    
+    if (year < 10) { // TODO: make a custom plot numbers 
+        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, StandardPalette);
+    } else {
+        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, StandardPalette);
+        plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, StandardPalette);
+    }
+    
     // Update first column of current planet occupations.
     for (column = 0; column < 2; column++) {
         for (row = 1; row < 22; row++) {
@@ -178,67 +209,149 @@ void updateTable(unsigned MaxX, unsigned MaxY, unsigned year) {
 /**
  * Initializes the standard game graphics.
  */
-void initGameGraphics(unsigned MaxX, unsigned MaxY) {
+
+
+// todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
+void initGameGraphics() {
+    
     // Loop parameters.
     int i, j, column;
 
-    // Table text (X, Y) params.
-    int tableTextX = (MaxX / 2) + (2 * margin);
-    int tableTextY = margin + 2;
+    // larger margin as spacing between map and other tables
+    int largeMargin =  2 * (margin + 1);
 
-    // Table corner (X, Y) params.
-    int tableUpperY = margin;
-    int tableLowerY = MaxY - (3 * margin);
-    int tableLeftX = (MaxX / 2) + margin;
-    int tableRightX = MaxX - margin;
 
-    // Input box corner (X, Y) params.
-    int boxUpperY = mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (2 * margin);
-    int boxLowerY = MaxY - margin;
-    int boxLeftX = margin;
-    int boxRightX = (MaxX / 2) - margin + 1;
+    int tableLineThickness = 2;
 
-    // Print the outer lines of the table.
-    tgi_line(tableLeftX, tableUpperY, tableRightX, tableUpperY);
-    tgi_line(tableLeftX, tableUpperY, tableLeftX, tableLowerY);
-    tgi_line(tableLeftX, tableLowerY, tableRightX, tableLowerY);
-    tgi_line(tableRightX, tableUpperY, tableRightX, tableLowerY);
-    tgi_line((3 * MaxX / 4), tableUpperY, (3 * MaxX / 4), tableLowerY);
+    // value closest to left screen edge
+    int tableBorderXMin = margin + 1 + mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + largeMargin;
+    
+    // value closest to right screen edge
+    int tableBorderXMax = maxX - (margin + 1);
 
-    // Print first row of the table.
-    for (column = 0; column < 2; column++) {
-        tableTextX += column * 75;
-        plotLetter(tableTextX, tableTextY, 'W', StandardPalette);
-        plotText(tableTextX + 2 * letterSpacing, tableTextY, "Pn", StandardPalette);
-        plotText(tableTextX + 5 * letterSpacing, tableTextY, "Shp", StandardPalette);
-    }
+    // value closest to top screen edge 
+    int tableBorderYMin = margin + 1;
 
-    // Print the game year.
-    plotText((MaxX / 2) + (2 * margin), MaxY - (2 * margin), "Year:", StandardPalette);
+    // value closest to bottom edge 
+    int tableBorderYMax = (margin + 1) + 2 * tableLineThickness + 20 * (8 + 1);
+    
+    int tableBorderXMiddle = 0;
 
+
+    int textFieldXMin = margin + 1;
+
+    int textFieldXMax = mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2;
+
+    int textFieldYMin = mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
+
+    int textFieldYMax = maxY - (margin + 1);
+
+
+
+    //// 1. Draw map lines
     // Print map vertical lines.
-    for (i = 0; i <= mapNLinesVertical; ++i) {
+    for (i = 0; i < mapNLinesVertical; ++i) {
         for (j = 0; j < mapLineThickness; ++j) {
-            tgi_line(i * (mapLineThickness + mapSquareSize) + j + margin, margin,
-                     i * (mapLineThickness + mapSquareSize) + j + margin,
-                     mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + margin);
+            tgi_line(i * (mapLineThickness + mapSquareSize) + j + margin + 1,
+                     margin + 1,
+                     i * (mapLineThickness + mapSquareSize) + j + margin + 1,
+                     mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2
+                    );
         }
     }
 
     // Print map horizontal lines.
-    for (i = 0; i <= mapNLinesHorizontal; ++i) {
+    for (i = 0; i < mapNLinesHorizontal; ++i) {
         for (j = 0; j < mapLineThickness; ++j) {
-            tgi_line(margin, i * (mapLineThickness + mapSquareSize) + j + margin,
-                     mapNLinesVertical * (mapLineThickness + mapSquareSize) + margin,
-                     i * (mapLineThickness + mapSquareSize) + j + margin);
+            tgi_line(margin + 1, 
+                     i * (mapLineThickness + mapSquareSize) + j + margin + 1,
+                     mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2,
+                     i * (mapLineThickness + mapSquareSize) + j + margin + 1
+                    );
         }
     }
 
-    // Print textual output box.
-    tgi_line(boxLeftX, boxUpperY, boxRightX, boxUpperY);
-    tgi_line(boxLeftX, boxUpperY, boxLeftX, boxLowerY);
-    tgi_line(boxLeftX, boxLowerY, boxRightX, boxLowerY);
-    tgi_line(boxRightX, boxUpperY, boxRightX, boxLowerY);
+    //// 2. draw table 
+    // draw the outer lines of the table.
+    for (i = 0; i < tableLineThickness; ++i) {
+        tgi_line(tableBorderXMin, tableBorderYMin + i, tableBorderXMax, tableBorderYMin + i);
+        tgi_line(tableBorderXMax - i, tableBorderYMin, tableBorderXMax - i, tableBorderYMax);
+        tgi_line(tableBorderXMax, tableBorderYMax - i, tableBorderXMin, tableBorderYMax - i);
+        tgi_line(tableBorderXMin + i, tableBorderYMax, tableBorderXMin + i, tableBorderYMin);
+    }
+    
+    // draw inner line of the table
+    tableBorderXMiddle = tableBorderXMin + (tableBorderXMax - tableBorderXMin) / 2;
+    tgi_line(tableBorderXMiddle, tableBorderYMin, tableBorderXMiddle, tableBorderYMax);
+    tgi_line(tableBorderXMiddle + 1, tableBorderYMin, tableBorderXMiddle + 1, tableBorderYMax);
+
+    // print table header 
+    plotText(tableBorderXMin + 4, tableBorderYMin + 4, "W Pr Shp", StandardPalette);
+    plotText(tableBorderXMiddle + 4, tableBorderYMin + 4, "W Pr Shp", StandardPalette);
+
+
+    //// 3. print year text
+    yearLineXMin = tableBorderXMin + 2;
+    yearLineYMin = maxY - margin - 7;
+
+    plotText(yearLineXMin, yearLineYMin, "Year: 0", StandardPalette);
+
+    //// 4. draw border lines of text field
+    for (i = 0; i < tableLineThickness; ++i) {
+        tgi_line(textFieldXMin, textFieldYMin + i, textFieldXMax, textFieldYMin + i);
+        tgi_line(textFieldXMax - i, textFieldYMin, textFieldXMax - i, textFieldYMax);
+        tgi_line(textFieldXMax, textFieldYMax - i, textFieldXMin, textFieldYMax - i);
+        tgi_line(textFieldXMin + i, textFieldYMax, textFieldXMin + i, textFieldYMin);
+    }
+
+    textLine1XMin = textFieldXMin + 4;
+    textLine1YMin = textFieldYMin + tableLineThickness + 4; // last number is top/bottom spacing
+    
+    textLine2XMin = textFieldXMin + 4;
+    textLine2YMin = textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 - 2 * 4;
+    
+    // just for testing
+    placeLetterOnMap(5,0,'a');
+    placeLetterOnMap(5,1,'b');
+    placeLetterOnMap(5,2,'c');
+    placeLetterOnMap(5,3,'d');
+    placeLetterOnMap(5,4,'e');
+    placeLetterOnMap(5,5,'f');
+    placeLetterOnMap(5,6,'g');
+    placeLetterOnMap(5,7,'h');
+    placeLetterOnMap(5,8,'i');
+    placeLetterOnMap(5,9,'j');
+    placeLetterOnMap(5,10,'k');
+    placeLetterOnMap(5,11,'l');
+    placeLetterOnMap(5,12,'m');
+    placeLetterOnMap(5,13,'n');
+    placeLetterOnMap(5,14,'o');
+    placeLetterOnMap(5,15,'p');
+    placeLetterOnMap(5,16,'q');
+    placeLetterOnMap(5,17,'r');
+    placeLetterOnMap(5,18,'s');
+    placeLetterOnMap(5,19,'t');
+
+    placeLetterOnMap(7,0,'A');
+    placeLetterOnMap(7,1,'B');
+    placeLetterOnMap(7,2,'C');
+    placeLetterOnMap(7,3,'D');
+    placeLetterOnMap(7,4,'E');
+    placeLetterOnMap(7,5,'F');
+    placeLetterOnMap(7,6,'G');
+    placeLetterOnMap(7,7,'H');
+    placeLetterOnMap(7,8,'I');
+    placeLetterOnMap(7,9,'J');
+    placeLetterOnMap(7,10,'K');
+    placeLetterOnMap(7,11,'L');
+    placeLetterOnMap(7,12,'M');
+    placeLetterOnMap(7,13,'N');
+    placeLetterOnMap(7,14,'O');
+    placeLetterOnMap(7,15,'P');
+    placeLetterOnMap(7,16,'Q');
+    placeLetterOnMap(7,17,'R');
+    placeLetterOnMap(7,18,'S');
+    placeLetterOnMap(7,19,'T');
 }
 
 /**
@@ -246,19 +359,17 @@ void initGameGraphics(unsigned MaxX, unsigned MaxY) {
  *
  * <p> Waits for any button to be pressed to continue to the game.
  *
- * @param MaxX - Maximal unsigned Pixel value on x axis.
- * @param MaxY - Maximal unsigned Pixel value on y axis.
  */
-void startScreen(unsigned MaxX, unsigned MaxY) {
+void startScreen() {
     // Color background.
     tgi_setpalette(GreenPalette);
 
     // Write game description.
-    plotText(MaxX / 3, MaxY / 2 - 15, "GALACTIC EMPIRE", GreenPalette);
-    plotText(MaxX / 3 + 4, (2 * MaxY) / 3 - 15, "klukas edition", GreenPalette);
+    plotText(maxX / 3, maxY / 2 - 15, "GALACTIC EMPIRE", GreenPalette);
+    plotText(maxX / 3 + 4, (2 * maxY) / 3 - 15, "klukas edition", GreenPalette);
 
     // Wait for any button to be pressed.
-    plotText(MaxX / 3 + 15, MaxY - 10, "press a key", GreenPalette);
+    plotText(maxX / 3 + 15, maxY - 10, "press a key", GreenPalette);
     cgetc();
 }
 
@@ -482,12 +593,12 @@ unsigned mapAcceptance(){
     char acceptance;
 
     // Plot question.
-    plotText(2*margin,
-             mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (3 * margin),
+    plotText(textLine1XMin,
+             textLine1YMin,
              "Would you like a",
              StandardPalette);
-    plotText(2*margin,
-             mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (3 * margin) + letterSpacing + 4,
+    plotText(textLine2XMin,
+             textLine2YMin,
              "different map?",
              StandardPalette);
 
