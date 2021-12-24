@@ -36,6 +36,10 @@ struct world {
 /*                            Global variables                               */
 /*****************************************************************************/
 
+// Screen dimensions. // TODO: delete
+unsigned MaxX = 320;
+unsigned MaxY = 200;
+
 // Game specific variables.
 unsigned numPlayers = 5;
 char *playerNames[5];
@@ -156,7 +160,7 @@ void game() {
     // Initialize world and map based on player acceptance.
     generateGalaxy();
     while(mapAcceptance()){
-        updateMap(indicies, galaxy);
+        updateMap();//TODO: (indicies, galaxy);
     }
 
     // Play the game until running out of years.

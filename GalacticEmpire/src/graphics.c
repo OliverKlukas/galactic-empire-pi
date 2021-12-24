@@ -29,8 +29,8 @@ int letterSpacing = 8;
 int centerLetter = 4;
 
 // Screen dimensions.
-unsigned MaxX = 320;
-unsigned MaxY = 200;
+//unsigned MaxX = 320; //TODO
+//unsigned MaxY = 200;
 
 // Table coordinates.
 unsigned tableCorner = 1; // TODO change all usages to this and delete below.
@@ -488,7 +488,7 @@ unsigned mapAcceptance(){
              StandardPalette);
     plotText(2*margin,
              mapNLinesHorizontal * (mapLineThickness + mapSquareSize) + mapLineThickness + (3 * margin) + letterSpacing + 4,
-             "different map [y/n]?",
+             "different map?",
              StandardPalette);
 
     // Retrieve and check input.
