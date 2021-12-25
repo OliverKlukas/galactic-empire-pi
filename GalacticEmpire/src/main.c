@@ -208,9 +208,6 @@ void initGameInputs() { // TODO: new conio in graphics
  * Initialises the game questions.  // TODO: delete
  */
 void initGameInputsMock() {
-    // Loop variables.
-    int i;
-
     // Get number of players.
     numPlayers = 3;
 
@@ -241,10 +238,10 @@ void game() {
     int indices[40];
 
     // Plot start screen.
-    //startScreen(); //TODO
+    startScreen();
 
     // Handle initial questions.
-    initGameInputsMock(); //TODO: switch back to questions initGameInputs();
+    initGameInputs(); //TODO: switch back to questions initGameInputs();
 
     // Updates indices to update whole map.
     for(i = 0; i < 40; i++){
@@ -298,7 +295,7 @@ int main() {
     unsigned char Border;
 
     // Set the border colors.
-    Border = bordercolor(COLOR_BORD);
+    Border = bordercolor(COLOR_GREEN);
 
     // Call main game function.
     game();

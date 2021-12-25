@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <cc65.h>
 #include <conio.h>
+#include <ctype.h>
+#include <unistd.h>
 #include "main.h"
 
 
@@ -11,8 +13,8 @@
 
 
 // Screen dimensions: these are the maximum pixel positions displayable
-const unsigned maxX = 319;
-const unsigned maxY = 199;
+const unsigned maxX = 39;
+const unsigned maxY = 24;
 
 // Map settings.
 int mapNLinesVertical = 20;
@@ -50,10 +52,6 @@ int letterSpacing = 8;
 // Center 8x8 letters to coordinates.
 int centerLetter = 4;
 
-// Screen dimensions.
-//unsigned maxX = 320; //TODO
-//unsigned maxY = 200;
-
 // Table coordinates.
 unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 
@@ -70,6 +68,16 @@ static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLAC
 /*****************************************************************************/
 
 /**
+ * Clears a line at given coordinate y.
+ *
+ * @param y - Line that should be cleared 0 - maxY.
+ */
+void clearLine(unsigned y){
+    gotoxy(0, y);
+    cclear(maxX);
+}
+
+/**
  * Places a character anywhere on the screen.
  *
  * <p>Write given letter bit by bit onto the screen while overwriting the content that was located at the given x and y.
@@ -79,7 +87,7 @@ static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLAC
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
-void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
+void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {/*
 
     // Variables to plot pixels.
     int i, j, plot;
@@ -106,7 +114,7 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
                 tgi_setpixel(x + j, y + i);
             }
         }
-    }
+    }*/
 }
 
 /**
@@ -119,14 +127,14 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
  */
-void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {
+void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {/*
     // Loop variables.
     int i;
 
     // Iterate over the sentence and plot each char.
     for (i = 0; sentence[i] != 0; i++) {
         plotLetter(x + i * letterSpacing, y, sentence[i], color);
-    }
+    }*/
 }
 
 
@@ -137,9 +145,9 @@ void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {
  */
 
 void clearTextIOField()
-{
+{/*
     tgi_setcolor(COLOR_BLACK);
-    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
+    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);*/
 }
 
 
@@ -155,29 +163,29 @@ void clearTextIOField()
     return str;
 }
 */
-// returns a 4 letter array 
-int * retrieveInputs(int player) {
+// returns a 4 letter array
+int * retrieveInputs(int player) {/*
     static int inputs [4];
 
-    char origin;    
+    char origin;
     char destination;
     unsigned nShips;
 
-    // todo: make this somewhere else: 
-    
+    // todo: make this somewhere else:
+
     clearTextIOField();
 
     // 1st question
     plotText(textLine1XMin, textLine1YMin, "Admiral A:", 1);
     plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", 1);
-    
-    // Only the first inputted letter is read 
+
+    // Only the first inputted letter is read
     origin = cgetc ();
-    /*while (cgetc () != CH_ENTER)
+    while (cgetc () != CH_ENTER)
     {
         if (cgetc() == CH_SPACE || origin == CH_SPACE)
-        {} 
-    }*/
+        {}
+    }
 
     // 2nd question
     clearTextIOField();
@@ -192,7 +200,7 @@ int * retrieveInputs(int player) {
     while (cgetc () != CH_ENTER);
 
 
-    return inputs;
+    return inputs;*/
 }
 
 /**
@@ -203,10 +211,10 @@ int * retrieveInputs(int player) {
  * @param letter - letter that should be placed.
  * @param palette - coloring.
  */
-void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) {
+void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) {/*
      plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
                    yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
-                   letter, color);
+                   letter, color);*/
 }
 
 /**
@@ -215,7 +223,7 @@ void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) 
  * @param indices - Integer list of length 40 while only indices >= 0 are evaluated.
  * @param galaxy - Current state of galaxy.
  */
-void updateMap(int *indices, struct world *galaxy) {
+void updateMap(int *indices, struct world *galaxy) {/*
     // Loop variable.
     int i;
 
@@ -233,7 +241,7 @@ void updateMap(int *indices, struct world *galaxy) {
                 placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner + 1);
             }
         }
-    }
+    }*/
 }
 
 /**
@@ -242,7 +250,7 @@ void updateMap(int *indices, struct world *galaxy) {
  * <p>Updates the displayed graphics based on the global variables. Read only.
  * // TODO: similar to updateMap() we need a way to only update the worlds that were changed!
  */
-void updateTable(unsigned year) {
+void updateTable(unsigned year) {/*
     // Loop variables.
     int row, column;
 
@@ -258,7 +266,7 @@ void updateTable(unsigned year) {
     // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
 
 
-    if (year < 10) { // TODO: make a custom plot numbers 
+    if (year < 10) { // TODO: make a custom plot numbers
         plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, COLOR_FORE);
     } else {
         plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, COLOR_FORE);
@@ -282,13 +290,13 @@ void updateTable(unsigned year) {
         }
         tableTextX += 75;
         letter = 'A';
-    }
+    }*/
 }
 
 /**
  * Initializes the standard game graphics. // todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
  */
-void initGameGraphics() {
+void initGameGraphics() {/*
 
 
     // Loop parameters.
@@ -305,10 +313,10 @@ void initGameGraphics() {
     // value closest to right screen edge
     int tableBorderXMax = maxX - (margin + 1);
 
-    // value closest to top screen edge 
+    // value closest to top screen edge
     int tableBorderYMin = margin + 1;
 
-    // value closest to bottom edge 
+    // value closest to bottom edge
     int tableBorderYMax = (margin + 1) + 2 * tableLineThickness + 20 * (8 + 1);
     int tableBorderXMiddle = 0;
     int textFieldXMin = margin + 1;
@@ -345,7 +353,7 @@ void initGameGraphics() {
         }
     }
 
-    //// 2. draw table 
+    //// 2. draw table
     // draw the outer lines of the table.
     for (i = 0; i < tableLineThickness; ++i) {
         tgi_line(tableBorderXMin, tableBorderYMin + i, tableBorderXMax, tableBorderYMin + i);
@@ -359,7 +367,7 @@ void initGameGraphics() {
     tgi_line(tableBorderXMiddle, tableBorderYMin, tableBorderXMiddle, tableBorderYMax);
     tgi_line(tableBorderXMiddle + 1, tableBorderYMin, tableBorderXMiddle + 1, tableBorderYMax);
 
-    // print table header 
+    // print table header
     plotText(tableBorderXMin + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
     plotText(tableBorderXMiddle + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
 
@@ -387,7 +395,7 @@ void initGameGraphics() {
     textLine2XMax = textFieldXMax - tableLineThickness - 1;
     textLine2YMax = textFieldYMax - tableLineThickness - 1;
     //while (1)
-    //{}
+    //{}*/
 }
 
 
@@ -399,15 +407,22 @@ void initGameGraphics() {
  *
  */
 void startScreen() {
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen.
+    clrscr();
 
-    // Write game description.
-    plotText(maxX / 3, maxY / 2 - 15, "GALACTIC EMPIRE", COLOR_FORE);
-    plotText(maxX / 3 + 4, (2 * maxY) / 3 - 15, "klukas edition", COLOR_FORE);
+    // Set colors for start screen.
+    bgcolor(5);
+    textcolor(1);
+
+    // Write game title.
+    gotoxy(12, 10);
+    cprintf("GALACTIC  EMPIRE");
+    gotoxy(13, 14);
+    cprintf("klukas edition");
 
     // Wait for any button to be pressed.
-    plotText(maxX / 3 + 15, maxY - 10, "press a key", COLOR_FORE);
+    gotoxy(15, 23);
+    cprintf("press key");
     cgetc();
 }
 
@@ -419,28 +434,44 @@ void startScreen() {
  * @return - Returns number of players.
  */
 unsigned getNumPlayers() {
-    int numPlayers = 1;
+    unsigned numPlayer = 0;
+    char input;
 
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen and go to start.
+    clrscr();
 
-    // Retrieve the number of players.
-    while (numPlayers) {
-        plotText(margin, margin, "How many players [1-5]?", COLOR_FORE);
-        numPlayers = cgetc();
-        numPlayers -= numOffset;
-        plotLetter(200, margin, numPlayers + numOffset, COLOR_FORE);
+    // Input question.
+    cputs("How many players [1-5]? ");
 
-        // Check if input is valid.
-        if (numPlayers < 1 || numPlayers > 5) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of players needs to be 1-5!", COLOR_FORE);
-            numPlayers = 1;
-        } else {
-            tgi_clear();
-            return numPlayers;
+    // Enable input cursor.
+    cursor (1);
+
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc ();
+        if (isdigit(input)) {
+            // Check if input is a valid number.
+            cputcxy(24, 0, input);
+            numPlayer = input - '0';
+            gotoxy(24, 0);
+        } else if(input == CH_DEL){
+            // Delete current input number.
+            cclearxy(24, 0, 1);
+            gotoxy(24, 0);
+            numPlayer = 0;
+        } else if (input == CH_ENTER && numPlayer > 0 && numPlayer < 6 ){
+            // Disable input cursor.
+            cursor(0);
+        } else{
+           // Warn player if wrong input format.
+            cputsxy(0, 2, "The number of players needs to be 1-5!");
+            sleep(2);
+            clearLine(2);
+            cclearxy(24, 0, 1);
+            gotoxy(24, 0);
+            input = ' ';
         }
-        tgi_clear();
-    }
+    } while (input != CH_ENTER);
 }
 
 /**
@@ -454,7 +485,7 @@ unsigned getNumPlayers() {
 char *getPlayerName(unsigned player) {
     int numChars = 0;
     char name[3];
-
+    /*
     // Plot the question.
     char *question = "Player number 0 is?";
     tgi_setpalette(GreenPalette);
@@ -476,7 +507,7 @@ char *getPlayerName(unsigned player) {
         }
     }
 
-    tgi_clear();
+    tgi_clear();*/
     return name; // TODO: adress of stack memory is returned, change to reference?
 }
 
@@ -489,6 +520,7 @@ char *getPlayerName(unsigned player) {
  * @return - Returns number of worlds.
  */
 unsigned getNumWorlds() {
+    return 1;/*
     unsigned numWorlds = 0;
     unsigned numDigits = 0;
     int digit;
@@ -524,7 +556,7 @@ unsigned getNumWorlds() {
         }
     }
     tgi_clear();
-    return numWorlds;
+    return numWorlds;*/
 }
 
 
@@ -536,6 +568,7 @@ unsigned getNumWorlds() {
  * @return - Returns number of years.
  */
 unsigned getYears() {
+    return 1;/*
     unsigned numYears = 0;
     unsigned numDigits = 0;
     int digit;
@@ -571,7 +604,7 @@ unsigned getYears() {
         }
     }
     tgi_clear();
-    return numYears;
+    return numYears;*/
 }
 
 /**
@@ -580,6 +613,7 @@ unsigned getYears() {
  * @return - Returns 1 for true or 0 for false.
  */
 unsigned getDefensive() {
+    return 1;/*
     char answer;
 
     // Color background.
@@ -603,7 +637,7 @@ unsigned getDefensive() {
         return 1;
     } else {
         return 0;
-    }
+    }*/
 }
 
 /**
@@ -612,6 +646,7 @@ unsigned getDefensive() {
  * @return - Returns 1 for true or 0 for false.
 */
 unsigned getEvents() {
+    return 1;/*
     char answer;
 
     // Color background.
@@ -634,7 +669,7 @@ unsigned getEvents() {
         return 1;
     } else {
         return 0;
-    }
+    }*/
 }
 
 /**
@@ -643,6 +678,7 @@ unsigned getEvents() {
  * @return - Returns 1 for not accepting and 0 for acceptance.
 */
 unsigned mapAcceptance() {
+    return 1; /*
     // Player acceptance;
     char acceptance;
 
@@ -672,5 +708,5 @@ unsigned mapAcceptance() {
         return 1;
     }
 
-    // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
+    // Erase input box. // TODO +1 for all the walls but make the corners a global thing.*/
 }
