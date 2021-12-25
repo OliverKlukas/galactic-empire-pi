@@ -125,7 +125,7 @@ void generateGalaxy() {
     unsigned excessProductionBonus = 5;
 
     // Available sphere divisions.
-    unsigned sphereDivisions[][][] = {
+    unsigned sphereDivisions[5][5][4] = {
             {
                     {0, 0, 19, 19},             // 1 player
                     {0,  0,  0,  0},
