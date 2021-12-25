@@ -32,8 +32,14 @@ int textLine1YMin = 0;
 int textLine2XMin = 0;
 int textLine2YMin = 0;
 
+// these are needed to clear the textIOField
+int textLine2XMax = 0;
+int textLine2YMax = 0;
+
+
 int yearLineXMin = 0;
 int yearLineYMin = 0;
+
 
 
 // Number offset for plotting digits.
@@ -58,6 +64,7 @@ unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 // Globally used color Palettes.
 static const unsigned char StandardPalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK};
 static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
+static const unsigned char WhitePalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_WHITE};
 
 static const unsigned char playerPalettes[6][2] = {
         {TGI_COLOR_WHITE, TGI_COLOR_BLACK},
@@ -138,11 +145,70 @@ void plotText(unsigned x, unsigned y, char *sentence, const unsigned char *palet
     }
 }
 
+
+
+
 /**
  * TODO: print and update the current user input
  */
-void retrieveInputs() {
 
+void clearTextIOField()
+{
+    tgi_setcolor(COLOR_BLACK);
+    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
+}
+
+
+// reads input string from current cursor position
+/*char * getInputFrom()
+{
+    char Char;
+
+    do {
+        Char = cgetc ();
+        strcat (str, Char);
+    } while (Char != CH_ENTER);
+    return str;
+}
+*/
+// returns a 4 letter array 
+int * retrieveInputs(int player) {
+    static int inputs [4];
+
+    char origin;    
+    char destination;
+    unsigned nShips;
+
+    // todo: make this somewhere else: 
+    
+    clearTextIOField();
+
+    // 1st question
+    plotText(textLine1XMin, textLine1YMin, "Admiral A:", StandardPalette);
+    plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", StandardPalette);
+    
+    // Only the first inputted letter is read 
+    origin = cgetc ();
+    while (cgetc () != CH_ENTER)
+    {
+        if (cgetc() == CH_SPACE || origin == CH_SPACE)
+        {} 
+    }
+
+    // 2nd question
+    clearTextIOField();
+    plotText(textLine1XMin, textLine1YMin, "Destination ?", StandardPalette);
+    destination = cgetc ();
+    while (cgetc () != CH_ENTER);
+
+    // 3rd question
+    clearTextIOField();
+    plotText(textLine1XMin, textLine1YMin, "# of Ships ?", StandardPalette);
+    nShips = cgetc ();
+    while (cgetc () != CH_ENTER);
+
+
+    return inputs;
 }
 
 /**
@@ -237,6 +303,7 @@ void updateTable(unsigned year) {
  */
 void initGameGraphics() {
 
+
     // Loop parameters.
     int i, j;
 
@@ -270,6 +337,11 @@ void initGameGraphics() {
             mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
 
     int textFieldYMax = maxY - (margin + 1);
+
+    tgi_setpalette (StandardPalette);
+    tgi_setcolor(1);
+    tgi_clear();
+
 
     //// 1. Draw map lines
     // Print map vertical lines.
@@ -331,10 +403,15 @@ void initGameGraphics() {
     textLine1YMin = textFieldYMin + tableLineThickness + 4; // last number is top/bottom spacing
 
     textLine2XMin = textFieldXMin + 4;
-    textLine2YMin =
-            textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 -
-            2 * 4;
+    textLine2YMin = textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 - 2 * 4;
+
+    textLine2XMax = textFieldXMax - tableLineThickness - 1;
+    textLine2YMax = textFieldYMax - tableLineThickness - 1;
+    //while (1)
+    //{}
 }
+
+
 
 /**
  * Draws the start screen.

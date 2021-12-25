@@ -263,6 +263,16 @@ void game() {
     // Initialize list of planets to be updated.
     int i;
     int updateIndices[40];
+
+
+    // Plot start screen.
+    //startScreen(); //TODO
+    tgi_clear();
+
+    // Handle initial questions.
+    // initGameInputs();
+    tgi_clear();
+
     for(i = 0; i < 40; i++){
         if(i < numWorlds){
             updateIndices[i] = i;
@@ -270,14 +280,6 @@ void game() {
             updateIndices[i] = -1;
         }
     }
-
-    // Plot start screen.
-    //startScreen(); //TODO
-    tgi_clear();
-
-    // Handle initial questions.
-    initGameInputs();
-    tgi_clear();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
@@ -288,6 +290,7 @@ void game() {
         // TODO: redraw map empty!
         updateMap(&updateIndices, &galaxy);
     } while(!mapAcceptance());
+    retrieveInputs();
 
     // Play the game until running out of years.
     while (year != totalYears) {
