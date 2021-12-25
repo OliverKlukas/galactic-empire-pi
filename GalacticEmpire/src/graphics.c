@@ -176,26 +176,26 @@ int * retrieveInputs(int player) {
     clearTextIOField();
 
     // 1st question
-    plotText(textLine1XMin, textLine1YMin, "Admiral A:", StandardPalette);
-    plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", StandardPalette);
+    plotText(textLine1XMin, textLine1YMin, "Admiral A:", 1);
+    plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", 1);
     
     // Only the first inputted letter is read 
     origin = cgetc ();
-    while (cgetc () != CH_ENTER)
+    /*while (cgetc () != CH_ENTER)
     {
         if (cgetc() == CH_SPACE || origin == CH_SPACE)
         {} 
-    }
+    }*/
 
     // 2nd question
     clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "Destination ?", StandardPalette);
+    plotText(textLine1XMin, textLine1YMin, "Destination ?", 1);
     destination = cgetc ();
     while (cgetc () != CH_ENTER);
 
     // 3rd question
     clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "# of Ships ?", StandardPalette);
+    plotText(textLine1XMin, textLine1YMin, "# of Ships ?", 1);
     nShips = cgetc ();
     while (cgetc () != CH_ENTER);
 

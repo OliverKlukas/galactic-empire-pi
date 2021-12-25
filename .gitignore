@@ -1,3 +1,7 @@
 # ignore Intelij
 .idea
 cmake*
+
+# ignore binary files
+GalacticEmpire/GalacticEmpire.c64
+GalacticEmpire/obj/
