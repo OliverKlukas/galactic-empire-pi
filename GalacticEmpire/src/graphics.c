@@ -7,6 +7,13 @@
 #include "main.h"
 
 /*****************************************************************************/
+/*                                 Macros                                    */
+/*****************************************************************************/
+
+#define COLOR_FORE      1
+#define COLOR_BACK      0
+
+/*****************************************************************************/
 /*                            Global variables                               */
 /*****************************************************************************/
 
@@ -56,17 +63,10 @@ unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 
 
 // Globally used color Palettes.
-static const unsigned char StandardPalette[2] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK};
 static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
+static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK, TGI_COLOR_BLUE, TGI_COLOR_GREEN,
+                                         TGI_COLOR_RED, TGI_COLOR_ORANGE, TGI_COLOR_YELLOW};
 
-static const unsigned char playerPalettes[6][2] = {
-        {TGI_COLOR_WHITE, TGI_COLOR_BLACK},
-        {TGI_COLOR_WHITE, TGI_COLOR_GREEN},
-        {TGI_COLOR_WHITE, TGI_COLOR_RED},
-        {TGI_COLOR_WHITE, TGI_COLOR_BLUE},
-        {TGI_COLOR_WHITE, TGI_COLOR_YELLOW},
-        {TGI_COLOR_WHITE, TGI_COLOR_ORANGE}
-};
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -82,14 +82,11 @@ static const unsigned char playerPalettes[6][2] = {
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
-void plotLetter(unsigned x, unsigned y, int letter, const unsigned char *palette) {
+void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
 
     // Variables to plot pixels.
     int i, j, plot;
     char *bitmap;
-
-    // Chosen color palette.
-    tgi_setpalette(palette);
 
     // Receive bit config of letter with moder ascii.
     if (letter > 192 && letter < 219) {
@@ -105,17 +102,14 @@ void plotLetter(unsigned x, unsigned y, int letter, const unsigned char *palette
         for (j = 0; j < 8; j++) {
             plot = bitmap[i] & 1 << j;
             if (plot) {
-                tgi_setcolor(1);
+                tgi_setcolor(color);
                 tgi_setpixel(x + j, y + i);
             } else {
-                tgi_setcolor(0);
+                tgi_setcolor(COLOR_BACK);
                 tgi_setpixel(x + j, y + i);
             }
         }
     }
-
-    // Restore current foreground color.
-    tgi_setcolor(1);
 }
 
 /**
@@ -128,13 +122,13 @@ void plotLetter(unsigned x, unsigned y, int letter, const unsigned char *palette
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
  */
-void plotText(unsigned x, unsigned y, char *sentence, const unsigned char *palette) {
+void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {
     // Loop variables.
     int i;
 
     // Iterate over the sentence and plot each char.
     for (i = 0; sentence[i] != 0; i++) {
-        plotLetter(x + i * letterSpacing, y, sentence[i], palette);
+        plotLetter(x + i * letterSpacing, y, sentence[i], color);
     }
 }
 
@@ -153,13 +147,10 @@ void retrieveInputs() {
  * @param letter - letter that should be placed.
  * @param palette - coloring.
  */
-void placeLetterOnMap(unsigned xPos, unsigned yPos, char letter, const unsigned char *palette) {
-    if (xPos > mapNLinesVertical - 1 || yPos > mapNLinesHorizontal) {
-        // todo: throw error
-    }
-    plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
-               yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
-               letter, palette);
+void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) {
+     plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+                   yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+                   letter, color);
 }
 
 /**
@@ -172,15 +163,18 @@ void updateMap(int *indices, struct world *galaxy) {
     // Loop variable.
     int i;
 
+    // Chosen color palette.
+    tgi_setpalette(StandardPalette);
+
     // Place to be updated worlds on map.
-    for(i = 0; i < 40; i++){
+    for (i = 0; i < 40; i++) {
         // Check if map should be updated.
-        if(indices[i] >= 0){
+        if (indices[i] >= 0) {
             // Differentiate between small and capital letters.
-            if(i < 20){
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i+97, playerPalettes[galaxy[i].owner]);
-            } else{
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i+65, playerPalettes[galaxy[i].owner]);
+            if (i < 20) {
+                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner + 1);
+            } else {
+                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner + 1);
             }
         }
     }
@@ -201,31 +195,34 @@ void updateTable(unsigned year) {
     int tableTextX = (maxX / 2) + (2 * margin);
     int tableTextY = margin + 2;
 
+    // Chosen color palette.
+    tgi_setpalette(StandardPalette);
+
     // Update current year.
     // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
 
 
     if (year < 10) { // TODO: make a custom plot numbers 
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, StandardPalette);
+        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, COLOR_FORE);
     } else {
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, StandardPalette);
-        plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, StandardPalette);
+        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, COLOR_FORE);
+        plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, COLOR_FORE);
     }
 
     // Update first column of current planet occupations.
     for (column = 0; column < 2; column++) {
         for (row = 1; row < 22; row++) {
             // World.
-            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, StandardPalette);
+            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, COLOR_FORE);
             letter += 1;
 
             // Production. // TODO: make a custom plot numbers
             plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset,
-                       StandardPalette);
+                       COLOR_FORE);
 
             // Ships.
             plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset,
-                       StandardPalette);
+                       COLOR_FORE);
         }
         tableTextX += 75;
         letter = 'A';
@@ -242,8 +239,6 @@ void initGameGraphics() {
 
     // larger margin as spacing between map and other tables
     int largeMargin = 2 * (margin + 1);
-
-
     int tableLineThickness = 2;
 
     // value closest to left screen edge
@@ -258,18 +253,15 @@ void initGameGraphics() {
 
     // value closest to bottom edge 
     int tableBorderYMax = (margin + 1) + 2 * tableLineThickness + 20 * (8 + 1);
-
     int tableBorderXMiddle = 0;
-
-
     int textFieldXMin = margin + 1;
-
     int textFieldXMax = mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2;
-
     int textFieldYMin =
             mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
-
     int textFieldYMax = maxY - (margin + 1);
+
+    // Chosen color palette.
+    tgi_setpalette(StandardPalette);
 
     //// 1. Draw map lines
     // Print map vertical lines.
@@ -309,15 +301,15 @@ void initGameGraphics() {
     tgi_line(tableBorderXMiddle + 1, tableBorderYMin, tableBorderXMiddle + 1, tableBorderYMax);
 
     // print table header 
-    plotText(tableBorderXMin + 4, tableBorderYMin + 4, "W Pr Shp", StandardPalette);
-    plotText(tableBorderXMiddle + 4, tableBorderYMin + 4, "W Pr Shp", StandardPalette);
+    plotText(tableBorderXMin + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
+    plotText(tableBorderXMiddle + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
 
 
     //// 3. print year text
     yearLineXMin = tableBorderXMin + 2;
     yearLineYMin = maxY - margin - 7;
 
-    plotText(yearLineXMin, yearLineYMin, "Year: 0", StandardPalette);
+    plotText(yearLineXMin, yearLineYMin, "Year: 0", COLOR_FORE);
 
     //// 4. draw border lines of text field
     for (i = 0; i < tableLineThickness; ++i) {
@@ -347,11 +339,11 @@ void startScreen() {
     tgi_setpalette(GreenPalette);
 
     // Write game description.
-    plotText(maxX / 3, maxY / 2 - 15, "GALACTIC EMPIRE", GreenPalette);
-    plotText(maxX / 3 + 4, (2 * maxY) / 3 - 15, "klukas edition", GreenPalette);
+    plotText(maxX / 3, maxY / 2 - 15, "GALACTIC EMPIRE", COLOR_FORE);
+    plotText(maxX / 3 + 4, (2 * maxY) / 3 - 15, "klukas edition", COLOR_FORE);
 
     // Wait for any button to be pressed.
-    plotText(maxX / 3 + 15, maxY - 10, "press a key", GreenPalette);
+    plotText(maxX / 3 + 15, maxY - 10, "press a key", COLOR_FORE);
     cgetc();
 }
 
@@ -365,16 +357,19 @@ void startScreen() {
 unsigned getNumPlayers() {
     int numPlayers = 1;
 
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
     // Retrieve the number of players.
     while (numPlayers) {
-        plotText(margin, margin, "How many players [1-5]?", GreenPalette);
+        plotText(margin, margin, "How many players [1-5]?", COLOR_FORE);
         numPlayers = cgetc();
         numPlayers -= numOffset;
-        plotLetter(200, margin, numPlayers + numOffset, GreenPalette);
+        plotLetter(200, margin, numPlayers + numOffset, COLOR_FORE);
 
         // Check if input is valid.
         if (numPlayers < 1 || numPlayers > 5) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of players needs to be 1-5!", GreenPalette);
+            plotText(margin, margin + 2 * letterSpacing, "The number of players needs to be 1-5!", COLOR_FORE);
             numPlayers = 1;
         } else {
             tgi_clear();
@@ -398,21 +393,22 @@ char *getPlayerName(unsigned player) {
 
     // Plot the question.
     char *question = "Player number 0 is?";
+    tgi_setpalette(GreenPalette);
     question[14] = player + 1 + '0';
-    plotText(margin, margin, question, GreenPalette);
+    plotText(margin, margin, question, COLOR_FORE);
 
     // Retrieve a three letter name.
     while (numChars != 3) {
         name[numChars] = cgetc();
-        plotLetter(165 + numChars * letterSpacing, margin, name[numChars], GreenPalette);
+        plotLetter(165 + numChars * letterSpacing, margin, name[numChars], COLOR_FORE);
         // Check if input letter is valid.
         if ((name[numChars] > 192 && name[numChars] < 219) || (name[numChars] > 64 && name[numChars] < 91)) {
             numChars++;
         } else {
-            plotText(margin, margin + 2 * letterSpacing, "Name needs to be 3 letters!", GreenPalette);
+            plotText(margin, margin + 2 * letterSpacing, "Name needs to be 3 letters!", COLOR_FORE);
             tgi_clear();
             numChars = 0;
-            plotText(margin, margin, question, GreenPalette);
+            plotText(margin, margin, question, COLOR_FORE);
         }
     }
 
@@ -433,13 +429,16 @@ unsigned getNumWorlds() {
     unsigned numDigits = 0;
     int digit;
 
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
     // Plot question.
-    plotText(margin, margin, "How many worlds [10-40]?", GreenPalette);
+    plotText(margin, margin, "How many worlds [10-40]?", COLOR_FORE);
 
     // Retrieve the number of worlds.
     while (numDigits != 2) {
         digit = cgetc();
-        plotLetter(205 + numDigits * letterSpacing, margin, digit, GreenPalette);
+        plotLetter(205 + numDigits * letterSpacing, margin, digit, COLOR_FORE);
         digit -= numOffset;
 
         // Add digit to number.
@@ -451,11 +450,11 @@ unsigned getNumWorlds() {
 
         // Check if input is valid.
         if (digit < 0 || digit > 9 || numWorlds > 40) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of worlds needs to be 10-40!", GreenPalette);
+            plotText(margin, margin + 2 * letterSpacing, "The number of worlds needs to be 10-40!", COLOR_FORE);
             tgi_clear();
             numDigits = 0;
             numWorlds = 0;
-            plotText(margin, margin, "How many worlds [10-40]?", GreenPalette);
+            plotText(margin, margin, "How many worlds [10-40]?", COLOR_FORE);
         } else {
             numDigits++;
         }
@@ -477,13 +476,16 @@ unsigned getYears() {
     unsigned numDigits = 0;
     int digit;
 
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
     // Plot question.
-    plotText(margin, margin, "How many years in the game [10-99]?", GreenPalette);
+    plotText(margin, margin, "How many years in the game [10-99]?", COLOR_FORE);
 
     // Retrieve the number of worlds.
     while (numDigits != 2) {
         digit = cgetc();
-        plotLetter(295 + numDigits * letterSpacing, margin, digit, GreenPalette);
+        plotLetter(295 + numDigits * letterSpacing, margin, digit, COLOR_FORE);
         digit -= numOffset;
 
         // Add digit to number.
@@ -495,11 +497,11 @@ unsigned getYears() {
 
         // Check if input is valid.
         if (digit < 0 || digit > 9 || numYears > 40) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of years needs to be 10-99!", GreenPalette);
+            plotText(margin, margin + 2 * letterSpacing, "The number of years needs to be 10-99!", COLOR_FORE);
             tgi_clear();
             numDigits = 0;
             numYears = 0;
-            plotText(margin, margin, "How many years in the game [10-99]?", GreenPalette);
+            plotText(margin, margin, "How many years in the game [10-99]?", COLOR_FORE);
         } else {
             numDigits++;
         }
@@ -516,8 +518,11 @@ unsigned getYears() {
 unsigned getDefensive() {
     char answer;
 
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
     // Retrieve if defensive ships should be build.
-    plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", GreenPalette);
+    plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", COLOR_FORE);
     answer = cgetc();
 
     // Check if input is valid.
@@ -526,7 +531,7 @@ unsigned getDefensive() {
     }
 
     // Plot answer.
-    plotLetter(312, margin, answer, GreenPalette);
+    plotLetter(312, margin, answer, COLOR_FORE);
 
     // Clear the page and return the answer.
     tgi_clear();
@@ -545,8 +550,11 @@ unsigned getDefensive() {
 unsigned getEvents() {
     char answer;
 
+    // Color background.
+    tgi_setpalette(GreenPalette);
+
     // Retrieve if special events should occur.
-    plotText(margin, margin, "Should special events occur [y/n]?", GreenPalette);
+    plotText(margin, margin, "Should special events occur [y/n]?", COLOR_FORE);
 
     // Check if input is valid.
     while (answer != 'y' && answer != 'n') {
@@ -554,7 +562,7 @@ unsigned getEvents() {
     }
 
     // Plot answer.
-    plotLetter(288, margin, answer, GreenPalette);
+    plotLetter(288, margin, answer, COLOR_FORE);
 
     // Clear the page and return the answer.
     tgi_clear();
@@ -574,15 +582,18 @@ unsigned mapAcceptance() {
     // Player acceptance;
     char acceptance;
 
+    // Color background.
+    tgi_setpalette(StandardPalette);
+
     // Plot question.
     plotText(textLine1XMin,
              textLine1YMin,
              "Would you like a",
-             StandardPalette);
+             COLOR_FORE);
     plotText(textLine2XMin,
              textLine2YMin,
              "different map?",
-             StandardPalette);
+             COLOR_FORE);
 
     // Retrieve and check input.
     acceptance = cgetc();
