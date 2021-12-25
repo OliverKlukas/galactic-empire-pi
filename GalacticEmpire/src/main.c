@@ -316,6 +316,7 @@ void game() {
         // TODO: redraw map empty!
         updateMap(&indices, &galaxy);
     } while(!mapAcceptance());
+    retrieveInputs();
 
     // Play the game until running out of years.
     while (year != totalYears) {
