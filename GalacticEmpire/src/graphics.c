@@ -11,33 +11,27 @@
 
 
 // Screen dimensions: these are the maximum pixel positions displayable
-const unsigned maxX = 319;
-const unsigned maxY = 199;
+const unsigned maxX = 39;
+const unsigned maxY = 24;
 
 // Map settings.
 int mapNLinesVertical = 20;
 int mapNLinesHorizontal = 20;
-int mapLineThickness = 2;
-int mapSquareSize = 6;
 
-// Number of pixels free between the game border and map/table lines
-int margin = 2;
+int yearLineX = 0;
+int yearLineY = 0;
 
-// definition of text Line 1 in the input text field of the main game display
-int textLine1XMin = 0;
-int textLine1YMin = 0;
+int textLine1X = 0;
+int textLine1Y = 0;
 
-// definition of text Line 1 in the input text field of the main game display
-int textLine2XMin = 0;
-int textLine2YMin = 0;
+int textLine2X = 0;
+int textLine2Y = 0;
 
-// these are needed to clear the textIOField
-int textLine2XMax = 0;
-int textLine2YMax = 0;
+int tableColumn1XMin = 0;
+int tableColumn2XMin = 0;
 
+int tableFirstRowYMin = 0;
 
-int yearLineXMin = 0;
-int yearLineYMin = 0;
 
 
 
@@ -79,6 +73,7 @@ static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLAC
  * @param y - Y coordinate of letter, upper left corner.
  * @param letter - Letter to be plotted.
  */
+/*
 void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
 
     // Variables to plot pixels.
@@ -108,6 +103,7 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
         }
     }
 }
+*/
 
 /**
  * Writes a sentence on the screen.
@@ -119,6 +115,7 @@ void plotLetter(unsigned x, unsigned y, int letter, unsigned color) {
  * @param y - Start Y coordinate of sentence.
  * @param sentence - String Sentence to be plotted.
  */
+/*
 void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {
     // Loop variables.
     int i;
@@ -128,18 +125,18 @@ void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {
         plotLetter(x + i * letterSpacing, y, sentence[i], color);
     }
 }
-
+*/
 
 
 
 /**
  * TODO: print and update the current user input
  */
-
+// TODO: maybe later
 void clearTextIOField()
 {
-    tgi_setcolor(COLOR_BLACK);
-    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
+    //tgi_setcolor(COLOR_BLACK);
+    //tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
 }
 
 
@@ -158,7 +155,8 @@ void clearTextIOField()
 // returns a 4 letter array 
 int * retrieveInputs(int player) {
     static int inputs [4];
-
+    return inputs;
+    /*
     char origin;    
     char destination;
     unsigned nShips;
@@ -173,11 +171,11 @@ int * retrieveInputs(int player) {
     
     // Only the first inputted letter is read 
     origin = cgetc ();
-    /*while (cgetc () != CH_ENTER)
+    *while (cgetc () != CH_ENTER)
     {
         if (cgetc() == CH_SPACE || origin == CH_SPACE)
         {} 
-    }*/
+    }
 
     // 2nd question
     clearTextIOField();
@@ -193,6 +191,7 @@ int * retrieveInputs(int player) {
 
 
     return inputs;
+    */
 }
 
 /**
@@ -204,9 +203,10 @@ int * retrieveInputs(int player) {
  * @param palette - coloring.
  */
 void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) {
-     plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
-                   yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
-                   letter, color);
+     // TODO: LATER
+     //plotLetter(xPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+     //              yPos * (mapLineThickness + mapSquareSize) + margin + 1 + mapLineThickness / 2 - 4,
+     //              letter, color);
 }
 
 /**
@@ -218,9 +218,9 @@ void placeLetterOnMap(unsigned xPos, unsigned yPos, int letter, unsigned color) 
 void updateMap(int *indices, struct world *galaxy) {
     // Loop variable.
     int i;
-
+    // TODO
     // Chosen color palette.
-    tgi_setpalette(StandardPalette);
+    //tgi_setpalette(StandardPalette);
 
     // Place to be updated worlds on map.
     for (i = 0; i < 40; i++) {
@@ -248,16 +248,16 @@ void updateTable(unsigned year) {
 
     // Table text coordinates.
     char letter = 'a';
-    int tableTextX = (maxX / 2) + (2 * margin);
-    int tableTextY = margin + 2;
+    //int tableTextX = (maxX / 2) + (2 * margin);
+    //int tableTextY = margin + 2;
 
     // Chosen color palette.
-    tgi_setpalette(StandardPalette);
+    // tgi_setpalette(StandardPalette);
 
     // Update current year.
     // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
 
-
+    /*
     if (year < 10) { // TODO: make a custom plot numbers 
         plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, COLOR_FORE);
     } else {
@@ -283,6 +283,22 @@ void updateTable(unsigned year) {
         tableTextX += 75;
         letter = 'A';
     }
+    */
+}
+
+
+// anywhere, so usually map or table
+void placeColoredLetter(int x, int y, char letter, int player)
+{
+    // TODO: to top: + rename 
+    int textColorStandard = COLOR_WHITE;
+    int playerColors[4] = {COLOR_GRAY1, COLOR_GRAY2, COLOR_WHITE, COLOR_BLUE};
+
+    textcolor(playerColors[player]);
+
+    cputcxy(x, y, letter);
+
+    textcolor(textColorStandard);
 }
 
 /**
@@ -290,105 +306,154 @@ void updateTable(unsigned year) {
  */
 void initGameGraphics() {
 
-
-    // Loop parameters.
     int i, j;
 
-    // larger margin as spacing between map and other tables
-    int largeMargin = 2 * (margin + 1);
-    int tableLineThickness = 2;
+    int tableXMin = mapNLinesVertical;
+    int tableXMax = maxX;
+    int tableYMin = 0;
+    int tableYMax = tableYMin + 20 + 3;
 
-    // value closest to left screen edge
-    int tableBorderXMin =
-            margin + 1 + mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + largeMargin;
+    int textFieldXMin = 0;
+    int textFieldXMax = mapNLinesVertical - 1;
+    int textFieldYMin = mapNLinesHorizontal;
+    int textFieldYMax = maxY;
 
-    // value closest to right screen edge
-    int tableBorderXMax = maxX - (margin + 1);
 
-    // value closest to top screen edge 
-    int tableBorderYMin = margin + 1;
+    clrscr();
 
-    // value closest to bottom edge 
-    int tableBorderYMax = (margin + 1) + 2 * tableLineThickness + 20 * (8 + 1);
-    int tableBorderXMiddle = 0;
-    int textFieldXMin = margin + 1;
-    int textFieldXMax = mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2;
-    int textFieldYMin =
-            mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2 + largeMargin;
-    int textFieldYMax = maxY - (margin + 1);
-
-    // Chosen color palette.
-    tgi_setpalette (StandardPalette);
-    tgi_setcolor(1);
-    tgi_clear();
-
-    //// 1. Draw map lines
-    // Print map vertical lines.
-    for (i = 0; i < mapNLinesVertical; ++i) {
-        for (j = 0; j < mapLineThickness; ++j) {
-            tgi_line(i * (mapLineThickness + mapSquareSize) + j + margin + 1,
-                     margin + 1,
-                     i * (mapLineThickness + mapSquareSize) + j + margin + 1,
-                     mapNLinesHorizontal * mapLineThickness + (mapNLinesHorizontal - 1) * mapSquareSize + 2
-            );
+    //// 1. Draw map grid
+    // y
+    for (i = 0; i < mapNLinesHorizontal; ++i)
+    {
+        // x
+        for (j = 0; j < mapNLinesVertical; ++j)
+        {
+            if (j == 0 && i == 0)
+            {
+                cputcxy(j, i, CH_ULCORNER);
+            }
+            else if (j == mapNLinesVertical - 1 && i == 0)
+            {
+                cputcxy(j, i, CH_URCORNER);     
+            }
+            else if (i == 0)
+            {
+                cputcxy(j, i, CH_TTEE); 
+            }
+            else if (i == mapNLinesHorizontal - 1 && j == 0)
+            {
+                cputcxy(j, i, CH_LLCORNER); 
+            }
+            else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1)
+            {
+                cputcxy(j, i, CH_LRCORNER);
+            }
+            else if (j == 0)
+            {
+                cputcxy(j, i, CH_LTEE);
+            }
+            else if (i == mapNLinesHorizontal - 1)
+            {
+                cputcxy(j, i, CH_BTEE); 
+            }
+            else if (j == mapNLinesVertical - 1)
+            {
+                cputcxy(j, i, CH_RTEE);
+            }
+            else
+            {
+                cputcxy(j, i, CH_CROSS);
+            }
+        
         }
     }
 
-    // Print map horizontal lines.
-    for (i = 0; i < mapNLinesHorizontal; ++i) {
-        for (j = 0; j < mapLineThickness; ++j) {
-            tgi_line(margin + 1,
-                     i * (mapLineThickness + mapSquareSize) + j + margin + 1,
-                     mapNLinesVertical * mapLineThickness + (mapNLinesVertical - 1) * mapSquareSize + 2,
-                     i * (mapLineThickness + mapSquareSize) + j + margin + 1
-            );
-        }
-    }
 
-    //// 2. draw table 
-    // draw the outer lines of the table.
-    for (i = 0; i < tableLineThickness; ++i) {
-        tgi_line(tableBorderXMin, tableBorderYMin + i, tableBorderXMax, tableBorderYMin + i);
-        tgi_line(tableBorderXMax - i, tableBorderYMin, tableBorderXMax - i, tableBorderYMax);
-        tgi_line(tableBorderXMax, tableBorderYMax - i, tableBorderXMin, tableBorderYMax - i);
-        tgi_line(tableBorderXMin + i, tableBorderYMax, tableBorderXMin + i, tableBorderYMin);
-    }
+    /// draw table
+    // border
+    cputcxy(tableXMin, tableYMin, CH_ULCORNER);
+    chlinexy(tableXMin + 1, tableYMin, tableXMax - tableXMin - 1);
+    cputcxy(tableXMax, tableYMin, CH_URCORNER);
+    cvlinexy(tableXMax, tableYMin + 1, tableYMax - tableYMin - 1);
+    cputcxy(tableXMax, tableYMax, CH_LRCORNER);
+    chlinexy(tableXMin + 1, tableYMax, tableXMax - tableXMin - 1);
+    cputcxy(tableXMin, tableYMax, CH_LLCORNER);
+    cvlinexy(tableXMin, tableYMin + 1, tableYMax - tableYMin - 1);
 
-    // draw inner line of the table
-    tableBorderXMiddle = tableBorderXMin + (tableBorderXMax - tableBorderXMin) / 2;
-    tgi_line(tableBorderXMiddle, tableBorderYMin, tableBorderXMiddle, tableBorderYMax);
-    tgi_line(tableBorderXMiddle + 1, tableBorderYMin, tableBorderXMiddle + 1, tableBorderYMax);
+    tableColumn1XMin = tableXMin + 1;
 
-    // print table header 
-    plotText(tableBorderXMin + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
-    plotText(tableBorderXMiddle + 4, tableBorderYMin + 4, "W Pr Shp", COLOR_FORE);
+    // middle lines
+    cvlinexy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 1, tableYMax - tableYMin - 1);
+    cvlinexy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMax, CH_BTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMax, CH_BTEE);
+
+    tableColumn2XMin = tableXMin + (tableXMax - tableXMin)/2 + 2;
+
+    // header
+    cputsxy(tableXMin + 1, tableYMin + 1, "W Pr Shp");
+    cputsxy(tableXMin + (tableXMax - tableXMin)/2 + 2, tableYMin + 1, "W Pr Shp");
+    chlinexy(tableXMin + 1, tableYMin + 2, tableXMax - tableXMin - 1);
+    cputcxy(tableXMin , tableYMin + 2, CH_LTEE);
+    cputcxy(tableXMax , tableYMin + 2, CH_RTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 2, CH_CROSS);
+    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 2, CH_CROSS);
+
+    tableFirstRowYMin = tableYMin + 3;
+
+    /// Year 
+    yearLineX = tableXMin + 1;
+    yearLineY = tableYMax + 1;
+    cputsxy(yearLineX, yearLineY, "Year: 0");
 
 
-    //// 3. print year text
-    yearLineXMin = tableBorderXMin + 2;
-    yearLineYMin = maxY - margin - 7;
+    /// Input text field
+    cputcxy(textFieldXMin, textFieldYMin, CH_ULCORNER);
+    chlinexy(textFieldXMin + 1, textFieldYMin, textFieldXMax - textFieldXMin - 1);
+    cputcxy(textFieldXMax, textFieldYMin, CH_URCORNER);
+    cvlinexy(textFieldXMax, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
+    cputcxy(textFieldXMax, textFieldYMax, CH_LRCORNER);
+    chlinexy(textFieldXMin + 1, textFieldYMax, textFieldXMax - textFieldXMin - 1);
+    cputcxy(textFieldXMin, textFieldYMax, CH_LLCORNER);
+    cvlinexy(textFieldXMin, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
+    
+    textLine1X = textFieldXMin + 1;
+    textLine1Y = textFieldYMin + 1;
 
-    plotText(yearLineXMin, yearLineYMin, "Year: 0", COLOR_FORE);
+    textLine2X = textLine1X;
+    textLine2Y = textLine1Y + 1;
 
-    //// 4. draw border lines of text field
-    for (i = 0; i < tableLineThickness; ++i) {
-        tgi_line(textFieldXMin, textFieldYMin + i, textFieldXMax, textFieldYMin + i);
-        tgi_line(textFieldXMax - i, textFieldYMin, textFieldXMax - i, textFieldYMax);
-        tgi_line(textFieldXMax, textFieldYMax - i, textFieldXMin, textFieldYMax - i);
-        tgi_line(textFieldXMin + i, textFieldYMax, textFieldXMin + i, textFieldYMin);
-    }
+    // TODO: just testing map placement 
+    placeColoredLetter(5, 0, 'a', 0);
+    placeColoredLetter(5, 1, 'b', 1);
+    placeColoredLetter(5, 2, 'c', 2);
+    placeColoredLetter(5, 3, 'd', 3);
 
-    textLine1XMin = textFieldXMin + 4;
-    textLine1YMin = textFieldYMin + tableLineThickness + 4; // last number is top/bottom spacing
-
-    textLine2XMin = textFieldXMin + 4;
-    textLine2YMin = textLine1YMin + 8 + textFieldYMax - tableLineThickness - (textFieldYMin + tableLineThickness) - 2 * 8 - 2 * 4;
-
-    textLine2XMax = textFieldXMax - tableLineThickness - 1;
-    textLine2YMax = textFieldYMax - tableLineThickness - 1;
-    //while (1)
-    //{}
+    // TODO: testing table placement
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin, 'a', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 1, 'b', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 2, 'c', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 3, 'd', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 4, 'e', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 5, 'f', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 6, 'g', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 7, 'h', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 8, 'i', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 9, 'j', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 10, 'k', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 11, 'l', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 12, 'm', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 13, 'n', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 14, 'o', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 15, 'p', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 16, 'q', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 17, 'r', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 18, 's', 0);
+    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 19, 't', 0);
 }
+
 
 
 
@@ -400,6 +465,7 @@ void initGameGraphics() {
  */
 void startScreen() {
     // Color background.
+    /*
     tgi_setpalette(GreenPalette);
 
     // Write game description.
@@ -409,6 +475,7 @@ void startScreen() {
     // Wait for any button to be pressed.
     plotText(maxX / 3 + 15, maxY - 10, "press a key", COLOR_FORE);
     cgetc();
+    */
 }
 
 /**
@@ -420,7 +487,7 @@ void startScreen() {
  */
 unsigned getNumPlayers() {
     int numPlayers = 1;
-
+    /*
     // Color background.
     tgi_setpalette(GreenPalette);
 
@@ -441,6 +508,9 @@ unsigned getNumPlayers() {
         }
         tgi_clear();
     }
+    */ 
+    return numPlayers;
+       
 }
 
 /**
@@ -453,6 +523,8 @@ unsigned getNumPlayers() {
  */
 char *getPlayerName(unsigned player) {
     int numChars = 0;
+    return numChars;
+    /*
     char name[3];
 
     // Plot the question.
@@ -478,6 +550,7 @@ char *getPlayerName(unsigned player) {
 
     tgi_clear();
     return name; // TODO: adress of stack memory is returned, change to reference?
+    */
 }
 
 
@@ -492,7 +565,8 @@ unsigned getNumWorlds() {
     unsigned numWorlds = 0;
     unsigned numDigits = 0;
     int digit;
-
+    return numWorlds;
+    /*
     // Color background.
     tgi_setpalette(GreenPalette);
 
@@ -525,6 +599,7 @@ unsigned getNumWorlds() {
     }
     tgi_clear();
     return numWorlds;
+    */
 }
 
 
@@ -539,7 +614,8 @@ unsigned getYears() {
     unsigned numYears = 0;
     unsigned numDigits = 0;
     int digit;
-
+    return numDigits;
+    /*
     // Color background.
     tgi_setpalette(GreenPalette);
 
@@ -572,6 +648,7 @@ unsigned getYears() {
     }
     tgi_clear();
     return numYears;
+    */
 }
 
 /**
@@ -580,6 +657,8 @@ unsigned getYears() {
  * @return - Returns 1 for true or 0 for false.
  */
 unsigned getDefensive() {
+    return 0;
+    /*
     char answer;
 
     // Color background.
@@ -604,6 +683,7 @@ unsigned getDefensive() {
     } else {
         return 0;
     }
+    */
 }
 
 /**
@@ -612,6 +692,8 @@ unsigned getDefensive() {
  * @return - Returns 1 for true or 0 for false.
 */
 unsigned getEvents() {
+    return 0;
+    /*
     char answer;
 
     // Color background.
@@ -635,6 +717,7 @@ unsigned getEvents() {
     } else {
         return 0;
     }
+    */
 }
 
 /**
@@ -644,6 +727,14 @@ unsigned getEvents() {
 */
 unsigned mapAcceptance() {
     // Player acceptance;
+
+    // gotoxy(textLine1X, textLine1Y);
+
+    cputsxy(textLine1X, textLine1Y, "Would you like a");
+    cputsxy(textLine2X, textLine2Y, "different map ?");
+        
+    return 0;
+    /*
     char acceptance;
 
     // Color background.
@@ -673,4 +764,5 @@ unsigned mapAcceptance() {
     }
 
     // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
+    */
 }

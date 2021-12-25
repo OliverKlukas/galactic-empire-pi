@@ -244,9 +244,10 @@ void game() {
     //startScreen(); //TODO
 
     // Handle initial questions.
-    initGameInputsMock(); //TODO: switch back to questions initGameInputs();
+    // initGameInputsMock(); //TODO: switch back to questions initGameInputs();
 
     // Updates indices to update whole map.
+    /*
     for(i = 0; i < 40; i++){
         if(i < numWorlds){
             indices[i] = 1;
@@ -254,9 +255,12 @@ void game() {
             indices[i] = -1;
         }
     }
+    */
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics(); // TODO: new in graphics
+    mapAcceptance();
+    while(1);
 
     // Initialize world and map based on player acceptance.
     do {
@@ -298,7 +302,7 @@ int main() {
     unsigned char Border;
 
     // Set the border colors.
-    Border = bordercolor(COLOR_BORD);
+    // Border = bordercolor(COLOR_BORD);
 
     // Call main game function.
     game();
