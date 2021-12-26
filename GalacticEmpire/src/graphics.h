@@ -80,6 +80,11 @@ unsigned getYears();
 unsigned getDefensive();
 
 /**
+ * Clears the map completely of entries.
+ */
+void clearMap();
+
+/**
  * Retrieve if special events should occur.
  *
  * @return - Returns if special events should occur.

@@ -129,7 +129,7 @@ void generateGalaxy() {
     }
 
     // Build all player spheres.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; i++) { // TODO: make the order of this random
         // Place home planet with border distance into sphere.
         do {
             galaxy[i].x = rand() % (sphereDivisions[numPlayers-1][i][2] - (2 * homePlanetBorderDistance[numPlayers-1]) - sphereDivisions[numPlayers-1][i][0]);
@@ -182,7 +182,7 @@ void generateGalaxy() {
 /**
  * Initialises the game questions.
  */
-void initGameInputs() { // TODO: new conio in graphics
+void initGameInputs() {
     // Loop variables.
     int i;
 
@@ -228,40 +228,29 @@ void initGameInputsMock() {
     events = 1;
 }
 
-
-
 /**
  * Main galactic empire game logic.
  */
 void game() {
-    // Initialize list of planets to be updated.
-    int i;
-    int indices[40];
-
     // Plot start screen.
-    startScreen();
+    //startScreen();  // TODO: comment in
 
     // Handle initial questions.
-    initGameInputs(); // TODO delete: initGameInputsMock();
-
-    // Updates indices to update whole map.
-    for(i = 0; i < 40; i++){
-        if(i < numWorlds){
-            indices[i] = 1;
-        } else {
-            indices[i] = -1;
-        }
-    }
+    initGameInputsMock(); // TODO delete: initGameInputsMock();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
     // Initialize world and map based on player acceptance.
-    do {
+    generateGalaxy();
+    updateMap(&galaxy);
+    updateTable(&galaxy, year);
+    while(!mapAcceptance()) {
+        clearMap();
         generateGalaxy();
-        // TODO: redraw map empty!
-        // updateMap(&indices, &galaxy); // TODO
-    } while(!mapAcceptance());
+        updateMap(&galaxy);
+        updateTable(&galaxy, year);
+    }
     retrieveInputs();
 
     // Play the game until running out of years.
@@ -270,8 +259,8 @@ void game() {
         // TODO defensive ships here!
 
         // Update map based on state.
-        updateTable(&indices, &galaxy, year);
-        updateMap(&indices, &galaxy);
+        updateTable(&galaxy, year);
+        updateMap(&galaxy);
 
         // Retrieve inputs of all players.
         retrieveInputs();

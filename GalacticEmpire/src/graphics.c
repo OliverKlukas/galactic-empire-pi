@@ -20,48 +20,81 @@ const unsigned maxY = 24;
 int mapNLinesVertical = 20;
 int mapNLinesHorizontal = 20;
 
+// Year settings.
 int yearLineX = 0;
 int yearLineY = 0;
 
+// Text field coordinates.
 int textLine1X = 0;
 int textLine1Y = 0;
-
 int textLine2X = 0;
 int textLine2Y = 0;
 
+// Table coordinates.
 int tableColumn1XMin = 0;
 int tableColumn2XMin = 0;
-
 int tableFirstRowYMin = 0;
-
-
-
-// Number offset for plotting digits.
-int numOffset = 48;
-
-// Space between alphabet letters.
-int letterSpacing = 8;
-
-// Center 8x8 letters to coordinates.
-int centerLetter = 4;
-
-// Table coordinates.
-unsigned tableCorner = 1; // TODO change all usages to this and delete below.
-
-// Input box coordinates.
-
 
 // Globally used color Palettes.
 const unsigned startTextColor = COLOR_WHITE;
 const unsigned startBackgroundColor = COLOR_GREEN;
 const unsigned textColor = COLOR_BLACK;
 const unsigned backgroundColor = COLOR_WHITE;
-const unsigned playerColors[6] = {COLOR_BLACK, COLOR_RED, COLOR_PURPLE, COLOR_GREEN, COLOR_BLUE, COLOR_BROWN};
+const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_GREEN, COLOR_RED, COLOR_BROWN};
 
 
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
+
+/**
+ * Places colored letter on screen.
+ *
+ * @param x - X coordinate on screen, 0-39.
+ * @param y - Y coordinate on screen, 0-24.
+ * @param character - Character that should be plotted.
+ * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
+ */
+void placeColoredLetter(int x, int y, char character, int player) {
+    textcolor(playerColors[player]);
+    cputcxy(x, y, character);
+    textcolor(textColor);
+}
+
+/**
+ *  Places colored number on screen.
+ *
+ *  <p>Places the number with its right most x value. Numbers grow with its decimal places to the left.
+ *
+ * @param x - Right most X coordinate that the number can take, 0-39
+ * @param y - Y coordinate on screen, 0-24.
+ * @param number - Number that should be plotted.
+ * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
+ */
+void placeColoredNumber(int x, int y, int number, int player) {
+    // Copy variables.
+    int digit;
+    int num = number;
+    int i = 0;
+
+    // Set text color according to selected player.
+    textcolor(playerColors[player]);
+
+    // Plot number by breaking it down into its single digits.
+    if (number == 0){
+        cputcxy(x, y, digit + '0');
+    } else {
+        while(num > 0){
+            digit = num % 10;
+            cputcxy(x-i, y, digit + '0');
+            num = num / 10;
+            i++;
+        }
+    }
+
+    // Reset color to last used one.
+    textcolor(textColor);
+}
 
 /**
  * Clears a line at given coordinate y.
@@ -74,13 +107,11 @@ void clearLine(unsigned y) {
 }
 
 /**
- * TODO: delete current text in input field
+ *  Deletes current text in input field.
  */
 void clearTextIOField() {
-    /*
-    tgi_setcolor(COLOR_BLACK);
-    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
-     */
+    cclearxy(textLine1X, textLine1Y, mapNLinesVertical - 2);
+    cclearxy(textLine2X, textLine2Y, mapNLinesVertical - 2);
 }
 
 /**
@@ -89,140 +120,99 @@ void clearTextIOField() {
  * @param player - Current active player, unsigned 0 - (numPlayer-1)
  * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs.
  */
-int *retrieveInputs(int player) {
-    int inputs [4];
-    return inputs;/*
-    static int inputs [4];
-    char origin;
-    char destination;
-    unsigned nShips;
-
-    // todo: make this somewhere else:
-
-    clearTextIOField();
-
-    // 1st question
-    plotText(textLine1XMin, textLine1YMin, "Admiral A:", 1);
-    plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", 1);
-
-    // Only the first inputted letter is read
-    origin = cgetc ();
-    *while (cgetc () != CH_ENTER)
-    {
-        if (cgetc() == CH_SPACE || origin == CH_SPACE)
-        {} 
-    }
-
-    // 2nd question
-    clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "Destination ?", 1);
-    destination = cgetc ();
-    while (cgetc () != CH_ENTER);
-
-    // 3rd question
-    clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "# of Ships ?", 1);
-    nShips = cgetc ();
-    while (cgetc () != CH_ENTER);
-
-
+int *retrieveInputs() {
+    int inputs[4];
     return inputs;
-    */
 }
 
 /**
- * Updates the map given a list of indices of planets to be changed.
+ * Updates the map with the current galaxy state.
  *
- * @param indices - Integer list of length 40 while only indices >= 0 are evaluated.
  * @param galaxy - Current state of galaxy.
  */
-void updateMap(int *indices, struct world *galaxy) {/*
+void updateMap(struct world *galaxy) {
     // Loop variable.
     int i;
-    // Chosen color palette.
-    //tgi_setpalette(StandardPalette);
 
     // Place to be updated worlds on map.
     for (i = 0; i < 40; i++) {
-        // Check if map should be updated.
-        if (indices[i] >= 0) {
-            // Differentiate between small and capital letters.
-            if (i < 20) {
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner + 1);
+        // Differentiate between small and capital letters.
+        if (i < 20) {
+            placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner);
+        } else {
+            placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner);
+        }
+    }
+}
+
+/**
+ * Clears the map completely of entries.
+ */
+void clearMap() {
+    // Loop variables.
+    int i, j;
+
+    // Draw map grid.
+    for (i = 0; i < mapNLinesHorizontal; ++i) {
+        // x
+        for (j = 0; j < mapNLinesVertical; ++j) {
+            if (j == 0 && i == 0) {
+                cputcxy(j, i, CH_ULCORNER);
+            } else if (j == mapNLinesVertical - 1 && i == 0) {
+                cputcxy(j, i, CH_URCORNER);
+            } else if (i == 0) {
+                cputcxy(j, i, CH_TTEE);
+            } else if (i == mapNLinesHorizontal - 1 && j == 0) {
+                cputcxy(j, i, CH_LLCORNER);
+            } else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1) {
+                cputcxy(j, i, CH_LRCORNER);
+            } else if (j == 0) {
+                cputcxy(j, i, CH_LTEE);
+            } else if (i == mapNLinesHorizontal - 1) {
+                cputcxy(j, i, CH_BTEE);
+            } else if (j == mapNLinesVertical - 1) {
+                cputcxy(j, i, CH_RTEE);
             } else {
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner + 1);
+                cputcxy(j, i, CH_CROSS);
             }
         }
-    }*/
+    }
 }
 
 /**
  * Draws the latest game table and year.
  *
- * <p>Updates the displayed graphics based on the global variables. Read only.
- * // TODO: similar to updateMap() we need a way to only update the worlds that were changed!
+ * <p>Updates the displayed tables graphics based on the global variables.
+ * @param galaxy - Current state of galaxy.
+ * @param year - Current game year.
  */
-void updateTable(unsigned year) {/*
+void updateTable(struct world *galaxy, unsigned year) {
     // Loop variables.
-    int row, column;
-
-    // Table text coordinates.
-    char letter = 'a';
-    //int tableTextX = (maxX / 2) + (2 * margin);
-    //int tableTextY = margin + 2;
-
-    // Chosen color palette.
-    // tgi_setpalette(StandardPalette);
+    int i;
 
     // Update current year.
-    // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
-    if (year < 10) { // TODO: make a custom plot numbers
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, COLOR_FORE);
-    } else {
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, COLOR_FORE);
-        plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, COLOR_FORE);
-    }
+    gotoxy(yearLineX, yearLineY);
+    cprintf("Year: %d", year);
 
-    // Update first column of current planet occupations.
-    for (column = 0; column < 2; column++) {
-        for (row = 1; row < 22; row++) {
-            // World.
-            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, COLOR_FORE);
-            letter += 1;
-
-            // Production. // TODO: make a custom plot numbers
-            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset,
-                       COLOR_FORE);
-
-            // Ships.
-            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset,
-                       COLOR_FORE);
+    // Place to be updated worlds on map.
+    for (i = 0; i < 40; i++) {
+        // Differentiate between first and second column.
+        if (i < 20) {
+            // Plot world name, production and ships.
+            placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i].owner);
+            placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);       // TODO: fix once galaxy is okay: ONLY display numbers if owner != 0 (pirate)
+            placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
+        } else {
+            // Plot world name, production and ships.
+            placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i].owner);
+            placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
+            placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
         }
-        tableTextX += 75;
-        letter = 'A';
-    }*/
-}
-
-
-/**
- * Places colored letter on screen.
- *
- * <p>
- *
- * @param x - X coordinate on screen, 0-39.
- * @param y - Y coordinate on screen, 0-24.
- * @param character - Character that should be plotted.
- * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
- */
-void placeColoredLetter(int x, int y, char character, int player)
-{
-    textcolor(playerColors[player]);
-    cputcxy(x, y, character);
-    textcolor(textColor);
+    }
 }
 
 /**
- * Initializes the standard game graphics. // todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
+ * Initializes the standard game graphics.
  */
 void initGameGraphics() {
     int i, j;
@@ -244,48 +234,29 @@ void initGameGraphics() {
     clrscr();
     //// 1. Draw map grid
     // y
-    for (i = 0; i < mapNLinesHorizontal; ++i)
-    {
+    for (i = 0; i < mapNLinesHorizontal; ++i) {
         // x
-        for (j = 0; j < mapNLinesVertical; ++j)
-        {
-            if (j == 0 && i == 0)
-            {
+        for (j = 0; j < mapNLinesVertical; ++j) {
+            if (j == 0 && i == 0) {
                 cputcxy(j, i, CH_ULCORNER);
-            }
-            else if (j == mapNLinesVertical - 1 && i == 0)
-            {
-                cputcxy(j, i, CH_URCORNER);     
-            }
-            else if (i == 0)
-            {
-                cputcxy(j, i, CH_TTEE); 
-            }
-            else if (i == mapNLinesHorizontal - 1 && j == 0)
-            {
-                cputcxy(j, i, CH_LLCORNER); 
-            }
-            else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1)
-            {
+            } else if (j == mapNLinesVertical - 1 && i == 0) {
+                cputcxy(j, i, CH_URCORNER);
+            } else if (i == 0) {
+                cputcxy(j, i, CH_TTEE);
+            } else if (i == mapNLinesHorizontal - 1 && j == 0) {
+                cputcxy(j, i, CH_LLCORNER);
+            } else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1) {
                 cputcxy(j, i, CH_LRCORNER);
-            }
-            else if (j == 0)
-            {
+            } else if (j == 0) {
                 cputcxy(j, i, CH_LTEE);
-            }
-            else if (i == mapNLinesHorizontal - 1)
-            {
-                cputcxy(j, i, CH_BTEE); 
-            }
-            else if (j == mapNLinesVertical - 1)
-            {
+            } else if (i == mapNLinesHorizontal - 1) {
+                cputcxy(j, i, CH_BTEE);
+            } else if (j == mapNLinesVertical - 1) {
                 cputcxy(j, i, CH_RTEE);
-            }
-            else
-            {
+            } else {
                 cputcxy(j, i, CH_CROSS);
             }
-        
+
         }
     }
 
@@ -303,31 +274,29 @@ void initGameGraphics() {
     tableColumn1XMin = tableXMin + 1;
 
     // middle lines
-    cvlinexy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 1, tableYMax - tableYMin - 1);
-    cvlinexy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMax, CH_BTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMax, CH_BTEE);
+    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 1, tableYMax - tableYMin - 1);
+    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMax, CH_BTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMax, CH_BTEE);
 
-    tableColumn2XMin = tableXMin + (tableXMax - tableXMin)/2 + 2;
+    tableColumn2XMin = tableXMin + (tableXMax - tableXMin) / 2 + 2;
 
     // header
     cputsxy(tableXMin + 1, tableYMin + 1, "W Pr Shp");
-    cputsxy(tableXMin + (tableXMax - tableXMin)/2 + 2, tableYMin + 1, "W Pr Shp");
+    cputsxy(tableXMin + (tableXMax - tableXMin) / 2 + 2, tableYMin + 1, "W Pr Shp");
     chlinexy(tableXMin + 1, tableYMin + 2, tableXMax - tableXMin - 1);
-    cputcxy(tableXMin , tableYMin + 2, CH_LTEE);
-    cputcxy(tableXMax , tableYMin + 2, CH_RTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 2, CH_CROSS);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 2, CH_CROSS);
-
+    cputcxy(tableXMin, tableYMin + 2, CH_LTEE);
+    cputcxy(tableXMax, tableYMin + 2, CH_RTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 2, CH_CROSS);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 2, CH_CROSS);
     tableFirstRowYMin = tableYMin + 3;
 
     /// Year 
     yearLineX = tableXMin + 1;
     yearLineY = tableYMax + 1;
-    cputsxy(yearLineX, yearLineY, "Year: 0");
-
+    cputsxy(yearLineX, yearLineY, "Year:");
 
     /// Input text field
     cputcxy(textFieldXMin, textFieldYMin, CH_ULCORNER);
@@ -338,40 +307,10 @@ void initGameGraphics() {
     chlinexy(textFieldXMin + 1, textFieldYMax, textFieldXMax - textFieldXMin - 1);
     cputcxy(textFieldXMin, textFieldYMax, CH_LLCORNER);
     cvlinexy(textFieldXMin, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
-    
     textLine1X = textFieldXMin + 1;
     textLine1Y = textFieldYMin + 1;
-
     textLine2X = textLine1X;
     textLine2Y = textLine1Y + 1;
-
-    // TODO: just testing map placement 
-    placeColoredLetter(5, 0, 'a', 0);
-    placeColoredLetter(5, 1, 'b', 1);
-    placeColoredLetter(5, 2, 'c', 2);
-    placeColoredLetter(5, 3, 'd', 3);
-
-    // TODO: testing table placement
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin, 'a', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 1, 'b', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 2, 'c', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 3, 'd', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 4, 'e', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 5, 'f', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 6, 'g', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 7, 'h', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 8, 'i', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 9, 'j', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 10, 'k', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 11, 'l', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 12, 'm', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 13, 'n', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 14, 'o', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 15, 'p', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 16, 'q', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 17, 'r', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 18, 's', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 19, 't', 0);
 }
 
 /**
@@ -465,25 +404,25 @@ char *getPlayerName(unsigned player) {
     clrscr();
 
     // Plot the question.
-    cprintf("Player number %d is? ", player+1);
+    cprintf("Player number %d is? ", player + 1);
 
     // Enable input cursor.
     cursor(1);
 
     // Retrieve player name.
-    do{
+    do {
         input = cgetc();
         switch (input) {
             case CH_ENTER:
                 // Check if three chars have been inputted.
-                if(numChars != 3){
+                if (numChars != 3) {
                     // Warn player if wrong input format.
                     cputsxy(0, 2, "Name needs to be 3 letters!");
                     sleep(2);
                     clearLine(2);
                     gotoxy(20 + numChars, 0);
                     input = ' ';
-                } else{
+                } else {
                     cursor(0);
                 }
                 break;
@@ -508,11 +447,11 @@ char *getPlayerName(unsigned player) {
                 break;
             default:
                 // Check if input is valid
-                if(numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))){
+                if (numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))) {
                     name[numChars] = input;
                     cputcxy(20 + numChars, 0, input);
                     numChars++;
-                } else{
+                } else {
                     // Warn player if wrong input format.
                     cputsxy(0, 2, "Name needs to be 3 letters!");
                     sleep(2);
@@ -520,7 +459,7 @@ char *getPlayerName(unsigned player) {
                     gotoxy(20 + numChars, 0);
                 }
         }
-    } while(input != CH_ENTER);
+    } while (input != CH_ENTER);
     return name; // TODO: adress of stack memory is returned, change to reference?
 }
 
@@ -790,43 +729,47 @@ unsigned getEvents() {
  * @return - Returns 1 for not accepting and 0 for acceptance.
 */
 unsigned mapAcceptance() {
-    return 1; /*
+    unsigned answer = 2;
+    char input;
+
     // Player acceptance;
-
-    // gotoxy(textLine1X, textLine1Y);
-
     cputsxy(textLine1X, textLine1Y, "Would you like a");
-    cputsxy(textLine2X, textLine2Y, "different map ?");
-        
-    return 0;
-    char acceptance;
+    cputsxy(textLine2X, textLine2Y, "different map?");
 
-    // Color background.
-    tgi_setpalette(StandardPalette);
+    // Enable input cursor.
+    gotoxy(textLine2X + 15, textLine2Y);
+    cursor(1);
 
-    // Plot question.
-    plotText(textLine1XMin,
-             textLine1YMin,
-             "Would you like a",
-             COLOR_FORE);
-    plotText(textLine2XMin,
-             textLine2YMin,
-             "different map?",
-             COLOR_FORE);
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        switch (input) {
+            case 'y':
+                cputcxy(textLine2X + 15, textLine2Y, input);
+                answer = 0;
+                break;
+            case 'n':
+                cputcxy(textLine2X + 15, textLine2Y, input);
+                answer = 1;
+                break;
+            case CH_DEL:
+                // Delete current answer.
+                cclearxy(textLine2X + 15, textLine2Y, 1);
+                gotoxy(textLine2X + 15, textLine2Y);
+                answer = 2;
+                break;
+            case CH_ENTER:
+                // Check if answer was entered.
+                if (answer == 2) {
+                    input = ' ';
+                } else {
+                    cursor(0);
+                }
+        }
+    } while (input != CH_ENTER);
 
-    // Retrieve and check input.
-    acceptance = cgetc();
-    while (acceptance != 'y' && acceptance != 'n') {
-        acceptance = cgetc();
-    }
+    // erase text IO field
+    clearTextIOField();
 
-    // Return acceptance.
-    if (acceptance == 'y') {
-        return 0;
-    } else {
-        return 1;
-    }
-
-    // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
-    */
+    return answer;
 }
