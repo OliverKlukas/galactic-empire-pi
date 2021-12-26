@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <cc65.h>
 #include <conio.h>
+#include <time.h>
 #include "graphics.h"
 
 
@@ -296,6 +297,9 @@ int main() {
 
     // Set the border colors.
     Border = bordercolor(COLOR_GREEN);
+
+    // Seed the random numbers arbitrary.
+    srand(time(0));
 
     // Call main game function.
     game();

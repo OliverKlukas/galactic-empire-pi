@@ -56,7 +56,7 @@ const unsigned startTextColor = COLOR_WHITE;
 const unsigned startBackgroundColor = COLOR_GREEN;
 const unsigned textColor = COLOR_BLACK;
 const unsigned backgroundColor = COLOR_WHITE;
-const unsigned playerColors[6] = {COLOR_BLACK, COLOR_RED, COLOR_CYAN, COLOR_GREEN, COLOR_BLUE, COLOR_PURPLE};
+const unsigned playerColors[6] = {COLOR_BLACK, COLOR_RED, COLOR_PURPLE, COLOR_GREEN, COLOR_BLUE, COLOR_BROWN};
 
 
 /*****************************************************************************/
@@ -487,7 +487,7 @@ char *getPlayerName(unsigned player) {
                     cursor(0);
                 }
                 break;
-            case CH_DEL:                    // TODO: something is odd
+            case CH_DEL:
                 // Delete last character.
                 switch (numChars) {
                     case 1:
@@ -500,6 +500,10 @@ char *getPlayerName(unsigned player) {
                         gotoxy(21, 0);
                         numChars--;
                         break;
+                    case 3:
+                        cclearxy(22, 0, 1);
+                        gotoxy(22, 0);
+                        numChars--;
                 }
                 break;
             default:
