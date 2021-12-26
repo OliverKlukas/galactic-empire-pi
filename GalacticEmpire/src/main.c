@@ -241,7 +241,8 @@ void game() {
     startScreen();
 
     // Handle initial questions.
-    initGameInputs(); // TODO delete: initGameInputsMock();
+    //initGameInputs(); // TODO delete: initGameInputsMock();
+    initGameInputsMock();
 
     // Updates indices to update whole map.
     for(i = 0; i < 40; i++){
@@ -261,7 +262,8 @@ void game() {
         // TODO: redraw map empty!
         // updateMap(&indices, &galaxy); // TODO
     } while(!mapAcceptance());
-    retrieveInputs();
+    retrieveInputs(1, playerNames[0], &galaxy, numWorlds);
+    while(1);
 
     // Play the game until running out of years.
     while (year != totalYears) {

@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "main.h"
 
-
 /*****************************************************************************/
 /*                            Global variables                               */
 /*****************************************************************************/
@@ -77,13 +76,122 @@ void clearLine(unsigned y) {
  * TODO: delete current text in input field
  */
 void clearTextIOField() {
+    cclearxy(textLine1X, textLine1Y, mapNLinesVertical - 2);
+    cclearxy(textLine2X, textLine2Y, mapNLinesVertical - 2);
+}
 
-    cclearxy(textLine1X, textLine1Y, mapNLinesVertical-2);
-    cclearxy(textLine2X, textLine2Y, mapNLinesVertical-2);
+
+char readSinglePlanetLetter()
+{
     /*
-    tgi_setcolor(COLOR_BLACK);
-    tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
-     */
+    *   1. What it should be: enter one character, press enter : returns fitting char
+    *   2. If more or less than one character, return 0: display wrong input in parent function
+    *   3. If space is entered: return 1
+    */
+
+    char planet;
+    char readChar;
+    unsigned numChars = 0;
+
+    do{
+        readChar = cgetc();
+        switch (readChar) {
+            case CH_ENTER:
+                // Check if three chars have been inputted.
+                if(numChars == 0){
+                    // invalid input return 
+                    return 0;
+                } else {
+                    // return fitting planet
+                    return planet;
+                }
+            case ' ':
+                return 1;
+            default:
+                // Check if input is valid
+                if(numChars < 1 && ((readChar >= 'a' && readChar <= 'z') || (readChar >= 'A' && readChar <= 'Z'))){
+                    planet = readChar;
+                    numChars++;
+                } else{
+                    return 0;
+                }
+        }
+    } while(readChar != CH_ENTER);
+}
+
+/*
+*   1. What it should be: reads any kind of number entered, press enter : returns fitting char
+*   2. if any non digit is entered: return -1
+    3. If nothing or 0 is entered: return -1 // 0 is handled by parent function
+    4. If a number with more than 5 digits is entered: return -1
+*   3. If space is entered: return -2: cancel the entire loop
+*/ 
+int readNumber()
+{
+    int i;
+    int readDigits[5] = {0, 0, 0, 0, 0};
+    int multiplyBy[5] = {10000, 1000, 100, 10, 1};
+    int number = 0;
+    int nZerosReadIn = 0;
+    char readChar;
+    unsigned numChars = 0;
+    
+    do{
+        readChar = cgetc();
+        switch (readChar) {
+            case CH_ENTER:
+                // Check if three chars have been inputted.
+                if(numChars == 0){
+                    // invalid input return 
+                    return -1;
+                }
+                else {        
+                    // convert to int 
+                    clearTextIOField();
+
+                    // calc remaining zeros in read digits to convert to int number
+                    nZerosReadIn = 5 - numChars;
+
+                    gotoxy(textLine1X, textLine1Y);
+                    cprintf("nZerosReadIn: %01d", nZerosReadIn);
+                    sleep(2);
+                    for (i = 0; i < 5 - nZerosReadIn; ++i)
+                    {
+                        number += multiplyBy[i + nZerosReadIn] * readDigits[i];
+                    }
+                    if (number == 0)
+                    {
+                        return -1;
+                    }
+                    else 
+                    {
+                        return number;
+                    }
+                }
+            case ' ':
+                return -2;
+            default:
+                // Check if input is valid
+                if(numChars < 5 && isdigit(readChar)) {
+                    readDigits[numChars] = readChar - '0';
+                    numChars++;
+                } else{
+                    return -1;
+                }
+        }
+    } while(readChar != CH_ENTER);
+
+
+}
+
+
+unsigned convertPlanetLetterToNumberIndex(char planetLetter)
+{
+    if (planetLetter > 85)
+    {
+        return planetLetter - 173; 
+    }   
+        return planetLetter - 65;
 }
 
 /**
@@ -92,45 +200,177 @@ void clearTextIOField() {
  * @param player - Current active player, unsigned 0 - (numPlayer-1)
  * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs.
  */
-int *retrieveInputs(int player) {
-    int inputs [4];
-    return inputs;/*
+int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, unsigned numWorlds) {
+    
     static int inputs [4];
-    char origin;
-    char destination;
-    unsigned nShips;
+    
+    char origin = 0;
+    char destination = 0;
+    int nShips = -1;
 
-    // todo: make this somewhere else:
-
-    clearTextIOField();
-
-    // 1st question
-    plotText(textLine1XMin, textLine1YMin, "Admiral A:", 1);
-    plotText(textLine2XMin, textLine2YMin, "Origin of fleet ?", 1);
-
-    // Only the first inputted letter is read
-    origin = cgetc ();
-    *while (cgetc () != CH_ENTER)
+    while(1)
     {
-        if (cgetc() == CH_SPACE || origin == CH_SPACE)
-        {} 
+        // 1st question: Origin 
+        while (origin == 0 || origin == 1)
+        {
+            textcolor(textColor); // todo: should already be defined somewhere else!
+            cputsxy(textLine1X, textLine1Y, "Admiral ");
+            textcolor(playerColors[playerIter]);
+            cputs(playerName);
+            textcolor(textColor);
+            cputcxy(textLine1X + 11, textLine1Y, ':');
+            cputsxy(textLine2X, textLine2Y, "Origin of fleet ?");
+
+            origin = readSinglePlanetLetter();
+            if (origin == 0 || convertPlanetLetterToNumberIndex(origin) > numWorlds - 1)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                sleep(2);
+            } else if (origin == 1)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Cancelled!");
+                sleep(2);
+            } else if (!(galaxy[convertPlanetLetterToNumberIndex(origin)].owner == playerIter))
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                cputsxy(textLine2X, textLine2Y, "Not your world!");
+                origin = 0;
+                sleep(2);
+            }
+
+            else 
+            {
+                break;
+            }
+        }
+        clearTextIOField();
+        cputsxy(textLine1X, textLine1Y, "Success!");
+        cputcxy(textLine2X, textLine2Y, origin);
+
+        sleep(1);
+
+
+        cputsxy(textLine1X, textLine1Y, "According index:");
+        gotoxy(textLine2X, textLine2Y);
+        cprintf("index: %05d", convertPlanetLetterToNumberIndex(origin));
+
+        // for debugging
+        // sleep(2);
+        // clearTextIOField();
+        // origin = 0;
+        // continue;
+
+        // 2nd question: Destination
+        while (destination == 0 || destination == 1)
+        {
+            textcolor(textColor); // todo: should already be defined somewhere else!
+            cputsxy(textLine1X, textLine1Y, "Admiral ");
+            textcolor(playerColors[playerIter]);
+            cputs(playerName);
+            textcolor(textColor);
+            cputcxy(textLine1X + 11, textLine1Y, ':');
+            cputsxy(textLine2X, textLine2Y, "Destination ?");
+
+            destination = readSinglePlanetLetter();
+            if (destination == 0  || convertPlanetLetterToNumberIndex(destination) > numWorlds - 1)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                sleep(2);
+            } else if (destination == 1)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Cancelled!");
+                sleep(2);
+                break;
+            } else if (convertPlanetLetterToNumberIndex(destination) == convertPlanetLetterToNumberIndex(origin))
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                cputsxy(textLine2X, textLine2Y, "Origin = Destination!");
+                sleep(2);
+                destination = 0;
+            } else
+            {
+                break;
+            }
+        }
+
+        if (destination == 1)
+        {
+            origin = 0;
+            continue;
+        }
+
+
+        clearTextIOField();
+        cputsxy(textLine1X, textLine1Y, "Success!");
+        cputcxy(textLine2X, textLine2Y, destination);
+        sleep(2);
+
+
+        // 3rd Question: # ships:
+        while (nShips < 0 )
+        {
+            textcolor(textColor); // todo: should already be defined somewhere else!
+            cputsxy(textLine1X, textLine1Y, "Admiral ");
+            textcolor(playerColors[playerIter]);
+            cputs(playerName);
+            textcolor(textColor);
+            cputcxy(textLine1X + 11, textLine1Y, ':');
+            cputsxy(textLine2X, textLine2Y, "# Ships ?");
+
+            nShips = readNumber();
+            if (nShips == -1)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                sleep(2);
+            } else if (nShips == -2)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Cancelled!");
+                sleep(2);
+                break;
+            } else if (nShips > galaxy[convertPlanetLetterToNumberIndex(origin)].ships)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                cputsxy(textLine2X, textLine2Y, "Not enough ships!");
+                sleep(2);
+                nShips = -1;
+            }
+            
+            else
+            {
+                break;
+            }
+        }
+        if (nShips == -2)
+        {
+            origin = 0;
+            destination = 0;
+            continue;
+        }
+
+        clearTextIOField();
+
+        gotoxy(textLine1X, textLine1Y);
+        cprintf("nShips: %05d", nShips);
+
+        break;
     }
 
-    // 2nd question
-    clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "Destination ?", 1);
-    destination = cgetc ();
-    while (cgetc () != CH_ENTER);
-
-    // 3rd question
-    clearTextIOField();
-    plotText(textLine1XMin, textLine1YMin, "# of Ships ?", 1);
-    nShips = cgetc ();
-    while (cgetc () != CH_ENTER);
-
+    inputs[0] = playerIter;
+    inputs[1] = origin;
+    inputs[2] = destination;
+    inputs[3] = nShips;
 
     return inputs;
-    */
+    
 }
 
 /**
@@ -833,7 +1073,4 @@ unsigned mapAcceptance() {
     clearTextIOField();
 
     return answer;
-
-
-    // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
 }
