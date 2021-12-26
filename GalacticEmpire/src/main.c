@@ -241,7 +241,7 @@ void game() {
     startScreen();
 
     // Handle initial questions.
-    initGameInputs(); //TODO: switch back to questions initGameInputs();
+    initGameInputs(); // TODO delete: initGameInputsMock();
 
     // Updates indices to update whole map.
     for(i = 0; i < 40; i++){
@@ -253,7 +253,8 @@ void game() {
     }
 
     // Initialize everything that shouldn't be changed on the map.
-    initGameGraphics(); // TODO: new in graphics
+    initGameGraphics();
+    mapAcceptance();
 
     // Initialize world and map based on player acceptance.
     do {
