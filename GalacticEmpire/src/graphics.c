@@ -42,7 +42,6 @@ int yearLineXMin = 0;
 int yearLineYMin = 0;
 
 
-
 // Number offset for plotting digits.
 int numOffset = 48;
 
@@ -61,7 +60,7 @@ unsigned tableCorner = 1; // TODO change all usages to this and delete below.
 // Globally used color Palettes.
 static const unsigned char GreenPalette[2] = {TGI_COLOR_GREEN, TGI_COLOR_WHITE};
 static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLACK, TGI_COLOR_BLUE, TGI_COLOR_GREEN,
-                                         TGI_COLOR_RED, TGI_COLOR_ORANGE, TGI_COLOR_YELLOW};
+                                                 TGI_COLOR_RED, TGI_COLOR_ORANGE, TGI_COLOR_YELLOW};
 
 /*****************************************************************************/
 /*                              Functions                                    */
@@ -72,7 +71,7 @@ static const unsigned char StandardPalette[7] = {TGI_COLOR_WHITE, TGI_COLOR_BLAC
  *
  * @param y - Line that should be cleared 0 - maxY.
  */
-void clearLine(unsigned y){
+void clearLine(unsigned y) {
     gotoxy(0, y);
     cclear(maxX);
 }
@@ -138,14 +137,11 @@ void plotText(unsigned x, unsigned y, char *sentence, unsigned color) {/*
 }
 
 
-
-
 /**
  * TODO: print and update the current user input
  */
 
-void clearTextIOField()
-{/*
+void clearTextIOField() {/*
     tgi_setcolor(COLOR_BLACK);
     tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);*/
 }
@@ -164,7 +160,7 @@ void clearTextIOField()
 }
 */
 // returns a 4 letter array
-int * retrieveInputs(int player) {/*
+int *retrieveInputs(int player) {/*
     static int inputs [4];
 
     char origin;
@@ -399,7 +395,6 @@ void initGameGraphics() {/*
 }
 
 
-
 /**
  * Draws the start screen.
  *
@@ -444,26 +439,25 @@ unsigned getNumPlayers() {
     cputs("How many players [1-5]? ");
 
     // Enable input cursor.
-    cursor (1);
+    cursor(1);
 
     // Retrieve number of players till enter is hit.
     do {
-        input = cgetc ();
+        input = cgetc();
         if (isdigit(input)) {
             // Check if input is a valid number.
             cputcxy(24, 0, input);
             numPlayer = input - '0';
-            gotoxy(24, 0);
-        } else if(input == CH_DEL){
+        } else if (input == CH_DEL) {
             // Delete current input number.
             cclearxy(24, 0, 1);
             gotoxy(24, 0);
             numPlayer = 0;
-        } else if (input == CH_ENTER && numPlayer > 0 && numPlayer < 6 ){
-            // Disable input cursor.
+        } else if (input == CH_ENTER && numPlayer > 0 && numPlayer < 6) {
+            // No further input is expected.
             cursor(0);
-        } else{
-           // Warn player if wrong input format.
+        } else {
+            // Warn player if wrong input format.
             cputsxy(0, 2, "The number of players needs to be 1-5!");
             sleep(2);
             clearLine(2);
@@ -472,6 +466,7 @@ unsigned getNumPlayers() {
             input = ' ';
         }
     } while (input != CH_ENTER);
+    return numPlayer;
 }
 
 /**
@@ -485,29 +480,64 @@ unsigned getNumPlayers() {
 char *getPlayerName(unsigned player) {
     int numChars = 0;
     char name[3];
-    /*
+    char input;
+
+    // Clear screen and go to start.
+    clrscr();
+
     // Plot the question.
-    char *question = "Player number 0 is?";
-    tgi_setpalette(GreenPalette);
-    question[14] = player + 1 + '0';
-    plotText(margin, margin, question, COLOR_FORE);
+    cprintf("Player number %d is? ", player+1);
 
-    // Retrieve a three letter name.
-    while (numChars != 3) {
-        name[numChars] = cgetc();
-        plotLetter(165 + numChars * letterSpacing, margin, name[numChars], COLOR_FORE);
-        // Check if input letter is valid.
-        if ((name[numChars] > 192 && name[numChars] < 219) || (name[numChars] > 64 && name[numChars] < 91)) {
-            numChars++;
-        } else {
-            plotText(margin, margin + 2 * letterSpacing, "Name needs to be 3 letters!", COLOR_FORE);
-            tgi_clear();
-            numChars = 0;
-            plotText(margin, margin, question, COLOR_FORE);
+    // Enable input cursor.
+    cursor(1);
+
+    // Retrieve player name.
+    do{
+        input = cgetc();
+        switch (input) {
+            case CH_ENTER:
+                // Check if three chars have been inputted.
+                if(numChars != 3){
+                    // Warn player if wrong input format.
+                    cputsxy(0, 2, "Name needs to be 3 letters!");
+                    sleep(2);
+                    clearLine(2);
+                    gotoxy(20 + numChars, 0);
+                    input = ' ';
+                } else{
+                    cursor(0);
+                }
+                break;
+            case CH_DEL:                    // TODO: something is odd
+                // Delete last character.
+                switch (numChars) {
+                    case 1:
+                        cclearxy(20, 0, 1);
+                        gotoxy(20, 0);
+                        numChars--;
+                        break;
+                    case 2:
+                        cclearxy(21, 0, 1);
+                        gotoxy(21, 0);
+                        numChars--;
+                        break;
+                }
+                break;
+            default:
+                // Check if input is valid
+                if(numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))){
+                    name[numChars] = input;
+                    cputcxy(20 + numChars, 0, input);
+                    numChars++;
+                } else{
+                    // Warn player if wrong input format.
+                    cputsxy(0, 2, "Name needs to be 3 letters!");
+                    sleep(2);
+                    clearLine(2);
+                    gotoxy(20 + numChars, 0);
+                }
         }
-    }
-
-    tgi_clear();*/
+    } while(input != CH_ENTER);
     return name; // TODO: adress of stack memory is returned, change to reference?
 }
 
@@ -520,43 +550,77 @@ char *getPlayerName(unsigned player) {
  * @return - Returns number of worlds.
  */
 unsigned getNumWorlds() {
-    return 1;/*
     unsigned numWorlds = 0;
     unsigned numDigits = 0;
-    int digit;
+    char input;
 
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen and go to start.
+    clrscr();
 
-    // Plot question.
-    plotText(margin, margin, "How many worlds [10-40]?", COLOR_FORE);
+    // Input question.
+    cputs("How many worlds [10-40]? ");
 
-    // Retrieve the number of worlds.
-    while (numDigits != 2) {
-        digit = cgetc();
-        plotLetter(205 + numDigits * letterSpacing, margin, digit, COLOR_FORE);
-        digit -= numOffset;
+    // Enable input cursor.
+    cursor(1);
 
-        // Add digit to number.
-        if (numDigits == 0) {
-            numWorlds = numWorlds + (10 * digit);
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        if (isdigit(input)) {
+            // Differentiate per decimal place.
+            switch (numDigits) {
+                case 0:
+                    cputcxy(25, 0, input);
+                    numDigits++;
+                    numWorlds = 10 * (input - '0');
+                    break;
+                case 1:
+                    cputcxy(26, 0, input);
+                    numDigits++;
+                    numWorlds += input - '0';
+                    break;
+                default:
+                    cputsxy(0, 2, "The number of worlds needs to be 10-40!");
+                    sleep(2);
+                    clearLine(2);
+                    gotoxy(27, 0);
+            }
+        } else if (input == CH_DEL) {
+            // Delete current input number.
+            switch (numDigits) {
+                case 1:
+                    cclearxy(25, 0, 1);
+                    gotoxy(25, 0);
+                    numDigits = 0;
+                    numWorlds = 0;
+                    break;
+                case 2:
+                    cclearxy(26, 0, 1);
+                    gotoxy(26, 0);
+                    numDigits = 1;
+                    numWorlds = numWorlds - (numWorlds % 10);
+                    break;
+            }
+        } else if (input == CH_ENTER && numDigits == 2 && numWorlds > 9 && numWorlds < 41) {
+            // No further input is expected.
+            cursor(0);
         } else {
-            numWorlds += digit;
-        }
+            // Warn player if wrong input format.
+            cputsxy(0, 2, "The number of worlds needs to be 10-40!");
+            sleep(2);
+            clearLine(2);
 
-        // Check if input is valid.
-        if (digit < 0 || digit > 9 || numWorlds > 40) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of worlds needs to be 10-40!", COLOR_FORE);
-            tgi_clear();
-            numDigits = 0;
+            // Delete existing input.
+            cclearxy(25, 0, 2);
+
+            // Reset input field.
             numWorlds = 0;
-            plotText(margin, margin, "How many worlds [10-40]?", COLOR_FORE);
-        } else {
-            numDigits++;
+            numDigits = 0;
+            gotoxy(25, 0);
+            input = ' ';
         }
-    }
-    tgi_clear();
-    return numWorlds;*/
+    } while (input != CH_ENTER);
+    return numWorlds;
 }
 
 
@@ -568,43 +632,77 @@ unsigned getNumWorlds() {
  * @return - Returns number of years.
  */
 unsigned getYears() {
-    return 1;/*
     unsigned numYears = 0;
     unsigned numDigits = 0;
-    int digit;
+    char input;
 
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen and go to start.
+    clrscr();
 
-    // Plot question.
-    plotText(margin, margin, "How many years in the game [10-99]?", COLOR_FORE);
+    // Input question.
+    cputs("How many years in the game [10-99]? ");
 
-    // Retrieve the number of worlds.
-    while (numDigits != 2) {
-        digit = cgetc();
-        plotLetter(295 + numDigits * letterSpacing, margin, digit, COLOR_FORE);
-        digit -= numOffset;
+    // Enable input cursor.
+    cursor(1);
 
-        // Add digit to number.
-        if (numDigits == 0) {
-            numYears = numYears + (10 * digit);
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        if (isdigit(input)) {
+            // Differentiate per decimal place.
+            switch (numDigits) {
+                case 0:
+                    cputcxy(36, 0, input);
+                    numDigits++;
+                    numYears = 10 * (input - '0');
+                    break;
+                case 1:
+                    cputcxy(37, 0, input);
+                    numDigits++;
+                    numYears += input - '0';
+                    break;
+                default:
+                    cputsxy(0, 2, "The number of years needs to be 10-99!");
+                    sleep(2);
+                    clearLine(2);
+                    gotoxy(38, 0);
+            }
+        } else if (input == CH_DEL) {
+            // Delete current input number.
+            switch (numDigits) {
+                case 1:
+                    cclearxy(36, 0, 1);
+                    gotoxy(36, 0);
+                    numDigits = 0;
+                    numYears = 0;
+                    break;
+                case 2:
+                    cclearxy(37, 0, 1);
+                    gotoxy(37, 0);
+                    numDigits = 1;
+                    numYears = numYears - (numYears % 10);
+                    break;
+            }
+        } else if (input == CH_ENTER && numDigits == 2 && numYears > 0 && numYears < 100) {
+            // No further input is expected.
+            cursor(0);
         } else {
-            numYears += digit;
-        }
+            // Warn player if wrong input format.
+            cputsxy(0, 2, "The number of years needs to be 10-99!");
+            sleep(2);
+            clearLine(2);
 
-        // Check if input is valid.
-        if (digit < 0 || digit > 9 || numYears > 40) {
-            plotText(margin, margin + 2 * letterSpacing, "The number of years needs to be 10-99!", COLOR_FORE);
-            tgi_clear();
-            numDigits = 0;
+            // Delete existing input.
+            cclearxy(36, 0, 2);
+
+            // Reset input field.
             numYears = 0;
-            plotText(margin, margin, "How many years in the game [10-99]?", COLOR_FORE);
-        } else {
-            numDigits++;
+            numDigits = 0;
+            gotoxy(36, 0);
+            input = ' ';
         }
-    }
-    tgi_clear();
-    return numYears;*/
+    } while (input != CH_ENTER);
+    return numYears;
 }
 
 /**
@@ -613,31 +711,46 @@ unsigned getYears() {
  * @return - Returns 1 for true or 0 for false.
  */
 unsigned getDefensive() {
-    return 1;/*
-    char answer;
+    unsigned answer = 2;
+    char input;
 
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen and go to start.
+    clrscr();
 
-    // Retrieve if defensive ships should be build.
-    plotText(margin, margin, "Do neutral worlds have defenses [y/n]?", COLOR_FORE);
-    answer = cgetc();
+    // Input question.
+    cputs("Do neutral worlds have defense [y/n]? ");
 
-    // Check if input is valid.
-    while (answer != 'y' && answer != 'n') {
-        answer = cgetc();
-    }
+    // Enable input cursor.
+    cursor(1);
 
-    // Plot answer.
-    plotLetter(312, margin, answer, COLOR_FORE);
-
-    // Clear the page and return the answer.
-    tgi_clear();
-    if (answer == 'y') {
-        return 1;
-    } else {
-        return 0;
-    }*/
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        switch (input) {
+            case 'y':
+                cputcxy(38, 0, input);
+                answer = 1;
+                break;
+            case 'n':
+                cputcxy(38, 0, input);
+                answer = 0;
+                break;
+            case CH_DEL:
+                // Delete current answer.
+                cclearxy(38, 0, 1);
+                gotoxy(38, 0);
+                answer = 2;
+                break;
+            case CH_ENTER:
+                // Check if answer was entered.
+                if (answer == 2) {
+                    input = ' ';
+                } else {
+                    cursor(0);
+                }
+        }
+    } while (input != CH_ENTER);
+    return answer;
 }
 
 /**
@@ -646,30 +759,46 @@ unsigned getDefensive() {
  * @return - Returns 1 for true or 0 for false.
 */
 unsigned getEvents() {
-    return 1;/*
-    char answer;
+    unsigned answer = 2;
+    char input;
 
-    // Color background.
-    tgi_setpalette(GreenPalette);
+    // Clear screen and go to start.
+    clrscr();
 
-    // Retrieve if special events should occur.
-    plotText(margin, margin, "Should special events occur [y/n]?", COLOR_FORE);
+    // Input question.
+    cputs("Should special events occur [y/n]? ");
 
-    // Check if input is valid.
-    while (answer != 'y' && answer != 'n') {
-        answer = cgetc();
-    }
+    // Enable input cursor.
+    cursor(1);
 
-    // Plot answer.
-    plotLetter(288, margin, answer, COLOR_FORE);
-
-    // Clear the page and return the answer.
-    tgi_clear();
-    if (answer == 'y') {
-        return 1;
-    } else {
-        return 0;
-    }*/
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        switch (input) {
+            case 'y':
+                cputcxy(35, 0, input);
+                answer = 1;
+                break;
+            case 'n':
+                cputcxy(35, 0, input);
+                answer = 0;
+                break;
+            case CH_DEL:
+                // Delete current answer.
+                cclearxy(35, 0, 1);
+                gotoxy(35, 0);
+                answer = 2;
+                break;
+            case CH_ENTER:
+                // Check if answer was entered.
+                if (answer == 2) {
+                    input = ' ';
+                } else {
+                    cursor(0);
+                }
+        }
+    } while (input != CH_ENTER);
+    return answer;
 }
 
 /**
