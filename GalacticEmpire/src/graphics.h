@@ -34,6 +34,16 @@ void retrieveInputs();
 void updateTable();
 
 /**
+ * Prints the final ranking screen.
+ *
+ * @param numPlayer - Number of players.
+ * @param playerNames - Sorted list of player names.
+ * @param galaxyPercentages - Sorted list of percentages of galaxy production ownership.
+ * @param numberShips - Sorted list of total number of ships.
+ */
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyPercentages, unsigned *numberShips);
+
+/**
  * Initializes the standard game graphics.
  */
 void initGameGraphics();

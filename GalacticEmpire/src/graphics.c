@@ -482,9 +482,48 @@ char *getPlayerName(unsigned player) {
                 }
         }
     } while (input != CH_ENTER);
-    return name; // TODO: adress of stack memory is returned, change to reference?
+    return name;
 }
 
+/**
+ * Prints the final ranking screen.
+ *
+ * @param numPlayer - Number of players.
+ * @param playerNames - Sorted list of player names.
+ * @param galaxyPercentages - Sorted list of percentages of galaxy production ownership.
+ * @param numberShips - Sorted list of total number of ships.
+ */
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyPercentages, unsigned *numberShips){
+    // Loop variables.
+    int i;
+    char input;
+
+    // Clear screen.
+    clrscr();
+
+    // Set colors for final screen.
+    bgcolor(startBackgroundColor);
+    textcolor(startTextColor);
+
+    // Print first rows.
+    cputs("FINAL STANDINGS:");
+    gotoxy(0, 2);
+    cputs("Place   Admiral   Galaxy   Ships");
+
+    // Iterate over players.
+    for(i = 0; i < numPlayer; i++){
+        gotoxy(0, 4+i);
+        cprintf("%d.      %s       %d%%       %d", i+1, playerNames[i], galaxyPercentages[i], numberShips[i]);
+    }
+
+    gotoxy(0, 20);
+    cprintf("The war is over, press f to finish!");
+
+    // Wait for f before finishing.
+    while(input != 'f'){
+        input = cgetc();
+    }
+}
 
 /**
  * Retrieves the desired number of worlds.

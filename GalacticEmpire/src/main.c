@@ -138,7 +138,7 @@ void generateGalaxy() {
     unsigned totalProductionCapacity = maxProduction * (numWorlds / 2);
     unsigned excessProductionBonus = 7;
     unsigned numWorldsPerSphere[5];
-    unsigned piratePlanetInitialShipsFactor = 2;
+    unsigned piratePlanetInitialShipsFactor = 1;
     unsigned availableProduction[5];
 
     // Divide galaxy into spheres depending on player number.
@@ -230,6 +230,40 @@ void initGameInputs() {
 }
 
 /**
+ * Displays the final game stats and rankings.
+ */
+void awardCeremony(){
+    // Loop variables.
+    int i;
+
+    // Winner ranking.
+    unsigned *galaxyPercentages = (unsigned *) malloc(numPlayers * sizeof(unsigned));
+    unsigned *numberShips = (unsigned *) malloc(numPlayers * sizeof(unsigned));
+
+    // Collect state of galaxy.
+    for (i = 0; i < numWorlds; i++){
+        if(galaxy[i].owner > 0){
+            // Total Production hold in galaxy.
+            galaxyPercentages[galaxy[i].owner - 1] += galaxy[i].prod;
+            // Total number of ships.
+            numberShips[galaxy[i].owner - 1] += galaxy[i].ships;
+        }
+    }
+
+    // Check achievements of players and rank them.
+    for (i = 0; i < numPlayers; i++) {
+
+    }
+
+    // Print out ranking of players.
+    printCeremony(numPlayers, playerNames, galaxyPercentages, numberShips);
+
+    // Free allocated storage.
+    free(galaxyPercentages);
+    free(numberShips);
+}
+
+/**
  * Initialises the game questions.  // TODO: delete, can be used instead of typing in questions
  */
 void initGameInputsMock() {
@@ -257,10 +291,10 @@ void initGameInputsMock() {
  */
 void game() {
     // Plot start screen.
-    startScreen();
+    //startScreen(); // TODO
 
     // Handle initial questions.
-    initGameInputs();
+    initGameInputsMock();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
@@ -275,23 +309,24 @@ void game() {
         updateMap(&galaxy);
         updateTable(&galaxy, year);
     }
-    retrieveInputs();
+
+    //retrieveInputs();
 
     // Play the game until running out of years.
     while (year != totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
-        // TODO defensive ships here!
 
         // Update map based on state.
         updateTable(&galaxy, year);
         updateMap(&galaxy);
 
         // Retrieve inputs of all players.
-        retrieveInputs();
+        //retrieveInputs();
         year++;
     }
 
-    // TODO: display final stats like winner etc.
+    // Final screen and award ceremony.
+    awardCeremony();
 }
 
 /*****************************************************************************/
