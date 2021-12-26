@@ -115,6 +115,17 @@ void clearTextIOField() {
 }
 
 /**
+ *  Deletes current text in table.
+ */
+void clearTable() {
+    int i;
+    for (i = 0; i < 20; i++){
+        cclearxy(tableColumn1XMin, tableFirstRowYMin + i, 8);
+        cclearxy(tableColumn2XMin, tableFirstRowYMin + i, 8);
+    }
+}
+
+/**
  * Retrieves inputs of game rounds.
  *
  * @param player - Current active player, unsigned 0 - (numPlayer-1)
@@ -189,6 +200,9 @@ void clearMap() {
 void updateTable(struct world *galaxy, unsigned year) {
     // Loop variables.
     int i;
+
+    // Clear table before update.
+    clearTable();
 
     // Update current year.
     gotoxy(yearLineX, yearLineY);
