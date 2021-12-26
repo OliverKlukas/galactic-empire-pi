@@ -77,6 +77,9 @@ void clearLine(unsigned y) {
  * TODO: delete current text in input field
  */
 void clearTextIOField() {
+
+    cclearxy(textLine1X, textLine1Y, mapNLinesVertical-2);
+    cclearxy(textLine2X, textLine2Y, mapNLinesVertical-2);
     /*
     tgi_setcolor(COLOR_BLACK);
     tgi_bar(textLine1XMin, textLine1YMin, textLine2XMax, textLine2YMax);
@@ -786,43 +789,51 @@ unsigned getEvents() {
  * @return - Returns 1 for not accepting and 0 for acceptance.
 */
 unsigned mapAcceptance() {
-    return 1; /*
+
+    unsigned answer = 2;
+    char input;
+   
     // Player acceptance;
-
-    // gotoxy(textLine1X, textLine1Y);
-
     cputsxy(textLine1X, textLine1Y, "Would you like a");
-    cputsxy(textLine2X, textLine2Y, "different map ?");
+    cputsxy(textLine2X, textLine2Y, "different map?");
         
-    return 0;
-    char acceptance;
+    // Enable input cursor.
+    gotoxy(textLine2X + 15, textLine2Y);
+    cursor(1);
 
-    // Color background.
-    tgi_setpalette(StandardPalette);
+    // Retrieve number of players till enter is hit.
+    do {
+        input = cgetc();
+        switch (input) {
+            case 'y':
+                cputcxy(textLine2X + 15, textLine2Y, input);
+                answer = 0;
+                break;
+            case 'n':
+                cputcxy(textLine2X + 15, textLine2Y, input);
+                answer = 1;
+                break;
+            case CH_DEL:
+                // Delete current answer.
+                cclearxy(textLine2X + 15, textLine2Y, 1);
+                gotoxy(textLine2X + 15, textLine2Y);
+                answer = 2;
+                break;
+            case CH_ENTER:
+                // Check if answer was entered.
+                if (answer == 2) {
+                    input = ' ';
+                } else {
+                    cursor(0);
+                }
+        }
+    } while (input != CH_ENTER);
 
-    // Plot question.
-    plotText(textLine1XMin,
-             textLine1YMin,
-             "Would you like a",
-             COLOR_FORE);
-    plotText(textLine2XMin,
-             textLine2YMin,
-             "different map?",
-             COLOR_FORE);
+    // erase text IO field 
+    clearTextIOField();
 
-    // Retrieve and check input.
-    acceptance = cgetc();
-    while (acceptance != 'y' && acceptance != 'n') {
-        acceptance = cgetc();
-    }
+    return answer;
 
-    // Return acceptance.
-    if (acceptance == 'y') {
-        return 0;
-    } else {
-        return 1;
-    }
 
     // Erase input box. // TODO +1 for all the walls but make the corners a global thing.
-    */
 }
