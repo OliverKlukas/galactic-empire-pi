@@ -71,7 +71,7 @@ void placeColoredLetter(int x, int y, char character, int player) {
  * @param number - Number that should be plotted.
  * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
  */
-void placeColoredNumber(int x, int y, int number, int player) {
+void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player) {
     // Copy variables.
     int digit;
     int num = number;
@@ -82,7 +82,7 @@ void placeColoredNumber(int x, int y, int number, int player) {
 
     // Plot number by breaking it down into its single digits.
     if (number == 0){
-        cputcxy(x, y, digit + '0');
+        cputcxy(x, y, '0');
     } else {
         while(num > 0){
             digit = num % 10;
@@ -214,13 +214,21 @@ void updateTable(struct world *galaxy, unsigned year) {
         if (i < 20) {
             // Plot world name, production and ships.
             placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i].owner);
-            placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);       // TODO: fix once galaxy is okay: ONLY display numbers if owner != 0 (pirate)
-            placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
+
+            // Only show planets not owned by pirates.
+            if(galaxy[i].owner != 0) {
+                placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);
+                placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
+            }
         } else {
             // Plot world name, production and ships.
             placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i].owner);
-            placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
-            placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
+
+            // Only show planets not owned by pirates.
+            if(galaxy[i].owner != 0) {
+                placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
+                placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
+            }
         }
     }
 }
