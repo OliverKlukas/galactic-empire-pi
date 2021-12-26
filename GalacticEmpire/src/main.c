@@ -254,13 +254,12 @@ void game() {
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
-    mapAcceptance();
 
     // Initialize world and map based on player acceptance.
     do {
         generateGalaxy();
         // TODO: redraw map empty!
-        updateMap(&indices, &galaxy);
+        // updateMap(&indices, &galaxy); // TODO
     } while(!mapAcceptance());
     retrieveInputs();
 
