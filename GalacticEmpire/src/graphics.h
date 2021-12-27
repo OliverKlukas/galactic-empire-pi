@@ -25,6 +25,16 @@ void plotText(unsigned x, unsigned y, char *sentence);
 void updateMap();
 
 /**
+ * Simulates attack on a planet and updates the galaxy.
+ *
+ * @param allNames - All player names 1-x and Me at 0.
+ * @param world - World that's under attack.
+ * @param attacker - Integer value of attacker player.
+ * @param numShips - Number of ships the attacker is attacking with.
+ */
+void simulateFight();
+
+/**
  * Retrieves the inputs of all players in one round.
  */
 int *retrieveInputs();

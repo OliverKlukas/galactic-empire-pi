@@ -413,14 +413,35 @@ void retrieveInputsFromAllPlayers() {
 }
 
 /**
- * Evaluates the mission array, triggers reinforcements and fights  
+ * Evaluates the mission array, triggers reinforcements and fights.
  */
 void evaluateMissions() {
-    // todo:
+    // Loop variables.
+    int i;
+
+    // Allocate array with all names.
+    char **names = (char **) malloc((numPlayers+1) * sizeof(char *));
+    names[0] = (char *) malloc(4 * sizeof(char));
+    names[0] = "me";
+    for (i = 0; i < numPlayers; i++) {
+        names[i+1] = (char *) malloc(4 * sizeof(char));
+        names[i+1] = playerNames[i];
+    }
+
+    // TODO: get all missions of current year and differentiate between fight and reinforcements here.
+    simulateFight(&galaxy, names, 0, 2, 112);
+    simulateFight(&galaxy, names, 1, 0, 112);
+    simulateFight(&galaxy, names, 2, 1, 500);
+    simulateFight(&galaxy, names, 12, 3, 25);
+    simulateFight(&galaxy, names, 28, 3, 25);
+    simulateFight(&galaxy, names, 28, 1, 59);
+
+    // Free allocated.
+    free(names);
 }
 
 /**
- * Updates the ships on all worlds in the galaxy array due to their production capabilities 
+ * Updates the ships on all worlds in the galaxy array due to their production capabilities.
  */
 void updateProduction() {
     // Loop variables.

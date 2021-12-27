@@ -513,6 +513,109 @@ void updateTable(struct world *galaxy, unsigned year, unsigned numWorlds) {
 }
 
 /**
+ * Simulates attack on a planet and updates the galaxy.
+ *
+ * @param allNames - All player names 1-x and Me at 0.
+ * @param world - World that's under attack.
+ * @param attacker - Integer value of attacker player.
+ * @param numShips - Number of ships the attacker is attacking with.
+ */
+void simulateFight(struct world *galaxy, char **allNames, unsigned world, unsigned attacker, unsigned numShips){
+    // Attack variables.
+    unsigned prevColor;
+    unsigned fightValue;
+    unsigned deciderValue = 49;
+    unsigned shipsLostPerLoss;
+    int attackerShips = numShips;
+
+    // Attack message.
+    cputsxy(textLine1X, textLine1Y, "Attack on world: ");
+    if(world < 20){
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, galaxy[world].owner);
+    } else{
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, galaxy[world].owner);
+    }
+    sleep(3);
+
+    // Defender and attacker.
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    prevColor = textcolor(playerColors[attacker]);
+    cprintf("Attacker: %s", allNames[attacker]);
+    textcolor(playerColors[galaxy[world].owner]);
+    gotoxy(textLine2X, textLine2Y);
+    cprintf("Defender: %s", allNames[galaxy[world].owner]);
+    textcolor(prevColor);
+    sleep(3);
+
+    // Print initial battle state.
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    textcolor(playerColors[attacker]);
+    cprintf("Attacker: %d", attackerShips);
+    gotoxy(textLine2X, textLine2Y);
+    textcolor(playerColors[galaxy[world].owner]);
+    cprintf("Defender: %d", galaxy[world].ships);
+    sleep(1);
+
+    // Simulate attack and give out state of battle.
+    while(attackerShips > 0){
+        // Set shipsLostPerLoss dynamically with the number of ships left.
+        if(attackerShips < galaxy[world].ships && attackerShips > 31){
+            shipsLostPerLoss = attackerShips / 8;
+        } else if(attackerShips >= galaxy[world].ships && galaxy[world].ships > 31){
+            shipsLostPerLoss = galaxy[world].ships / 8;
+        } else {
+            shipsLostPerLoss = 3;
+        }
+
+        // Calculate who loses one round.
+        fightValue = rand() % 100;
+        if(fightValue < deciderValue){
+            // Attacker loses ships.
+            attackerShips -= shipsLostPerLoss;
+            if(attackerShips < 0){
+                break;
+            }
+        } else{
+            // Defender loses ships.
+            if(shipsLostPerLoss >= galaxy[world].ships){
+                break;
+            }
+            galaxy[world].ships -= shipsLostPerLoss;
+        }
+
+        // Slowly change decider value so that attacker loses more.
+        if(deciderValue < 74){
+            deciderValue += 1;
+        }
+
+        // Update current battle state.
+        clearTextIOField();
+        gotoxy(textLine1X, textLine1Y);
+        textcolor(playerColors[attacker]);
+        cprintf("Attacker: %d", attackerShips);
+        gotoxy(textLine2X, textLine2Y);
+        textcolor(playerColors[galaxy[world].owner]);
+        cprintf("Defender: %d", galaxy[world].ships);
+        sleep(1);
+    }
+
+    // Check if attacker won.
+    if(attackerShips > 0){
+        galaxy[world].owner = attacker;
+        galaxy[world].ships = attackerShips;
+    }
+
+    // End message.
+    textcolor(prevColor);
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    cprintf("%s won!", allNames[galaxy[world].owner]);
+    sleep(3);
+}
+
+/**
  * Initializes the standard game graphics.
  */
 void initGameGraphics() {
