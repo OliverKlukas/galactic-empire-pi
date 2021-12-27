@@ -17,7 +17,10 @@ void plotLetter(unsigned x, unsigned y, int letter);
 void plotText(unsigned x, unsigned y, char *sentence);
 
 /**
- * Updates the game map.
+ * Updates the map with the current galaxy state.
+ *
+ * @param galaxy - Current state of galaxy.
+ * @param numWorlds - Number of overall worlds.
  */
 void updateMap();
 
@@ -29,7 +32,11 @@ int *retrieveInputs();
 /**
  * Draws the latest game table and year.
  *
- * <p>Updates the displayed graphics based on the global variables. Read only.
+ * <p>Updates the displayed graphics based on the global variables.
+ *
+ * @param galaxy - Current state of galaxy.
+ * @param year - Current game year.
+ * @param numWorlds - Total years of game.
  */
 void updateTable();
 

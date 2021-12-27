@@ -117,12 +117,12 @@ unsigned occupyLocation(unsigned x, unsigned y) {
  * @param array - Reference to array.
  * @param n - Length of array.
  */
-void shuffle(int *array, size_t n) {
+void shuffle(unsigned *array, size_t n) {
     if (n > 1) {
         size_t i;
         for (i = 0; i < n - 1; i++) {
             size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-            int t = array[j];
+            unsigned t = array[j];
             array[j] = array[i];
             array[i] = t;
         }
@@ -384,13 +384,20 @@ void retrieveInputsFromAllPlayers() {
     unsigned distance;
     unsigned spaceShipSpeed = 2; // should be made global
     unsigned timeToArrival;
+    unsigned *playerSequence = malloc(numPlayers * sizeof(unsigned));
 
     int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
 
-    // todo: randomize player sequence
+    // Create randomized player sequence.
+    for (i = 0; i < numPlayers; i++) {
+        playerSequence[i] = i;
+    }
+    shuffle(playerSequence, numPlayers);
+
+    // Retrieve missions of all players.
     for (i = 0; i < numPlayers; i++) {
         while (1) {
-            playerInputs = retrieveInputs(i + 1, playerNames[i], &galaxy, numWorlds);
+            playerInputs = retrieveInputs(playerSequence[i] + 1, playerNames[playerSequence[i]], &galaxy, numWorlds);
             if (playerInputs[1] == -1) {
                 break;
             }
@@ -399,8 +406,7 @@ void retrieveInputsFromAllPlayers() {
             distance = calcDistance(playerInputs[1], playerInputs[2]);
             timeToArrival = distance / spaceShipSpeed;
 
-            // add to mission table 
-
+            // add to mission table
 
         }
     }
@@ -421,8 +427,10 @@ void updateProduction() {
     int i;
 
     // Let whole galaxy produce its ships.
-    for(i = 0; i < numWorlds; i++){
-        galaxy[i].ships += galaxy[i].prod;
+    for (i = 0; i < numWorlds; i++) {
+        if(defensiveShips || galaxy[i].owner != 0){
+            galaxy[i].ships += galaxy[i].prod;
+        }
     }
 }
 
@@ -442,13 +450,13 @@ void game() {
 
     // Initialize world and map based on player acceptance.
     generateGalaxy();
-    updateMap(&galaxy);
-    updateTable(&galaxy, year);
+    updateMap(&galaxy, numWorlds);
+    updateTable(&galaxy, year, numWorlds);
     while (!mapAcceptance()) {
         clearMap();
         generateGalaxy();
-        updateMap(&galaxy);
-        updateTable(&galaxy, year);
+        updateMap(&galaxy, numWorlds);
+        updateTable(&galaxy, year, numWorlds);
     }
 
     // todo: to implement ! ... or not really necessary !
@@ -463,8 +471,8 @@ void game() {
         updateProduction();
 
         // Update map based on state, in the first round special treatment.
-        updateTable(&galaxy, year);
-        updateMap(&galaxy);
+        updateTable(&galaxy, year, numWorlds);
+        updateMap(&galaxy, numWorlds);
 
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
@@ -506,7 +514,7 @@ int main() {
     game();
 
     // Free globally allocated variables.
-    for(i = 0; i < numPlayers; i++){
+    for (i = 0; i < numPlayers; i++) {
         free(playerNames[i]);
     }
     free(playerNames);
@@ -518,6 +526,6 @@ int main() {
 
     // Clear screen and finish.
     clrscr();
-    printf("Done\n");
+    printf("done.\n");
     return EXIT_SUCCESS;
 }

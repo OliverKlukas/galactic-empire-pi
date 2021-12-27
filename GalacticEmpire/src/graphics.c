@@ -54,7 +54,7 @@ const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_G
  * @param character - Character that should be plotted.
  * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
  */
-void placeColoredLetter(int x, int y, char character, int player) {
+void placeColoredLetter(unsigned x, unsigned y, char character, int player) {
     textcolor(playerColors[player]);
     cputcxy(x, y, character);
     textcolor(textColor);
@@ -262,8 +262,9 @@ int *retrieveInputs(int playerIter, char *playerName, struct world *galaxy, int 
             if (origin == -1 || (origin > (numWorlds - 1))) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
-                gotoxy(textLine2X, textLine2Y);
-                cprintf("Origin Idx: %01d", origin);
+                // for debugging:
+                // gotoxy(textLine2X, textLine2Y);
+                // cprintf("Origin Idx: %01d", origin);
                 sleep(2);
                 clearTextIOField();
             } else if (origin == -2) {
@@ -273,7 +274,7 @@ int *retrieveInputs(int playerIter, char *playerName, struct world *galaxy, int 
                 clearTextIOField();
             } else if (origin == -3) {
                 clearTextIOField();
-                cputsxy(textLine1X, textLine1Y, "Sure?");
+                cputsxy(textLine1X, textLine1Y, "End turn?");
                 readChar = cgetc();
                 if (readChar == CH_ENTER) {
                     origin = -1;
@@ -416,13 +417,14 @@ int *retrieveInputs(int playerIter, char *playerName, struct world *galaxy, int 
  * Updates the map with the current galaxy state.
  *
  * @param galaxy - Current state of galaxy.
+ * @param numWorlds - Number of overall worlds.
  */
-void updateMap(struct world *galaxy) {
+void updateMap(struct world *galaxy, unsigned numWorlds) {
     // Loop variable.
     int i;
 
     // Place to be updated worlds on map.
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < numWorlds; i++) {
         // Differentiate between small and capital letters.
         if (i < 20) {
             placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner);
@@ -472,8 +474,9 @@ void clearMap() {
  * <p>Updates the displayed tables graphics based on the global variables.
  * @param galaxy - Current state of galaxy.
  * @param year - Current game year.
+ * @param numWorlds - Total years of game.
  */
-void updateTable(struct world *galaxy, unsigned year) {
+void updateTable(struct world *galaxy, unsigned year, unsigned numWorlds) {
     // Loop variables.
     int i;
 
@@ -485,7 +488,7 @@ void updateTable(struct world *galaxy, unsigned year) {
     cprintf("Year: %d", year);
 
     // Place to be updated worlds on map.
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < numWorlds; i++) {
         // Differentiate between first and second column.
         if (i < 20) {
             // Plot world name, production and ships.
@@ -692,7 +695,7 @@ unsigned getNumPlayers() {
 char *getPlayerName(unsigned player) {
     int numChars = 0;
     char input;
-    char *name = malloc(4*sizeof (char));
+    char *name = malloc(4 * sizeof(char));
 
     // Clear screen and go to start.
     clrscr();
