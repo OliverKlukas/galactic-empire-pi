@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <cc65.h>
 #include <conio.h>
+#include <time.h>
 #include "graphics.h"
 
 
@@ -37,6 +38,46 @@ struct world galaxy[40];
 // Available planet locations.
 int availableLocations[400];
 
+// Available sphere divisions.
+unsigned sphereDivisions[5][5][4] = {
+        {
+                {0, 0, 19, 19},             // 1 player
+                {0,  0,  0,  0},
+                {0,  0,  0,  0},
+                {0,  0,  0,  0},
+                {0,  0, 0,  0}
+        },
+        {
+                {0, 0, 19,  9},              // 2 player
+                {0, 10, 19, 19},
+                {0,  0,  0,  0},
+                {0,  0,  0,  0},
+                {0,  0, 0,  0}
+        },
+        {
+                {5, 0, 14, 9},              // 3 player
+                {0,  10,  9,  19},
+                {10, 10,  19, 19},
+                {0,  0,  0,  0},
+                {0,  0, 0,  0}
+        },
+        {
+                {0, 0, 9,  9},              // 4 player
+                {10, 0,  19, 9},
+                {0,  10, 9,  19},
+                {10, 10, 19, 19},
+                {0,  0, 0,  0}
+        },
+        {
+                {0, 0, 3,  19},             // 5 player
+                {4,  0,  7,  19},
+                {8,  0,  11, 19},
+                {12, 0,  15, 19},
+                {16, 0, 19, 19}
+        }
+
+};
+
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
@@ -59,6 +100,29 @@ unsigned occupyLocation(unsigned x, unsigned y) {
 }
 
 /**
+ * Shuffle array in-place.
+ *
+ * <p>Source: https://stackoverflow.com/questions/6127503/shuffle-array-in-c
+ *
+ * @param array - Reference to array.
+ * @param n - Length of array.
+ */
+void shuffle(int *array, size_t n)
+{
+    if (n > 1)
+    {
+        size_t i;
+        for (i = 0; i < n - 1; i++)
+        {
+            size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+            int t = array[j];
+            array[j] = array[i];
+            array[i] = t;
+        }
+    }
+}
+
+/**
  * Generates a playable initial galaxy.
  */
 void generateGalaxy() {
@@ -67,56 +131,17 @@ void generateGalaxy() {
     unsigned planetIndex = numPlayers;
 
     // Scenario variables.
-    unsigned maxProduction = 20;
+    unsigned maxProduction = 10;
     unsigned homePlanetProduction = 10;
     unsigned homePlanetBorderDistance[5] = {2, 2, 2, 2, 1};
     unsigned homePlanetInitialShips = 200;
     unsigned totalProductionCapacity = maxProduction * (numWorlds / 2);
     unsigned excessProductionBonus = 7;
-
-    // Available sphere divisions.
-    unsigned sphereDivisions[5][5][4] = {
-            {
-                    {0, 0, 19, 19},             // 1 player
-                    {0,  0,  0,  0},
-                    {0,  0,  0,  0},
-                    {0,  0,  0,  0},
-                    {0,  0, 0,  0}
-            },
-            {
-                    {0, 0, 9,  9},              // 2 player
-                    {10, 10, 19, 19},
-                    {0,  0,  0,  0},
-                    {0,  0,  0,  0},
-                    {0,  0, 0,  0}
-            },
-            {
-                    {5, 0, 14, 9},              // 3 player
-                    {0,  10,  9,  19},
-                    {10, 10,  19, 19},
-                    {0,  0,  0,  0},
-                    {0,  0, 0,  0}
-            },
-            {
-                    {0, 0, 9,  9},              // 4 player
-                    {10, 0,  19, 9},
-                    {0,  10, 9,  19},
-                    {10, 10, 19, 19},
-                    {0,  0, 0,  0}
-            },
-            {
-                    {0, 0, 3,  19},             // 5 player
-                    {4,  0,  7,  19},
-                    {8,  0,  11, 19},
-                    {12, 0,  15, 19},
-                    {16, 0, 19, 19}
-            }
-
-    };
+    unsigned numWorldsPerSphere[5];
+    unsigned piratePlanetInitialShipsFactor = 2;
+    unsigned availableProduction[5];
 
     // Divide galaxy into spheres depending on player number.
-    unsigned numWorldsPerSphere[5];
-    int availableProduction[5];
     for (i = 0; i < numPlayers; i++) {
         numWorldsPerSphere[i] = numWorlds / numPlayers;
         availableProduction[i] = totalProductionCapacity / numPlayers;
@@ -157,31 +182,31 @@ void generateGalaxy() {
             } while (occupyLocation(galaxy[planetIndex].x, galaxy[planetIndex].y));
 
             // Assign placed planet random amount of production based on sphereLimit.
-            if (availableProduction[i] < 0){
+            galaxy[planetIndex].prod = rand() % maxProduction;
+            if(availableProduction[i] < galaxy[planetIndex].prod){
                 galaxy[planetIndex].prod = 0;
-            } else{
-                galaxy[planetIndex].prod = rand() % maxProduction;
+            } else {
                 availableProduction[i] -= galaxy[planetIndex].prod;
             }
 
             // Give every planet their production as start ships.
-            galaxy[planetIndex].ships = galaxy[planetIndex].prod;
+            galaxy[planetIndex].ships = galaxy[planetIndex].prod * piratePlanetInitialShipsFactor;
 
             // Increment planet index.
             planetIndex++;
         }
     }
 
-    // Calculate initial ships of home planets based on production of three nearest pirate planets and amount of production in their sphere.
+    // Calculate initial ships of home planets based amount of production in their sphere.
     for (i = 0; i < numPlayers; i++) {
-        galaxy[i].ships = homePlanetInitialShips + (availableProduction[i] * excessProductionBonus); // TODO three closest
+        galaxy[i].ships = homePlanetInitialShips + (availableProduction[i] * excessProductionBonus);
     }
 }
 
 /**
  * Initialises the game questions.
  */
-void initGameInputs() { // TODO: new conio in graphics
+void initGameInputs() {
     // Loop variables.
     int i;
 
@@ -205,7 +230,7 @@ void initGameInputs() { // TODO: new conio in graphics
 }
 
 /**
- * Initialises the game questions.  // TODO: delete
+ * Initialises the game questions.  // TODO: delete, can be used instead of typing in questions
  */
 void initGameInputsMock() {
     // Get number of players.
@@ -228,54 +253,121 @@ void initGameInputsMock() {
 }
 
 
+// this function calculates the distance between two planets given by their indices in the galaxy struct
+unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx)
+{
+    int xDistance;
+    int yDistance;
+
+    unsigned absXDistance;
+    unsigned absYDistance;
+
+    xDistance = galaxy[planetAIdx].x - galaxy[planetBIdx].x;
+    absXDistance = (xDistance >= 0 ? xDistance:-xDistance); 
+
+    yDistance = galaxy[planetAIdx].y - galaxy[planetBIdx].y;
+    absYDistance = (yDistance >= 0 ? yDistance:-yDistance); 
+
+    return absXDistance + absYDistance;
+}
+
+
+// Iterates all players and retrieves mission inputs and adds them to mission table
+void retrieveInputsFromAllPlayers()
+{
+    int i;
+    unsigned distance;
+    unsigned spaceShipSpeed = 2; // should be made global
+    unsigned timeToArrival;
+
+    int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
+
+    // todo: randomize player sequence
+    for (i = 0; i < numPlayers; i++) 
+    {
+        while (1)
+        {
+            playerInputs = retrieveInputs(i + 1, playerNames[i], &galaxy, numWorlds);
+            if (playerInputs[1] == -1)
+            {
+                break;
+            }
+            
+            // calc distance and arrival time 
+            distance = calcDistance(playerInputs[1], playerInputs[2]);
+            timeToArrival = distance/spaceShipSpeed;
+
+            // add to mission table 
+
+
+        }
+    }
+}
+
+/*
+ * Evaluates the mission array, triggers reinforcements and fights  
+ */
+void evaluateMissions()
+{
+    // todo:
+}
+
+
+/*
+ * Updates the ships on all worlds in the galaxy array due to their production capabilities 
+ */
+
+void evaluateProduction()
+{
+    // todo: 
+}
+
 
 /**
  * Main galactic empire game logic.
  */
 void game() {
-    // Initialize list of planets to be updated.
-    int i;
-    int indices[40];
-
     // Plot start screen.
     startScreen();
 
     // Handle initial questions.
-    //initGameInputs(); // TODO delete: initGameInputsMock();
-    initGameInputsMock();
+    //initGameInputs();
 
-    // Updates indices to update whole map.
-    for(i = 0; i < 40; i++){
-        if(i < numWorlds){
-            indices[i] = 1;
-        } else {
-            indices[i] = -1;
-        }
-    }
+    // for debugging:
+    initGameInputsMock();
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
     // Initialize world and map based on player acceptance.
-    do {
+    generateGalaxy();
+    updateMap(&galaxy);
+    updateTable(&galaxy, year);
+    while(!mapAcceptance()) {
+        clearMap();
         generateGalaxy();
-        // TODO: redraw map empty!
-        // updateMap(&indices, &galaxy); // TODO
-    } while(!mapAcceptance());
-    retrieveInputs(1, playerNames[0], &galaxy, numWorlds);
-    while(1);
+        updateMap(&galaxy);
+        updateTable(&galaxy, year);
+    } 
 
+    // todo: to implement ! ... or not really necessary !
+    //initializeMissionTable();
+    
     // Play the game until running out of years.
     while (year != totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
         // TODO defensive ships here!
 
-        // Update map based on state.
-        updateTable(&indices, &galaxy, year);
-        updateMap(&indices, &galaxy);
+        evaluateMissions();
+        evaluateProduction();
+
+        // Update map based on state, in the first round special treatment 
+        updateTable(&galaxy, year); 
+        updateMap(&galaxy);
 
         // Retrieve inputs of all players.
-        retrieveInputs();
+        retrieveInputsFromAllPlayers();
+        year++;
     }
 
     // TODO: display final stats like winner etc.
@@ -298,6 +390,9 @@ int main() {
 
     // Set the border colors.
     Border = bordercolor(COLOR_GREEN);
+
+    // Seed the random numbers arbitrary.
+    srand(time(0));
 
     // Call main game function.
     game();

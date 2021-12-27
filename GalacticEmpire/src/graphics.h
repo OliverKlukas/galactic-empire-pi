@@ -24,7 +24,7 @@ void updateMap();
 /**
  * Retrieves the inputs of all players in one round.
  */
-void retrieveInputs();
+int *retrieveInputs();
 
 /**
  * Draws the latest game table and year.
@@ -78,6 +78,11 @@ unsigned getYears();
  * @return - Returns if defensive ships should be build by pirates.
  */
 unsigned getDefensive();
+
+/**
+ * Clears the map completely of entries.
+ */
+void clearMap();
 
 /**
  * Retrieve if special events should occur.

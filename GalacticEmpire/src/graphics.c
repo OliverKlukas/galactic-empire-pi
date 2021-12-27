@@ -19,48 +19,81 @@ const unsigned maxY = 24;
 int mapNLinesVertical = 20;
 int mapNLinesHorizontal = 20;
 
+// Year settings.
 int yearLineX = 0;
 int yearLineY = 0;
 
+// Text field coordinates.
 int textLine1X = 0;
 int textLine1Y = 0;
-
 int textLine2X = 0;
 int textLine2Y = 0;
 
+// Table coordinates.
 int tableColumn1XMin = 0;
 int tableColumn2XMin = 0;
-
 int tableFirstRowYMin = 0;
-
-
-
-// Number offset for plotting digits.
-int numOffset = 48;
-
-// Space between alphabet letters.
-int letterSpacing = 8;
-
-// Center 8x8 letters to coordinates.
-int centerLetter = 4;
-
-// Table coordinates.
-unsigned tableCorner = 1; // TODO change all usages to this and delete below.
-
-// Input box coordinates.
-
 
 // Globally used color Palettes.
 const unsigned startTextColor = COLOR_WHITE;
 const unsigned startBackgroundColor = COLOR_GREEN;
 const unsigned textColor = COLOR_BLACK;
 const unsigned backgroundColor = COLOR_WHITE;
-const unsigned playerColors[6] = {COLOR_BLACK, COLOR_RED, COLOR_CYAN, COLOR_GREEN, COLOR_BLUE, COLOR_PURPLE};
+const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_GREEN, COLOR_RED, COLOR_BROWN};
 
 
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
+
+/**
+ * Places colored letter on screen.
+ *
+ * @param x - X coordinate on screen, 0-39.
+ * @param y - Y coordinate on screen, 0-24.
+ * @param character - Character that should be plotted.
+ * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
+ */
+void placeColoredLetter(int x, int y, char character, int player) {
+    textcolor(playerColors[player]);
+    cputcxy(x, y, character);
+    textcolor(textColor);
+}
+
+/**
+ *  Places colored number on screen.
+ *
+ *  <p>Places the number with its right most x value. Numbers grow with its decimal places to the left.
+ *
+ * @param x - Right most X coordinate that the number can take, 0-39
+ * @param y - Y coordinate on screen, 0-24.
+ * @param number - Number that should be plotted.
+ * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
+ */
+void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player) {
+    // Copy variables.
+    int digit;
+    int num = number;
+    int i = 0;
+
+    // Set text color according to selected player.
+    textcolor(playerColors[player]);
+
+    // Plot number by breaking it down into its single digits.
+    if (number == 0){
+        cputcxy(x, y, '0');
+    } else {
+        while(num > 0){
+            digit = num % 10;
+            cputcxy(x-i, y, digit + '0');
+            num = num / 10;
+            i++;
+        }
+    }
+
+    // Reset color to last used one.
+    textcolor(textColor);
+}
 
 /**
  * Clears a line at given coordinate y.
@@ -73,20 +106,30 @@ void clearLine(unsigned y) {
 }
 
 /**
- * TODO: delete current text in input field
+ *  Deletes current text in input field.
  */
 void clearTextIOField() {
     cclearxy(textLine1X, textLine1Y, mapNLinesVertical - 2);
     cclearxy(textLine2X, textLine2Y, mapNLinesVertical - 2);
 }
 
+// converts planet letter 'a', 'b' etc to index in galaxy struct 0 1 2 
+int convertPlanetLetterToNumberIndex(char planetLetter)
+{
+    if (planetLetter > 85)
+    {
+        return planetLetter - 173; 
+    }   
+    return planetLetter - 65;
+}
 
-char readSinglePlanetLetter()
+int readSinglePlanetLetter()
 {
     /*
-    *   1. What it should be: enter one character, press enter : returns fitting char
-    *   2. If more or less than one character, return 0: display wrong input in parent function
-    *   3. If space is entered: return 1
+    *   1. What it should be: enter one character, press enter : returns int which is the index of the entered world in the galaxy struct 
+    *   2. If more or less than one character, return -1: display wrong input in parent function
+    *   3. If space is entered: return -2: to restart the entire input
+    *   4. If only enter is pressed: -3 is returned 
     */
 
     char planet;
@@ -100,27 +143,27 @@ char readSinglePlanetLetter()
                 // Check if three chars have been inputted.
                 if(numChars == 0){
                     // invalid input return 
-                    return 0;
+                    return -3;
                 } else {
                     // return fitting planet
-                    return planet;
+                    return convertPlanetLetterToNumberIndex(planet);
                 }
             case ' ':
-                return 1;
+                return -2;
             default:
                 // Check if input is valid
                 if(numChars < 1 && ((readChar >= 'a' && readChar <= 'z') || (readChar >= 'A' && readChar <= 'Z'))){
                     planet = readChar;
                     numChars++;
                 } else{
-                    return 0;
+                    return -1;
                 }
         }
     } while(readChar != CH_ENTER);
 }
 
 /*
-*   1. What it should be: reads any kind of number entered, press enter : returns fitting char
+*   1. What it should be: reads any kind of number entered, press enter : returns fitting int number
 *   2. if any non digit is entered: return -1
     3. If nothing or 0 is entered: return -1 // 0 is handled by parent function
     4. If a number with more than 5 digits is entered: return -1
@@ -152,9 +195,12 @@ int readNumber()
                     // calc remaining zeros in read digits to convert to int number
                     nZerosReadIn = 5 - numChars;
 
+                    // for debuggin:
+                    /*
                     gotoxy(textLine1X, textLine1Y);
                     cprintf("nZerosReadIn: %01d", nZerosReadIn);
                     sleep(2);
+                    */
                     for (i = 0; i < 5 - nZerosReadIn; ++i)
                     {
                         number += multiplyBy[i + nZerosReadIn] * readDigits[i];
@@ -185,33 +231,35 @@ int readNumber()
 }
 
 
-unsigned convertPlanetLetterToNumberIndex(char planetLetter)
-{
-    if (planetLetter > 85)
-    {
-        return planetLetter - 173; 
-    }   
-        return planetLetter - 65;
+/**
+ *  Deletes current text in table.
+ */
+void clearTable() {
+    int i;
+    for (i = 0; i < 20; i++){
+        cclearxy(tableColumn1XMin, tableFirstRowYMin + i, 8);
+        cclearxy(tableColumn2XMin, tableFirstRowYMin + i, 8);
+    }
 }
 
 /**
  * Retrieves inputs of game rounds.
  *
  * @param player - Current active player, unsigned 0 - (numPlayer-1)
- * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs.
+ * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs. returns [-1,-1,-1,-1] if the player is done putting in inputs and it is the next one's turn.
  */
-int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, unsigned numWorlds) {
-    
+int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int numWorlds) {
     static int inputs [4];
     
-    char origin = 0;
-    char destination = 0;
+    char readChar;
+    int origin = -1;
+    int destination = -1;
     int nShips = -1;
 
     while(1)
     {
         // 1st question: Origin 
-        while (origin == 0 || origin == 1)
+        while (origin < 0)
         {
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
@@ -222,50 +270,56 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, uns
             cputsxy(textLine2X, textLine2Y, "Origin of fleet ?");
 
             origin = readSinglePlanetLetter();
-            if (origin == 0 || convertPlanetLetterToNumberIndex(origin) > numWorlds - 1)
+            if (origin == -1 || (origin > (numWorlds - 1)))
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
+                gotoxy(textLine2X, textLine2Y);
+                cprintf("Origin Idx: %01d", origin);
                 sleep(2);
-            } else if (origin == 1)
+                clearTextIOField();
+            } else if (origin == -2)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
-            } else if (!(galaxy[convertPlanetLetterToNumberIndex(origin)].owner == playerIter))
+                clearTextIOField();
+            } else if (origin == -3)
+            {
+                clearTextIOField();
+                cputsxy(textLine1X, textLine1Y, "Sure?");
+                readChar = cgetc();
+                if (readChar == CH_ENTER)
+                {
+                    origin = -1;
+                    break;
+                }
+            } 
+            else if (!(galaxy[origin].owner == playerIter))
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not your world!");
-                origin = 0;
+                origin = -1;
                 sleep(2);
-            }
-
-            else 
-            {
-                break;
+                clearTextIOField();
             }
         }
+
+        // for debugging:
+        /*
         clearTextIOField();
         cputsxy(textLine1X, textLine1Y, "Success!");
-        cputcxy(textLine2X, textLine2Y, origin);
-
-        sleep(1);
-
-
-        cputsxy(textLine1X, textLine1Y, "According index:");
         gotoxy(textLine2X, textLine2Y);
-        cprintf("index: %05d", convertPlanetLetterToNumberIndex(origin));
-
-        // for debugging
-        // sleep(2);
-        // clearTextIOField();
-        // origin = 0;
-        // continue;
+        cprintf("Origin Idx: %01d", origin);
+        sleep(1);
+        clearTextIOField();
+        */
 
         // 2nd question: Destination
-        while (destination == 0 || destination == 1)
+        while (destination < 0 && origin >= 0)
         {
+            clearTextIOField();
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
@@ -275,46 +329,54 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, uns
             cputsxy(textLine2X, textLine2Y, "Destination ?");
 
             destination = readSinglePlanetLetter();
-            if (destination == 0  || convertPlanetLetterToNumberIndex(destination) > numWorlds - 1)
+            if (destination == -1 || destination > numWorlds - 1)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 sleep(2);
-            } else if (destination == 1)
+                clearTextIOField();
+            } else if (destination == -2)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
+                clearTextIOField();
                 break;
-            } else if (convertPlanetLetterToNumberIndex(destination) == convertPlanetLetterToNumberIndex(origin))
+            } else if (destination == origin)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
-                cputsxy(textLine2X, textLine2Y, "Origin = Destination!");
+                cputsxy(textLine2X, textLine2Y, "Origin = Dest!");
                 sleep(2);
-                destination = 0;
+                clearTextIOField();
+
+                destination = -1;
             } else
             {
                 break;
             }
         }
 
-        if (destination == 1)
+        if (destination == -2)
         {
-            origin = 0;
+            origin = -1;
             continue;
         }
 
-
+        // for debugging:
+        /*
         clearTextIOField();
         cputsxy(textLine1X, textLine1Y, "Success!");
-        cputcxy(textLine2X, textLine2Y, destination);
-        sleep(2);
-
+        gotoxy(textLine2X, textLine2Y);
+        cprintf("Destination Idx: %01d", destination);
+        sleep(1);
+        clearTextIOField();
+        */
 
         // 3rd Question: # ships:
-        while (nShips < 0 )
+        while (nShips < 0 && origin >= 0)
         {
+            clearTextIOField();
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
@@ -329,18 +391,21 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, uns
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 sleep(2);
+                clearTextIOField();
             } else if (nShips == -2)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
+                clearTextIOField();
                 break;
-            } else if (nShips > galaxy[convertPlanetLetterToNumberIndex(origin)].ships)
+            } else if (nShips > galaxy[origin].ships)
             {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not enough ships!");
                 sleep(2);
+                clearTextIOField();
                 nShips = -1;
             }
             
@@ -351,15 +416,20 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, uns
         }
         if (nShips == -2)
         {
-            origin = 0;
-            destination = 0;
+            origin = -1;
+            destination = -1;
             continue;
         }
 
+        // for debugging:
+        /*
         clearTextIOField();
-
-        gotoxy(textLine1X, textLine1Y);
+        cputsxy(textLine1X, textLine1Y, "Success!");
+        gotoxy(textLine2X, textLine2Y);
         cprintf("nShips: %05d", nShips);
+        sleep(1);
+        clearTextIOField();
+        */
 
         break;
     }
@@ -374,98 +444,104 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, uns
 }
 
 /**
- * Updates the map given a list of indices of planets to be changed.
+ * Updates the map with the current galaxy state.
  *
- * @param indices - Integer list of length 40 while only indices >= 0 are evaluated.
  * @param galaxy - Current state of galaxy.
  */
-void updateMap(int *indices, struct world *galaxy) {/*
+void updateMap(struct world *galaxy) {
     // Loop variable.
     int i;
-    // Chosen color palette.
-    //tgi_setpalette(StandardPalette);
 
     // Place to be updated worlds on map.
     for (i = 0; i < 40; i++) {
-        // Check if map should be updated.
-        if (indices[i] >= 0) {
-            // Differentiate between small and capital letters.
-            if (i < 20) {
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner + 1);
+        // Differentiate between small and capital letters.
+        if (i < 20) {
+            placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner);
+        } else {
+            placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner);
+        }
+    }
+}
+
+/**
+ * Clears the map completely of entries.
+ */
+void clearMap() {
+    // Loop variables.
+    int i, j;
+
+    // Draw map grid.
+    for (i = 0; i < mapNLinesHorizontal; ++i) {
+        // x
+        for (j = 0; j < mapNLinesVertical; ++j) {
+            if (j == 0 && i == 0) {
+                cputcxy(j, i, CH_ULCORNER);
+            } else if (j == mapNLinesVertical - 1 && i == 0) {
+                cputcxy(j, i, CH_URCORNER);
+            } else if (i == 0) {
+                cputcxy(j, i, CH_TTEE);
+            } else if (i == mapNLinesHorizontal - 1 && j == 0) {
+                cputcxy(j, i, CH_LLCORNER);
+            } else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1) {
+                cputcxy(j, i, CH_LRCORNER);
+            } else if (j == 0) {
+                cputcxy(j, i, CH_LTEE);
+            } else if (i == mapNLinesHorizontal - 1) {
+                cputcxy(j, i, CH_BTEE);
+            } else if (j == mapNLinesVertical - 1) {
+                cputcxy(j, i, CH_RTEE);
             } else {
-                placeLetterOnMap(galaxy[i].x, galaxy[i].y, i + 173, galaxy[i].owner + 1);
+                cputcxy(j, i, CH_CROSS);
             }
         }
-    }*/
+    }
 }
 
 /**
  * Draws the latest game table and year.
  *
- * <p>Updates the displayed graphics based on the global variables. Read only.
- * // TODO: similar to updateMap() we need a way to only update the worlds that were changed!
+ * <p>Updates the displayed tables graphics based on the global variables.
+ * @param galaxy - Current state of galaxy.
+ * @param year - Current game year.
  */
-void updateTable(unsigned year) {/*
+void updateTable(struct world *galaxy, unsigned year) {
     // Loop variables.
-    int row, column;
+    int i;
 
-    // Table text coordinates.
-    char letter = 'a';
-    //int tableTextX = (maxX / 2) + (2 * margin);
-    //int tableTextY = margin + 2;
-
-    // Chosen color palette.
-    // tgi_setpalette(StandardPalette);
+    // Clear table before update.
+    clearTable();
 
     // Update current year.
-    // plotText(yearLineXMin, yearLineYMin, year, StandardPalette);
-    if (year < 10) { // TODO: make a custom plot numbers
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), year + numOffset, COLOR_FORE);
-    } else {
-        plotLetter(tableTextX + 5 * letterSpacing, maxY - (2 * margin), (year / 10) + numOffset, COLOR_FORE);
-        plotLetter(tableTextX + 6 * letterSpacing, maxY - (2 * margin), (year % 10) + numOffset, COLOR_FORE);
-    }
+    gotoxy(yearLineX, yearLineY);
+    cprintf("Year: %d", year);
 
-    // Update first column of current planet occupations.
-    for (column = 0; column < 2; column++) {
-        for (row = 1; row < 22; row++) {
-            // World.
-            plotLetter(tableTextX, tableTextY + row * letterSpacing, letter, COLOR_FORE);
-            letter += 1;
+    // Place to be updated worlds on map.
+    for (i = 0; i < 40; i++) {
+        // Differentiate between first and second column.
+        if (i < 20) {
+            // Plot world name, production and ships.
+            placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i].owner);
 
-            // Production. // TODO: make a custom plot numbers
-            plotLetter(tableTextX + 3 * letterSpacing, tableTextY + row * letterSpacing, 9 + numOffset,
-                       COLOR_FORE);
+            // Only show planets not owned by pirates.
+            if(galaxy[i].owner != 0) {
+                placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);
+                placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
+            }
+        } else {
+            // Plot world name, production and ships.
+            placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i].owner);
 
-            // Ships.
-            plotLetter(tableTextX + 7 * letterSpacing, tableTextY + row * letterSpacing, 8 + numOffset,
-                       COLOR_FORE);
+            // Only show planets not owned by pirates.
+            if(galaxy[i].owner != 0) {
+                placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
+                placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
+            }
         }
-        tableTextX += 75;
-        letter = 'A';
-    }*/
-}
-
-
-/**
- * Places colored letter on screen.
- *
- * <p>
- *
- * @param x - X coordinate on screen, 0-39.
- * @param y - Y coordinate on screen, 0-24.
- * @param character - Character that should be plotted.
- * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
- */
-void placeColoredLetter(int x, int y, char character, int player)
-{
-    textcolor(playerColors[player]);
-    cputcxy(x, y, character);
-    textcolor(textColor);
+    }
 }
 
 /**
- * Initializes the standard game graphics. // todo: maybe it is a good idea to return the x y position of the year text Line and text field lines
+ * Initializes the standard game graphics.
  */
 void initGameGraphics() {
     int i, j;
@@ -487,48 +563,29 @@ void initGameGraphics() {
     clrscr();
     //// 1. Draw map grid
     // y
-    for (i = 0; i < mapNLinesHorizontal; ++i)
-    {
+    for (i = 0; i < mapNLinesHorizontal; ++i) {
         // x
-        for (j = 0; j < mapNLinesVertical; ++j)
-        {
-            if (j == 0 && i == 0)
-            {
+        for (j = 0; j < mapNLinesVertical; ++j) {
+            if (j == 0 && i == 0) {
                 cputcxy(j, i, CH_ULCORNER);
-            }
-            else if (j == mapNLinesVertical - 1 && i == 0)
-            {
-                cputcxy(j, i, CH_URCORNER);     
-            }
-            else if (i == 0)
-            {
-                cputcxy(j, i, CH_TTEE); 
-            }
-            else if (i == mapNLinesHorizontal - 1 && j == 0)
-            {
-                cputcxy(j, i, CH_LLCORNER); 
-            }
-            else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1)
-            {
+            } else if (j == mapNLinesVertical - 1 && i == 0) {
+                cputcxy(j, i, CH_URCORNER);
+            } else if (i == 0) {
+                cputcxy(j, i, CH_TTEE);
+            } else if (i == mapNLinesHorizontal - 1 && j == 0) {
+                cputcxy(j, i, CH_LLCORNER);
+            } else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1) {
                 cputcxy(j, i, CH_LRCORNER);
-            }
-            else if (j == 0)
-            {
+            } else if (j == 0) {
                 cputcxy(j, i, CH_LTEE);
-            }
-            else if (i == mapNLinesHorizontal - 1)
-            {
-                cputcxy(j, i, CH_BTEE); 
-            }
-            else if (j == mapNLinesVertical - 1)
-            {
+            } else if (i == mapNLinesHorizontal - 1) {
+                cputcxy(j, i, CH_BTEE);
+            } else if (j == mapNLinesVertical - 1) {
                 cputcxy(j, i, CH_RTEE);
-            }
-            else
-            {
+            } else {
                 cputcxy(j, i, CH_CROSS);
             }
-        
+
         }
     }
 
@@ -546,31 +603,29 @@ void initGameGraphics() {
     tableColumn1XMin = tableXMin + 1;
 
     // middle lines
-    cvlinexy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 1, tableYMax - tableYMin - 1);
-    cvlinexy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMax, CH_BTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMax, CH_BTEE);
+    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 1, tableYMax - tableYMin - 1);
+    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin, CH_TTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMax, CH_BTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMax, CH_BTEE);
 
-    tableColumn2XMin = tableXMin + (tableXMax - tableXMin)/2 + 2;
+    tableColumn2XMin = tableXMin + (tableXMax - tableXMin) / 2 + 2;
 
     // header
     cputsxy(tableXMin + 1, tableYMin + 1, "W Pr Shp");
-    cputsxy(tableXMin + (tableXMax - tableXMin)/2 + 2, tableYMin + 1, "W Pr Shp");
+    cputsxy(tableXMin + (tableXMax - tableXMin) / 2 + 2, tableYMin + 1, "W Pr Shp");
     chlinexy(tableXMin + 1, tableYMin + 2, tableXMax - tableXMin - 1);
-    cputcxy(tableXMin , tableYMin + 2, CH_LTEE);
-    cputcxy(tableXMax , tableYMin + 2, CH_RTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2, tableYMin + 2, CH_CROSS);
-    cputcxy(tableXMin + (tableXMax - tableXMin)/2 + 1, tableYMin + 2, CH_CROSS);
-
+    cputcxy(tableXMin, tableYMin + 2, CH_LTEE);
+    cputcxy(tableXMax, tableYMin + 2, CH_RTEE);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 2, CH_CROSS);
+    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 2, CH_CROSS);
     tableFirstRowYMin = tableYMin + 3;
 
     /// Year 
     yearLineX = tableXMin + 1;
     yearLineY = tableYMax + 1;
-    cputsxy(yearLineX, yearLineY, "Year: 0");
-
+    cputsxy(yearLineX, yearLineY, "Year:");
 
     /// Input text field
     cputcxy(textFieldXMin, textFieldYMin, CH_ULCORNER);
@@ -581,40 +636,10 @@ void initGameGraphics() {
     chlinexy(textFieldXMin + 1, textFieldYMax, textFieldXMax - textFieldXMin - 1);
     cputcxy(textFieldXMin, textFieldYMax, CH_LLCORNER);
     cvlinexy(textFieldXMin, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
-    
     textLine1X = textFieldXMin + 1;
     textLine1Y = textFieldYMin + 1;
-
     textLine2X = textLine1X;
     textLine2Y = textLine1Y + 1;
-
-    // TODO: just testing map placement 
-    placeColoredLetter(5, 0, 'a', 0);
-    placeColoredLetter(5, 1, 'b', 1);
-    placeColoredLetter(5, 2, 'c', 2);
-    placeColoredLetter(5, 3, 'd', 3);
-
-    // TODO: testing table placement
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin, 'a', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 1, 'b', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 2, 'c', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 3, 'd', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 4, 'e', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 5, 'f', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 6, 'g', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 7, 'h', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 8, 'i', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 9, 'j', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 10, 'k', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 11, 'l', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 12, 'm', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 13, 'n', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 14, 'o', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 15, 'p', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 16, 'q', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 17, 'r', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 18, 's', 0);
-    placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + 19, 't', 0);
 }
 
 /**
@@ -708,29 +733,29 @@ char *getPlayerName(unsigned player) {
     clrscr();
 
     // Plot the question.
-    cprintf("Player number %d is? ", player+1);
+    cprintf("Player number %d is? ", player + 1);
 
     // Enable input cursor.
     cursor(1);
 
     // Retrieve player name.
-    do{
+    do {
         input = cgetc();
         switch (input) {
             case CH_ENTER:
                 // Check if three chars have been inputted.
-                if(numChars != 3){
+                if (numChars != 3) {
                     // Warn player if wrong input format.
                     cputsxy(0, 2, "Name needs to be 3 letters!");
                     sleep(2);
                     clearLine(2);
                     gotoxy(20 + numChars, 0);
                     input = ' ';
-                } else{
+                } else {
                     cursor(0);
                 }
                 break;
-            case CH_DEL:                    // TODO: something is odd
+            case CH_DEL:
                 // Delete last character.
                 switch (numChars) {
                     case 1:
@@ -743,15 +768,19 @@ char *getPlayerName(unsigned player) {
                         gotoxy(21, 0);
                         numChars--;
                         break;
+                    case 3:
+                        cclearxy(22, 0, 1);
+                        gotoxy(22, 0);
+                        numChars--;
                 }
                 break;
             default:
                 // Check if input is valid
-                if(numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))){
+                if (numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))) {
                     name[numChars] = input;
                     cputcxy(20 + numChars, 0, input);
                     numChars++;
-                } else{
+                } else {
                     // Warn player if wrong input format.
                     cputsxy(0, 2, "Name needs to be 3 letters!");
                     sleep(2);
@@ -759,7 +788,7 @@ char *getPlayerName(unsigned player) {
                     gotoxy(20 + numChars, 0);
                 }
         }
-    } while(input != CH_ENTER);
+    } while (input != CH_ENTER);
     return name; // TODO: adress of stack memory is returned, change to reference?
 }
 
