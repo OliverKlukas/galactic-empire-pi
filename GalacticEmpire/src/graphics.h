@@ -38,10 +38,10 @@ void updateTable();
  *
  * @param numPlayer - Number of players.
  * @param playerNames - Sorted list of player names.
- * @param galaxyPercentages - Sorted list of percentages of galaxy production ownership.
+ * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
  * @param numberShips - Sorted list of total number of ships.
  */
-void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyPercentages, unsigned *numberShips);
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyProduction, unsigned *numberShips);
 
 /**
  * Initializes the standard game graphics.

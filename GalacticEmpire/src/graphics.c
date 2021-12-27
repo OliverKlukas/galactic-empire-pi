@@ -490,10 +490,10 @@ char *getPlayerName(unsigned player) {
  *
  * @param numPlayer - Number of players.
  * @param playerNames - Sorted list of player names.
- * @param galaxyPercentages - Sorted list of percentages of galaxy production ownership.
+ * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
  * @param numberShips - Sorted list of total number of ships.
  */
-void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyPercentages, unsigned *numberShips){
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyProduction, unsigned *numberShips){
     // Loop variables.
     int i;
     char input;
@@ -508,18 +508,17 @@ void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyPer
     // Print first rows.
     cputs("FINAL STANDINGS:");
     gotoxy(0, 2);
-    cputs("Place   Admiral   Galaxy   Ships");
+    cputs("Place   Admiral   Prod   Ships");
 
     // Iterate over players.
     for(i = 0; i < numPlayer; i++){
         gotoxy(0, 4+i);
-        cprintf("%d.      %s       %d%%       %d", i+1, playerNames[i], galaxyPercentages[i], numberShips[i]);
+        cprintf("%d.      %s       %d      %d", i+1, playerNames[i], galaxyProduction[i], numberShips[i]);
     }
 
+    // Wait for f before finishing.
     gotoxy(0, 20);
     cprintf("The war is over, press f to finish!");
-
-    // Wait for f before finishing.
     while(input != 'f'){
         input = cgetc();
     }
