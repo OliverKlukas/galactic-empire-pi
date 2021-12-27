@@ -419,6 +419,10 @@ void evaluateMissions() {
     // Loop variables.
     int i;
 
+    // Trigger supernova randomly.
+    unsigned probSupernova = 5;         // Supernova probability at x%
+    unsigned superOccurrence;
+
     // Allocate array with all names.
     char **names = (char **) malloc((numPlayers+1) * sizeof(char *));
     names[0] = (char *) malloc(4 * sizeof(char));
@@ -426,6 +430,15 @@ void evaluateMissions() {
     for (i = 0; i < numPlayers; i++) {
         names[i+1] = (char *) malloc(4 * sizeof(char));
         names[i+1] = playerNames[i];
+    }
+
+    // TODO: include supernova, if not triggered then normal, else drop
+    if(events == 1){
+        supernova(1, 260, 1, names); // TODO delete
+        superOccurrence = rand() % 100;
+        if(superOccurrence < (probSupernova - 1)){
+            supernova(5, 100, 2, names);
+        }
     }
 
     // TODO: get all missions of current year and differentiate between fight and reinforcements here.

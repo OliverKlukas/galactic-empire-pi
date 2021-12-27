@@ -24,6 +24,7 @@ void plotText(unsigned x, unsigned y, char *sentence);
  */
 void updateMap();
 
+
 /**
  * Simulates attack on a planet and updates the galaxy.
  *
@@ -33,6 +34,16 @@ void updateMap();
  * @param numShips - Number of ships the attacker is attacking with.
  */
 void simulateFight();
+
+/**
+ * Display supernova information, special events.
+ *
+ * @param world - Destination where the ships should have gone to.
+ * @param numShips - Number of ships lost.
+ * @param player - Player who lost the ships as string.
+ * @param allNames - All player names 1-x and Me at 0.
+ */
+void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames);
 
 /**
  * Retrieves the inputs of all players in one round.

@@ -616,6 +616,31 @@ void simulateFight(struct world *galaxy, char **allNames, unsigned world, unsign
 }
 
 /**
+ * Display supernova information, special events.
+ *
+ * @param world - Destination where the ships should have gone to.
+ * @param numShips - Number of ships lost.
+ * @param player - Player who lost the ships as string.
+ * @param allNames - All player names 1-x and Me at 0.
+ */
+void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames){
+    clearTextIOField();
+    cputsxy(textLine1X, textLine1Y, "SUPERNOVA world: ");
+    if(world < 20){
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, player);
+    } else{
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, player);
+    }
+    gotoxy(textLine2X, textLine2Y);
+    textcolor(playerColors[player]);
+    cputs(allNames[player]);
+    textcolor(textColor);
+    cprintf(" lost %d ships", numShips);
+    cgetc();
+    clearTextIOField();
+}
+
+/**
  * Initializes the standard game graphics.
  */
 void initGameGraphics() {
