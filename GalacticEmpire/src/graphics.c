@@ -467,6 +467,16 @@ void clearMap() {
     }
 }
 
+
+// updates only the year
+void updateYear(unsigned year)
+{
+        // Update current year.
+    gotoxy(yearLineX, yearLineY);
+    cprintf("Year: %d", year);
+}
+
+
 /**
  * Draws the latest game table and year.
  *
@@ -482,9 +492,10 @@ void updateTable(struct world *galaxy, unsigned year, unsigned numWorlds) {
     // Clear table before update.
     clearTable();
 
+    // todo: delelte, now in updateYear
     // Update current year.
-    gotoxy(yearLineX, yearLineY);
-    cprintf("Year: %d", year);
+    //gotoxy(yearLineX, yearLineY);
+    //cprintf("Year: %d", year);
 
     // Place to be updated worlds on map.
     for (i = 0; i < numWorlds; i++) {

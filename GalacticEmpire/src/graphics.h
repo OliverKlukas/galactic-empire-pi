@@ -24,6 +24,7 @@ void plotText(unsigned x, unsigned y, char *sentence);
  */
 void updateMap();
 
+void updateYear(unsigned year);
 
 void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nShips);
 /**

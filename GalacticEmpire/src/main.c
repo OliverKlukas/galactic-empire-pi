@@ -36,7 +36,7 @@ int defensiveShips = 1;
 int events = 1;
 struct world galaxy[40];
 Queue **missionTable;
-
+char **names; // should be identical to playerNames
 
 // Available planet locations.
 int availableLocations[400];
@@ -323,6 +323,16 @@ void initGameInputs() {
     // Get special events settings.
     defensiveShips = getDefensive();
     events = getEvents();
+
+    // again player names with "me" ==> probably redundant
+    // Allocate array with all names.
+    names = (char **) malloc((numPlayers+1) * sizeof(char *));
+    names[0] = (char *) malloc(4 * sizeof(char));
+    names[0] = "me";
+    for (i = 0; i < numPlayers; i++) {
+        names[i+1] = (char *) malloc(4 * sizeof(char));
+        names[i+1] = playerNames[i];
+    }
 }
 
 /**
@@ -393,7 +403,7 @@ void retrieveInputsFromAllPlayers() {
 
     for (i = 0; i < 4; i++)
     {
-        playerInputs[i] = 0;
+        playerInputs[i] = -1;
     }
 
 
@@ -443,14 +453,7 @@ void evaluateMissions()
     unsigned probSupernova = 5;         // Supernova probability at x%
     unsigned superOccurrence;
 
-    // Allocate array with all names.
-    char **names = (char **) malloc((numPlayers+1) * sizeof(char *));
-    names[0] = (char *) malloc(4 * sizeof(char));
-    names[0] = "me";
-    for (i = 0; i < numPlayers; i++) {
-        names[i+1] = (char *) malloc(4 * sizeof(char));
-        names[i+1] = playerNames[i];
-    }
+   
 
     // test latest input from mission Table 
     for (i = 0; i < missionTable[year][0].size; i++) {
@@ -459,11 +462,12 @@ void evaluateMissions()
         nShips = dequeue(&missionTable[year][2]);
 
         // Let supernova occur randomly.
-        superOccurrence = rand() % 100;
+        /*superOccurrence = rand() % 100;
         if(events == 1 && superOccurrence < (probSupernova - 1)){
             supernova(dest, nShips, player, names);
             continue;
-        }            
+        }
+        */           
         // if (galaxy[dest].owner == player || 1) // debugging
         if (galaxy[dest].owner == player)
         {
@@ -484,17 +488,13 @@ void evaluateMissions()
         */
     }
 
-    // Free allocated.
-    for (i = 0; i < numPlayers+1; i++) {
-        free(names[i]);
-    }
-    free(names);
+    
 }
 
 void initializeMissionTable()
 {
     int i, j;
-    int capacity = 100; // a maximum of 500 missions per 
+    int capacity = 50; // a maximum of 500 missions per 
 
     missionTable = (Queue **)malloc(totalYears * sizeof(Queue *));
     for (i = 0; i < totalYears; ++i)
@@ -545,6 +545,7 @@ void game() {
     generateGalaxy();
     updateMap(&galaxy, numWorlds);
     updateTable(&galaxy, year, numWorlds);
+    updateYear(year);
     while (!mapAcceptance()) {
         clearMap();
         generateGalaxy();
@@ -567,7 +568,7 @@ void game() {
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
         year++;
-        updateTable(&galaxy, year);
+        updateYear(year);
     }
 
     // Final screen and award ceremony.
@@ -609,6 +610,16 @@ int main() {
         free(playerNames[i]);
     }
     free(playerNames);
+
+
+
+    // Free allocated.
+    for (i = 0; i < numPlayers+1; i++) {
+        free(names[i]);
+    }
+    free(names);
+
+
 
     // Free allocated.
     for (i = 0; i < totalYears+1; i++) {
