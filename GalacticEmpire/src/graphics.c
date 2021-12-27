@@ -248,7 +248,7 @@ void clearTable() {
  * @param player - Current active player, unsigned 0 - (numPlayer-1)
  * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs. returns [-1,-1,-1,-1] if the player is done putting in inputs and it is the next one's turn.
  */
-int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int numWorlds) {
+int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int numWorlds) {
     static int inputs [4];
     
     char readChar;
@@ -440,7 +440,6 @@ int * retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int
     inputs[3] = nShips;
 
     return inputs;
-    
 }
 
 /**
@@ -539,6 +538,36 @@ void updateTable(struct world *galaxy, unsigned year) {
         }
     }
 }
+
+
+void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nShips)
+{
+    clearTextIOField();
+    cputsxy(textLine1X, textLine1Y, "World");
+    
+    if (worldIter < 20) {
+        placeColoredLetter(textLine1X + 6, textLine1Y, worldIter + 65, playerIter);
+    } else {
+        placeColoredLetter(textLine1X + 6, textLine1Y, worldIter + 173, playerIter);
+    }
+
+    cputsxy(textLine1X + 7, textLine1Y, ": ");
+    // cputsxy(textLine1X + 9, textLine1Y, nShips);
+    gotoxy(textLine1X + 9, textLine1Y);
+    cprintf("%hi", nShips);
+    cputsxy(textLine2X, textLine2Y, "ships arrived!");
+    sleep(3);
+}
+
+void printForDebugging(char *name, int toPrint)
+{
+    clearTextIOField();
+    cputsxy(textLine1X, textLine1Y, name);
+    gotoxy(textLine2X, textLine2Y);
+    cprintf("val: %03d", toPrint);
+    sleep(2);
+}
+
 
 /**
  * Initializes the standard game graphics.

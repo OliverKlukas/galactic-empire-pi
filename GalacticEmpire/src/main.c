@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <time.h>
 #include "graphics.h"
+#include "queue.h"
 
 
 /*****************************************************************************/
@@ -34,6 +35,8 @@ unsigned totalYears = 0;
 int defensiveShips = 1;
 int events = 1;
 struct world galaxy[40];
+Queue **missionTable;
+
 
 // Available planet locations.
 int availableLocations[400];
@@ -280,7 +283,13 @@ void retrieveInputsFromAllPlayers()
     unsigned spaceShipSpeed = 2; // should be made global
     unsigned timeToArrival;
 
-    int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
+    int* playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
+
+    for (i = 0; i < 4; i++)
+    {
+        playerInputs[i] = 0;
+    }
+
 
     // todo: randomize player sequence
     for (i = 0; i < numPlayers; i++) 
@@ -296,10 +305,19 @@ void retrieveInputsFromAllPlayers()
             // calc distance and arrival time 
             distance = calcDistance(playerInputs[1], playerInputs[2]);
             timeToArrival = distance/spaceShipSpeed;
-
-            // add to mission table 
-
-
+            
+            if (year + timeToArrival > totalYears)
+            {
+                break;
+            } else if (timeToArrival < 1){
+                timeToArrival = 1;
+            }
+    
+            // add to mission table
+            // timeToArrival = 1; // debugging 
+            enqueue(&missionTable[year+timeToArrival][0], playerInputs[0]); // global player index
+            enqueue(&missionTable[year+timeToArrival][1], playerInputs[2]); // destination index
+            enqueue(&missionTable[year+timeToArrival][2], playerInputs[3]); // number of ships
         }
     }
 }
@@ -310,6 +328,38 @@ void retrieveInputsFromAllPlayers()
 void evaluateMissions()
 {
     // todo:
+    // for debugging: 
+    int player, dest, nShips;
+    
+    int i;
+
+
+    // test latest input from mission Table 
+    for (i = 0; i < missionTable[year][0].size; i++) {
+        player = dequeue(&missionTable[year][0]);
+        dest = dequeue(&missionTable[year][1]);
+        nShips = dequeue(&missionTable[year][2]);
+
+        // if (galaxy[dest].owner == player || 1) // debugging
+        if (galaxy[dest].owner == player)
+        {
+            galaxy[dest].ships += nShips;
+            displayReinforcements(player, dest, nShips);
+        }
+        else
+        {
+            // fighting 
+        }
+        
+
+        // for debugging
+        /*
+        printForDebugging("player", player);
+        printForDebugging("dest", dest);
+        printForDebugging("nShips", nShips);
+        */
+    }
+
 }
 
 
@@ -320,6 +370,25 @@ void evaluateMissions()
 void evaluateProduction()
 {
     // todo: 
+}
+
+void initializeMissionTable()
+{
+    int i, j;
+    int capacity = 100; // a maximum of 500 missions per 
+
+    missionTable = (Queue **)malloc(totalYears * sizeof(Queue *));
+    for (i = 0; i < totalYears; ++i)
+    {
+        missionTable[i] = (Queue *)malloc(3 * sizeof(Queue));
+        for (j = 0; j < 3; ++j)
+        {
+            missionTable[i][j].capacity = capacity;
+            missionTable[i][j].front = missionTable[i][j].size = 0;
+            missionTable[i][j].rear = capacity - 1;
+            missionTable[i][j].array = (int*)malloc(missionTable[i][j].capacity * sizeof(int));
+        }
+    }
 }
 
 
@@ -336,6 +405,8 @@ void game() {
     // for debugging:
     initGameInputsMock();
 
+    initializeMissionTable();
+
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
@@ -351,10 +422,9 @@ void game() {
     } 
 
     // todo: to implement ! ... or not really necessary !
-    //initializeMissionTable();
     
     // Play the game until running out of years.
-    while (year != totalYears) {
+    while (year <= totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
         // TODO defensive ships here!
 
@@ -368,6 +438,7 @@ void game() {
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
         year++;
+        updateTable(&galaxy, year); 
     }
 
     // TODO: display final stats like winner etc.

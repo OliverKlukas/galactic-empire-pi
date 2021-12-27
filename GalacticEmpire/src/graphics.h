@@ -21,6 +21,9 @@ void plotText(unsigned x, unsigned y, char *sentence);
  */
 void updateMap();
 
+
+void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nShips);
+
 /**
  * Retrieves the inputs of all players in one round.
  */
@@ -32,6 +35,9 @@ int *retrieveInputs();
  * <p>Updates the displayed graphics based on the global variables. Read only.
  */
 void updateTable();
+
+
+void printForDebugging(char *name, int toPrint);
 
 /**
  * Initializes the standard game graphics.
