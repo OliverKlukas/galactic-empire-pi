@@ -351,6 +351,83 @@ void initGameInputsMock() {
     events = 1;
 }
 
+
+/**
+ * This function calculates the distance between two planets given by their indices in the galaxy struct.
+ *
+ * @param planetAIdx
+ * @param planetBIdx
+ * @return
+ */
+unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx)
+{
+    int xDistance;
+    int yDistance;
+
+    unsigned absXDistance;
+    unsigned absYDistance;
+
+    xDistance = galaxy[planetAIdx].x - galaxy[planetBIdx].x;
+    absXDistance = (xDistance >= 0 ? xDistance:-xDistance); 
+
+    yDistance = galaxy[planetAIdx].y - galaxy[planetBIdx].y;
+    absYDistance = (yDistance >= 0 ? yDistance:-yDistance); 
+
+    return absXDistance + absYDistance;
+}
+
+/**
+ * Iterates all players and retrieves mission inputs and adds them to mission table.
+ */
+void retrieveInputsFromAllPlayers()
+{
+    int i;
+    unsigned distance;
+    unsigned spaceShipSpeed = 2; // should be made global
+    unsigned timeToArrival;
+
+    int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
+
+    // todo: randomize player sequence
+    for (i = 0; i < numPlayers; i++) 
+    {
+        while (1)
+        {
+            playerInputs = retrieveInputs(i + 1, playerNames[i], &galaxy, numWorlds);
+            if (playerInputs[1] == -1)
+            {
+                break;
+            }
+            
+            // calc distance and arrival time 
+            distance = calcDistance(playerInputs[1], playerInputs[2]);
+            timeToArrival = distance/spaceShipSpeed;
+
+            // add to mission table 
+
+
+        }
+    }
+}
+
+/*
+ * Evaluates the mission array, triggers reinforcements and fights  
+ */
+void evaluateMissions()
+{
+    // todo:
+}
+
+
+/*
+ * Updates the ships on all worlds in the galaxy array due to their production capabilities 
+ */
+void evaluateProduction()
+{
+    // todo: 
+}
+
+
 /**
  * Main galactic empire game logic.
  */
@@ -359,7 +436,8 @@ void game() {
     //startScreen(); // TODO
 
     // Handle initial questions.
-    initGameInputsMock();
+    //initGameInputs();
+    initGameInputsMock();       // TODO: delete and change to above
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
@@ -375,19 +453,23 @@ void game() {
         updateTable(&galaxy, year);
     }
 
-    //retrieveInputs();
-
+    // todo: to implement ! ... or not really necessary !
+    //initializeMissionTable();
+    
     // Play the game until running out of years.
     while (year != totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
+        evaluateMissions();
 
+        // Update planets with their production.
+        evaluateProduction();
 
-        // Update map based on state.
-        updateTable(&galaxy, year);
+        // Update map based on state, in the first round special treatment.
+        updateTable(&galaxy, year); 
         updateMap(&galaxy);
 
         // Retrieve inputs of all players.
-        //retrieveInputs();
+        retrieveInputsFromAllPlayers();
         year++;
     }
 

@@ -24,7 +24,7 @@ void updateMap();
 /**
  * Retrieves the inputs of all players in one round.
  */
-void retrieveInputs();
+int *retrieveInputs();
 
 /**
  * Draws the latest game table and year.
