@@ -262,9 +262,9 @@ void awardCeremony() {
     int i;
 
     // Winner ranking arrays.
-    unsigned *galaxyProduction = calloc(numPlayers, sizeof (unsigned));
-    unsigned *numberShips = calloc(numPlayers, sizeof (unsigned));
-    unsigned *ranking = calloc(numPlayers, sizeof (unsigned));
+    unsigned *galaxyProduction = calloc(numPlayers, sizeof(unsigned));
+    unsigned *numberShips = calloc(numPlayers, sizeof(unsigned));
+    unsigned *ranking = calloc(numPlayers, sizeof(unsigned));
 
     // Collect state of galaxy.
     for (i = 0; i < numWorlds; i++) {
@@ -306,9 +306,10 @@ void initGameInputs() {
     // Get player names.
     playerNames = (char **) malloc(numPlayers * sizeof(char *));
     for (i = 0; i < numPlayers; i++) {
-        playerNames[i] = (char *) malloc(3 * sizeof (char));
+        playerNames[i] = (char *) malloc(4 * sizeof(char));
         playerNames[i] = getPlayerName(i);
     }
+
 
     // Get number of worlds.
     numWorlds = getNumWorlds();
@@ -334,7 +335,7 @@ void initGameInputsMock() {
     // Get player names.
     playerNames = (char **) malloc(numPlayers * sizeof(char *));
     for (i = 0; i < numPlayers; i++) {
-        playerNames[i] = (char *) malloc(3 * sizeof (char));
+        playerNames[i] = (char *) malloc(4 * sizeof(char));
     }
     playerNames[0] = "Bas";
     playerNames[1] = "Oli";
@@ -359,8 +360,7 @@ void initGameInputsMock() {
  * @param planetBIdx
  * @return
  */
-unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx)
-{
+unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx) {
     int xDistance;
     int yDistance;
 
@@ -368,10 +368,10 @@ unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx)
     unsigned absYDistance;
 
     xDistance = galaxy[planetAIdx].x - galaxy[planetBIdx].x;
-    absXDistance = (xDistance >= 0 ? xDistance:-xDistance); 
+    absXDistance = (xDistance >= 0 ? xDistance : -xDistance);
 
     yDistance = galaxy[planetAIdx].y - galaxy[planetBIdx].y;
-    absYDistance = (yDistance >= 0 ? yDistance:-yDistance); 
+    absYDistance = (yDistance >= 0 ? yDistance : -yDistance);
 
     return absXDistance + absYDistance;
 }
@@ -379,8 +379,7 @@ unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx)
 /**
  * Iterates all players and retrieves mission inputs and adds them to mission table.
  */
-void retrieveInputsFromAllPlayers()
-{
+void retrieveInputsFromAllPlayers() {
     int i;
     unsigned distance;
     unsigned spaceShipSpeed = 2; // should be made global
@@ -389,19 +388,16 @@ void retrieveInputsFromAllPlayers()
     int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
 
     // todo: randomize player sequence
-    for (i = 0; i < numPlayers; i++) 
-    {
-        while (1)
-        {
+    for (i = 0; i < numPlayers; i++) {
+        while (1) {
             playerInputs = retrieveInputs(i + 1, playerNames[i], &galaxy, numWorlds);
-            if (playerInputs[1] == -1)
-            {
+            if (playerInputs[1] == -1) {
                 break;
             }
-            
+
             // calc distance and arrival time 
             distance = calcDistance(playerInputs[1], playerInputs[2]);
-            timeToArrival = distance/spaceShipSpeed;
+            timeToArrival = distance / spaceShipSpeed;
 
             // add to mission table 
 
@@ -410,34 +406,36 @@ void retrieveInputsFromAllPlayers()
     }
 }
 
-/*
+/**
  * Evaluates the mission array, triggers reinforcements and fights  
  */
-void evaluateMissions()
-{
+void evaluateMissions() {
     // todo:
 }
 
-
-/*
+/**
  * Updates the ships on all worlds in the galaxy array due to their production capabilities 
  */
-void evaluateProduction()
-{
-    // todo: 
-}
+void updateProduction() {
+    // Loop variables.
+    int i;
 
+    // Let whole galaxy produce its ships.
+    for(i = 0; i < numWorlds; i++){
+        galaxy[i].ships += galaxy[i].prod;
+    }
+}
 
 /**
  * Main galactic empire game logic.
  */
 void game() {
     // Plot start screen.
-    //startScreen(); // TODO
+    startScreen();
 
     // Handle initial questions.
-    //initGameInputs();
-    initGameInputsMock();       // TODO: delete and change to above
+    initGameInputs();
+    //initGameInputsMock();       // TODO: delete and change to above
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
@@ -455,17 +453,17 @@ void game() {
 
     // todo: to implement ! ... or not really necessary !
     //initializeMissionTable();
-    
+
     // Play the game until running out of years.
     while (year != totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
         evaluateMissions();
 
         // Update planets with their production.
-        evaluateProduction();
+        updateProduction();
 
         // Update map based on state, in the first round special treatment.
-        updateTable(&galaxy, year); 
+        updateTable(&galaxy, year);
         updateMap(&galaxy);
 
         // Retrieve inputs of all players.
@@ -489,11 +487,17 @@ void game() {
  * @return Returns SUCCESS in case of completed game or FAILURE in case or errors.
  */
 int main() {
-    // Save the previous border color to reset later on.
-    unsigned char Border;
+    // Loop variables.
+    int i;
 
-    // Set the border colors.
-    Border = bordercolor(COLOR_GREEN);
+    // Save the previous color to reset later on.
+    unsigned char prevBorder, prevTextColor, prevBackgroundColor;
+
+    // Set the colors for the start screen.
+    prevBorder = bordercolor(COLOR_GREEN);
+    prevBackgroundColor = bgcolor(COLOR_GREEN);
+    prevTextColor = textcolor(COLOR_WHITE);
+
 
     // Seed the random numbers arbitrary.
     srand(time(0));
@@ -501,12 +505,19 @@ int main() {
     // Call main game function.
     game();
 
-    // Reset the border.
-    bordercolor(Border);
-
     // Free globally allocated variables.
+    for(i = 0; i < numPlayers; i++){
+        free(playerNames[i]);
+    }
     free(playerNames);
 
+    // Reset the colors.
+    bordercolor(prevBorder);
+    bgcolor(prevBackgroundColor);
+    textcolor(prevTextColor);
+
+    // Clear screen and finish.
+    clrscr();
     printf("Done\n");
     return EXIT_SUCCESS;
 }
