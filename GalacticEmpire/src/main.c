@@ -450,6 +450,9 @@ void evaluateMissions() {
     simulateFight(&galaxy, names, 28, 1, 59);
 
     // Free allocated.
+    for (i = 0; i < numPlayers+1; i++) {
+        free(names[i]);
+    }
     free(names);
 }
 
