@@ -494,7 +494,7 @@ void evaluateMissions()
 void initializeMissionTable()
 {
     int i, j;
-    int capacity = 50; // a maximum of 500 missions per 
+    int capacity = 100; // a maximum of 500 missions per 
 
     missionTable = (Queue **)malloc(totalYears * sizeof(Queue *));
     for (i = 0; i < totalYears; ++i)
