@@ -54,7 +54,7 @@ const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_G
  * @param character - Character that should be plotted.
  * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
  */
-void placeColoredLetter(int x, int y, char character, int player) {
+void placeColoredLetter(unsigned x, unsigned y, char character, int player) {
     textcolor(playerColors[player]);
     cputcxy(x, y, character);
     textcolor(textColor);
@@ -80,12 +80,12 @@ void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player
     textcolor(playerColors[player]);
 
     // Plot number by breaking it down into its single digits.
-    if (number == 0){
+    if (number == 0) {
         cputcxy(x, y, '0');
     } else {
-        while(num > 0){
+        while (num > 0) {
             digit = num % 10;
-            cputcxy(x-i, y, digit + '0');
+            cputcxy(x - i, y, digit + '0');
             num = num / 10;
             i++;
         }
@@ -114,17 +114,14 @@ void clearTextIOField() {
 }
 
 // converts planet letter 'a', 'b' etc to index in galaxy struct 0 1 2 
-int convertPlanetLetterToNumberIndex(char planetLetter)
-{
-    if (planetLetter > 85)
-    {
-        return planetLetter - 173; 
-    }   
+int convertPlanetLetterToNumberIndex(char planetLetter) {
+    if (planetLetter > 85) {
+        return planetLetter - 173;
+    }
     return planetLetter - 65;
 }
 
-int readSinglePlanetLetter()
-{
+int readSinglePlanetLetter() {
     /*
     *   1. What it should be: enter one character, press enter : returns int which is the index of the entered world in the galaxy struct 
     *   2. If more or less than one character, return -1: display wrong input in parent function
@@ -136,12 +133,12 @@ int readSinglePlanetLetter()
     char readChar;
     unsigned numChars = 0;
 
-    do{
+    do {
         readChar = cgetc();
         switch (readChar) {
             case CH_ENTER:
                 // Check if three chars have been inputted.
-                if(numChars == 0){
+                if (numChars == 0) {
                     // invalid input return 
                     return -3;
                 } else {
@@ -152,14 +149,14 @@ int readSinglePlanetLetter()
                 return -2;
             default:
                 // Check if input is valid
-                if(numChars < 1 && ((readChar >= 'a' && readChar <= 'z') || (readChar >= 'A' && readChar <= 'Z'))){
+                if (numChars < 1 && ((readChar >= 'a' && readChar <= 'z') || (readChar >= 'A' && readChar <= 'Z'))) {
                     planet = readChar;
                     numChars++;
-                } else{
+                } else {
                     return -1;
                 }
         }
-    } while(readChar != CH_ENTER);
+    } while (readChar != CH_ENTER);
 }
 
 /*
@@ -168,9 +165,8 @@ int readSinglePlanetLetter()
     3. If nothing or 0 is entered: return -1 // 0 is handled by parent function
     4. If a number with more than 5 digits is entered: return -1
 *   3. If space is entered: return -2: cancel the entire loop
-*/ 
-int readNumber()
-{
+*/
+int readNumber() {
     int i;
     int readDigits[5] = {0, 0, 0, 0, 0};
     int multiplyBy[5] = {10000, 1000, 100, 10, 1};
@@ -178,17 +174,16 @@ int readNumber()
     int nZerosReadIn = 0;
     char readChar;
     unsigned numChars = 0;
-    
-    do{
+
+    do {
         readChar = cgetc();
         switch (readChar) {
             case CH_ENTER:
                 // Check if three chars have been inputted.
-                if(numChars == 0){
+                if (numChars == 0) {
                     // invalid input return 
                     return -1;
-                }
-                else {        
+                } else {
                     // convert to int 
                     clearTextIOField();
 
@@ -201,16 +196,12 @@ int readNumber()
                     cprintf("nZerosReadIn: %01d", nZerosReadIn);
                     sleep(2);
                     */
-                    for (i = 0; i < 5 - nZerosReadIn; ++i)
-                    {
+                    for (i = 0; i < 5 - nZerosReadIn; ++i) {
                         number += multiplyBy[i + nZerosReadIn] * readDigits[i];
                     }
-                    if (number == 0)
-                    {
+                    if (number == 0) {
                         return -1;
-                    }
-                    else 
-                    {
+                    } else {
                         return number;
                     }
                 }
@@ -218,14 +209,14 @@ int readNumber()
                 return -2;
             default:
                 // Check if input is valid
-                if(numChars < 5 && isdigit(readChar)) {
+                if (numChars < 5 && isdigit(readChar)) {
                     readDigits[numChars] = readChar - '0';
                     numChars++;
-                } else{
+                } else {
                     return -1;
                 }
         }
-    } while(readChar != CH_ENTER);
+    } while (readChar != CH_ENTER);
 
 
 }
@@ -236,7 +227,7 @@ int readNumber()
  */
 void clearTable() {
     int i;
-    for (i = 0; i < 20; i++){
+    for (i = 0; i < 20; i++) {
         cclearxy(tableColumn1XMin, tableFirstRowYMin + i, 8);
         cclearxy(tableColumn2XMin, tableFirstRowYMin + i, 8);
     }
@@ -256,11 +247,9 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
     int destination = -1;
     int nShips = -1;
 
-    while(1)
-    {
+    while (1) {
         // 1st question: Origin 
-        while (origin < 0)
-        {
+        while (origin < 0) {
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
@@ -270,33 +259,28 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
             cputsxy(textLine2X, textLine2Y, "Origin of fleet ?");
 
             origin = readSinglePlanetLetter();
-            if (origin == -1 || (origin > (numWorlds - 1)))
-            {
+            if (origin == -1 || (origin > (numWorlds - 1))) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
-                gotoxy(textLine2X, textLine2Y);
-                cprintf("Origin Idx: %01d", origin);
+                // for debugging:
+                // gotoxy(textLine2X, textLine2Y);
+                // cprintf("Origin Idx: %01d", origin);
                 sleep(2);
                 clearTextIOField();
-            } else if (origin == -2)
-            {
+            } else if (origin == -2) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
                 clearTextIOField();
-            } else if (origin == -3)
-            {
+            } else if (origin == -3) {
                 clearTextIOField();
-                cputsxy(textLine1X, textLine1Y, "Sure?");
+                cputsxy(textLine1X, textLine1Y, "End turn?");
                 readChar = cgetc();
-                if (readChar == CH_ENTER)
-                {
+                if (readChar == CH_ENTER) {
                     origin = -1;
                     break;
                 }
-            } 
-            else if (!(galaxy[origin].owner == playerIter))
-            {
+            } else if (!(galaxy[origin].owner == playerIter)) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not your world!");
@@ -317,8 +301,7 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
         */
 
         // 2nd question: Destination
-        while (destination < 0 && origin >= 0)
-        {
+        while (destination < 0 && origin >= 0) {
             clearTextIOField();
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
@@ -329,21 +312,18 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
             cputsxy(textLine2X, textLine2Y, "Destination ?");
 
             destination = readSinglePlanetLetter();
-            if (destination == -1 || destination > numWorlds - 1)
-            {
+            if (destination == -1 || destination > numWorlds - 1) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 sleep(2);
                 clearTextIOField();
-            } else if (destination == -2)
-            {
+            } else if (destination == -2) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
                 clearTextIOField();
                 break;
-            } else if (destination == origin)
-            {
+            } else if (destination == origin) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Origin = Dest!");
@@ -351,14 +331,12 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
                 clearTextIOField();
 
                 destination = -1;
-            } else
-            {
+            } else {
                 break;
             }
         }
 
-        if (destination == -2)
-        {
+        if (destination == -2) {
             origin = -1;
             continue;
         }
@@ -374,8 +352,7 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
         */
 
         // 3rd Question: # ships:
-        while (nShips < 0 && origin >= 0)
-        {
+        while (nShips < 0 && origin >= 0) {
             clearTextIOField();
             textcolor(textColor); // todo: should already be defined somewhere else!
             cputsxy(textLine1X, textLine1Y, "Admiral ");
@@ -386,36 +363,29 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
             cputsxy(textLine2X, textLine2Y, "# Ships ?");
 
             nShips = readNumber();
-            if (nShips == -1)
-            {
+            if (nShips == -1) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 sleep(2);
                 clearTextIOField();
-            } else if (nShips == -2)
-            {
+            } else if (nShips == -2) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Cancelled!");
                 sleep(2);
                 clearTextIOField();
                 break;
-            } else if (nShips > galaxy[origin].ships)
-            {
+            } else if (nShips > galaxy[origin].ships) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not enough ships!");
                 sleep(2);
                 clearTextIOField();
                 nShips = -1;
-            }
-            
-            else
-            {
+            } else {
                 break;
             }
         }
-        if (nShips == -2)
-        {
+        if (nShips == -2) {
             origin = -1;
             destination = -1;
             continue;
@@ -446,13 +416,14 @@ int *retrieveInputs(int playerIter, char* playerName, struct world *galaxy, int 
  * Updates the map with the current galaxy state.
  *
  * @param galaxy - Current state of galaxy.
+ * @param numWorlds - Number of overall worlds.
  */
-void updateMap(struct world *galaxy) {
+void updateMap(struct world *galaxy, unsigned numWorlds) {
     // Loop variable.
     int i;
 
     // Place to be updated worlds on map.
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < numWorlds; i++) {
         // Differentiate between small and capital letters.
         if (i < 20) {
             placeColoredLetter(galaxy[i].x, galaxy[i].y, i + 65, galaxy[i].owner);
@@ -502,8 +473,9 @@ void clearMap() {
  * <p>Updates the displayed tables graphics based on the global variables.
  * @param galaxy - Current state of galaxy.
  * @param year - Current game year.
+ * @param numWorlds - Total years of game.
  */
-void updateTable(struct world *galaxy, unsigned year) {
+void updateTable(struct world *galaxy, unsigned year, unsigned numWorlds) {
     // Loop variables.
     int i;
 
@@ -515,14 +487,14 @@ void updateTable(struct world *galaxy, unsigned year) {
     cprintf("Year: %d", year);
 
     // Place to be updated worlds on map.
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < numWorlds; i++) {
         // Differentiate between first and second column.
         if (i < 20) {
             // Plot world name, production and ships.
             placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i].owner);
 
             // Only show planets not owned by pirates.
-            if(galaxy[i].owner != 0) {
+            if (galaxy[i].owner != 0) {
                 placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);
                 placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
             }
@@ -531,7 +503,7 @@ void updateTable(struct world *galaxy, unsigned year) {
             placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i].owner);
 
             // Only show planets not owned by pirates.
-            if(galaxy[i].owner != 0) {
+            if (galaxy[i].owner != 0) {
                 placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
                 placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
             }
@@ -568,6 +540,134 @@ void printForDebugging(char *name, int toPrint)
     sleep(2);
 }
 
+
+/**
+ * Simulates attack on a planet and updates the galaxy.
+ *
+ * @param allNames - All player names 1-x and Me at 0.
+ * @param world - World that's under attack.
+ * @param attacker - Integer value of attacker player.
+ * @param numShips - Number of ships the attacker is attacking with.
+ */
+void simulateFight(struct world *galaxy, char **allNames, unsigned world, unsigned attacker, unsigned numShips){
+    // Attack variables.
+    unsigned prevColor;
+    unsigned fightValue;
+    unsigned deciderValue = 49;
+    unsigned shipsLostPerLoss;
+    int attackerShips = numShips;
+
+    // Attack message.
+    cputsxy(textLine1X, textLine1Y, "Attack on world: ");
+    if(world < 20){
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, galaxy[world].owner);
+    } else{
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, galaxy[world].owner);
+    }
+    sleep(3);
+
+    // Defender and attacker.
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    prevColor = textcolor(playerColors[attacker]);
+    cprintf("Attacker: %s", allNames[attacker]);
+    textcolor(playerColors[galaxy[world].owner]);
+    gotoxy(textLine2X, textLine2Y);
+    cprintf("Defender: %s", allNames[galaxy[world].owner]);
+    textcolor(prevColor);
+    sleep(3);
+
+    // Print initial battle state.
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    textcolor(playerColors[attacker]);
+    cprintf("Attacker: %d", attackerShips);
+    gotoxy(textLine2X, textLine2Y);
+    textcolor(playerColors[galaxy[world].owner]);
+    cprintf("Defender: %d", galaxy[world].ships);
+    sleep(1);
+
+    // Simulate attack and give out state of battle.
+    while(attackerShips > 0){
+        // Set shipsLostPerLoss dynamically with the number of ships left.
+        if(attackerShips < galaxy[world].ships && attackerShips > 31){
+            shipsLostPerLoss = attackerShips / 8;
+        } else if(attackerShips >= galaxy[world].ships && galaxy[world].ships > 31){
+            shipsLostPerLoss = galaxy[world].ships / 8;
+        } else {
+            shipsLostPerLoss = 3;
+        }
+
+        // Calculate who loses one round.
+        fightValue = rand() % 100;
+        if(fightValue < deciderValue){
+            // Attacker loses ships.
+            attackerShips -= shipsLostPerLoss;
+            if(attackerShips < 0){
+                break;
+            }
+        } else{
+            // Defender loses ships.
+            if(shipsLostPerLoss >= galaxy[world].ships){
+                break;
+            }
+            galaxy[world].ships -= shipsLostPerLoss;
+        }
+
+        // Slowly change decider value so that attacker loses more.
+        if(deciderValue < 74){
+            deciderValue += 1;
+        }
+
+        // Update current battle state.
+        clearTextIOField();
+        gotoxy(textLine1X, textLine1Y);
+        textcolor(playerColors[attacker]);
+        cprintf("Attacker: %d", attackerShips);
+        gotoxy(textLine2X, textLine2Y);
+        textcolor(playerColors[galaxy[world].owner]);
+        cprintf("Defender: %d", galaxy[world].ships);
+        sleep(1);
+    }
+
+    // Check if attacker won.
+    if(attackerShips > 0){
+        galaxy[world].owner = attacker;
+        galaxy[world].ships = attackerShips;
+    }
+
+    // End message.
+    textcolor(prevColor);
+    clearTextIOField();
+    gotoxy(textLine1X, textLine1Y);
+    cprintf("%s won!", allNames[galaxy[world].owner]);
+    sleep(3);
+}
+
+/**
+ * Display supernova information, special events.
+ *
+ * @param world - Destination where the ships should have gone to.
+ * @param numShips - Number of ships lost.
+ * @param player - Player who lost the ships as string.
+ * @param allNames - All player names 1-x and Me at 0.
+ */
+void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames){
+    clearTextIOField();
+    cputsxy(textLine1X, textLine1Y, "SUPERNOVA world: ");
+    if(world < 20){
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, player);
+    } else{
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, player);
+    }
+    gotoxy(textLine2X, textLine2Y);
+    textcolor(playerColors[player]);
+    cputs(allNames[player]);
+    textcolor(textColor);
+    cprintf(" lost %d ships", numShips);
+    cgetc();
+    clearTextIOField();
+}
 
 /**
  * Initializes the standard game graphics.
@@ -681,10 +781,6 @@ void startScreen() {
     // Clear screen.
     clrscr();
 
-    // Set colors for start screen and intial questions.
-    bgcolor(startBackgroundColor);
-    textcolor(startTextColor);
-
     // Write game title.
     gotoxy(12, 10);
     cprintf("GALACTIC  EMPIRE");
@@ -755,8 +851,8 @@ unsigned getNumPlayers() {
  */
 char *getPlayerName(unsigned player) {
     int numChars = 0;
-    char name[3];
     char input;
+    char *name = malloc(4 * sizeof(char));
 
     // Clear screen and go to start.
     clrscr();
@@ -818,9 +914,50 @@ char *getPlayerName(unsigned player) {
                 }
         }
     } while (input != CH_ENTER);
-    return name; // TODO: adress of stack memory is returned, change to reference?
+
+    // Insert terminal symbol for string.
+    name[3] = '\0';
+    return name;
 }
 
+/**
+ * Prints the final ranking screen.
+ *
+ * @param numPlayer - Number of players.
+ * @param playerNames - Sorted list of player names.
+ * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
+ * @param numberShips - Sorted list of total number of ships.
+ */
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyProduction, unsigned *numberShips) {
+    // Loop variables.
+    int i;
+    char input;
+
+    // Clear screen.
+    clrscr();
+
+    // Set colors for final screen.
+    bgcolor(startBackgroundColor);
+    textcolor(startTextColor);
+
+    // Print first rows.
+    cputs("FINAL STANDINGS:");
+    gotoxy(0, 2);
+    cputs("Place   Admiral   Prod   Ships");
+
+    // Iterate over players.
+    for (i = 0; i < numPlayer; i++) {
+        gotoxy(0, 4 + i);
+        cprintf("%d.      %s       %d      %d", i + 1, playerNames[i], galaxyProduction[i], numberShips[i]);
+    }
+
+    // Wait for f before finishing.
+    gotoxy(0, 20);
+    cprintf("The war is over, press f to finish!");
+    while (input != 'f') {
+        input = cgetc();
+    }
+}
 
 /**
  * Retrieves the desired number of worlds.
@@ -1090,11 +1227,11 @@ unsigned mapAcceptance() {
 
     unsigned answer = 2;
     char input;
-   
+
     // Player acceptance;
     cputsxy(textLine1X, textLine1Y, "Would you like a");
     cputsxy(textLine2X, textLine2Y, "different map?");
-        
+
     // Enable input cursor.
     gotoxy(textLine2X + 15, textLine2Y);
     cursor(1);

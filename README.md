@@ -5,6 +5,7 @@
 ## compile
 ```bash
 # Compile as .c64 file
+cd GalacticEmpire
 make
 ```
 

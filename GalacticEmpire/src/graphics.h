@@ -17,12 +17,34 @@ void plotLetter(unsigned x, unsigned y, int letter);
 void plotText(unsigned x, unsigned y, char *sentence);
 
 /**
- * Updates the game map.
+ * Updates the map with the current galaxy state.
+ *
+ * @param galaxy - Current state of galaxy.
+ * @param numWorlds - Number of overall worlds.
  */
 void updateMap();
 
 
 void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nShips);
+/**
+ * Simulates attack on a planet and updates the galaxy.
+ *
+ * @param allNames - All player names 1-x and Me at 0.
+ * @param world - World that's under attack.
+ * @param attacker - Integer value of attacker player.
+ * @param numShips - Number of ships the attacker is attacking with.
+ */
+void simulateFight();
+
+/**
+ * Display supernova information, special events.
+ *
+ * @param world - Destination where the ships should have gone to.
+ * @param numShips - Number of ships lost.
+ * @param player - Player who lost the ships as string.
+ * @param allNames - All player names 1-x and Me at 0.
+ */
+void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames);
 
 /**
  * Retrieves the inputs of all players in one round.
@@ -32,12 +54,26 @@ int *retrieveInputs();
 /**
  * Draws the latest game table and year.
  *
- * <p>Updates the displayed graphics based on the global variables. Read only.
+ * <p>Updates the displayed graphics based on the global variables.
+ *
+ * @param galaxy - Current state of galaxy.
+ * @param year - Current game year.
+ * @param numWorlds - Total years of game.
  */
 void updateTable();
 
 
 void printForDebugging(char *name, int toPrint);
+
+/**
+ * Prints the final ranking screen.
+ *
+ * @param numPlayer - Number of players.
+ * @param playerNames - Sorted list of player names.
+ * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
+ * @param numberShips - Sorted list of total number of ships.
+ */
+void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyProduction, unsigned *numberShips);
 
 /**
  * Initializes the standard game graphics.
