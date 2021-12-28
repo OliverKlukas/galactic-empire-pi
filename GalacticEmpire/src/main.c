@@ -3,8 +3,14 @@
 #include <cc65.h>
 #include <conio.h>
 #include <time.h>
-#include "graphics.h"
-#include "queue.h"
+#include "graphics/graphics.h"
+#include "graphics/startscreen.h"
+#include "graphics/box.h"
+#include "graphics/map.h"
+#include "graphics/questions.h"
+#include "graphics/ranking.h"
+#include "graphics/table.h"
+#include "utils/queue.h"
 
 
 /*****************************************************************************/
@@ -12,13 +18,13 @@
 /*****************************************************************************/
 
 
-struct world {
+typedef struct {
     unsigned x;             // 0-19 x axis position on map
     unsigned y;             // 0-19 y axis position on map
     unsigned owner;         // 0 is pirate, 1 - 5 players
     unsigned prod;          // 0 - x production
     unsigned ships;         // 0 - x number of ships
-};
+} world;
 
 
 /*****************************************************************************/
@@ -34,7 +40,8 @@ unsigned year = 0;
 unsigned totalYears = 0;
 int defensiveShips = 1;
 int events = 1;
-struct world galaxy[40];
+//world *galaxy;
+world galaxy[40];
 Queue **missionTable;
 char **names; // should be identical to playerNames
 
@@ -78,7 +85,6 @@ unsigned sphereDivisions[5][5][4] = {
                 {12, 0,  15, 19},
                 {16, 0, 19, 19}
         }
-
 };
 
 // Scenario variables.
@@ -313,7 +319,6 @@ void initGameInputs() {
         playerNames[i] = getPlayerName(i);
     }
 
-
     // Get number of worlds.
     numWorlds = getNumWorlds();
 
@@ -324,7 +329,7 @@ void initGameInputs() {
     defensiveShips = getDefensive();
     events = getEvents();
 
-    // again player names with "me" ==> probably redundant
+    // again player names with "me" ==> probably redundant //TODO
     // Allocate array with all names.
     names = (char **) malloc((numPlayers+1) * sizeof(char *));
     names[0] = (char *) malloc(4 * sizeof(char));
@@ -334,37 +339,6 @@ void initGameInputs() {
         names[i+1] = playerNames[i];
     }
 }
-
-/**
- * Initialises the game questions.  // TODO: delete, can be used instead of typing in questions
- */
-void initGameInputsMock() {
-    // Loop variable.
-    int i;
-
-    // Get number of players.
-    numPlayers = 3;
-
-    // Get player names.
-    playerNames = (char **) malloc(numPlayers * sizeof(char *));
-    for (i = 0; i < numPlayers; i++) {
-        playerNames[i] = (char *) malloc(4 * sizeof(char));
-    }
-    playerNames[0] = "Bas";
-    playerNames[1] = "Oli";
-    playerNames[2] = "Pit";
-
-    // Get number of worlds.
-    numWorlds = 40;
-
-    // Get number of totalYears.
-    totalYears = 10;
-
-    // Get special events settings.
-    defensiveShips = 1;
-    events = 1;
-}
-
 
 /**
  * This function calculates the distance between two planets given by their indices in the galaxy struct.
@@ -462,12 +436,12 @@ void evaluateMissions()
         nShips = dequeue(&missionTable[year][2]);
 
         // Let supernova occur randomly.
-        /*superOccurrence = rand() % 100;
+        superOccurrence = rand() % 100;
         if(events == 1 && superOccurrence < (probSupernova - 1)){
             supernova(dest, nShips, player, names);
             continue;
         }
-        */           
+
         // if (galaxy[dest].owner == player || 1) // debugging
         if (galaxy[dest].owner == player)
         {
@@ -487,8 +461,6 @@ void evaluateMissions()
         printForDebugging("nShips", nShips);
         */
     }
-
-    
 }
 
 void initializeMissionTable()
@@ -529,14 +501,34 @@ void updateProduction() {
  * Main galactic empire game logic.
  */
 void game() {
+    // Loop variables.
+    int i;
+
     // Plot start screen.
     startScreen();
 
     // Handle initial questions.
     initGameInputs();
-    //initGameInputsMock();       // TODO: delete and change to above
 
+    // Initialize mission matrix that manages trips.
     initializeMissionTable();
+
+    // Allocate galaxy memory.
+    /*galaxy = (world *)malloc(numWorlds * sizeof(world));
+    for(i = 0; i < numWorlds; i++){
+        galaxy[i].x = 0;
+        galaxy[i].y = 0;
+        galaxy[i].prod = 0;
+        galaxy[i].owner = 0;
+        galaxy[i].ships = 0;
+    }
+    gotoxy(0, 3); // TODO
+    cprintf("%d",galaxy[0].x);
+    cprintf("%d",galaxy[1].x);
+    cprintf("%d",galaxy[2].x);
+    cprintf("%d",galaxy[3].x);
+    cprintf("%d",galaxy[4].x);
+    cgetc();*/
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
@@ -606,26 +598,19 @@ int main() {
     game();
 
     // Free globally allocated variables.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; i++) { // TODO remove one names
         free(playerNames[i]);
     }
     free(playerNames);
-
-
-
-    // Free allocated.
     for (i = 0; i < numPlayers+1; i++) {
         free(names[i]);
     }
     free(names);
-
-
-
-    // Free allocated.
     for (i = 0; i < totalYears+1; i++) {
         free(missionTable[i]);
     }
     free(missionTable);
+    free(galaxy);
 
 
     // Reset the colors.
