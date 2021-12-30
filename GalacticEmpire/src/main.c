@@ -218,7 +218,7 @@ void awardCeremony() {
     }
 
     // Rank players.
-    sortRanking(ranking, galaxyProduction, numberShips, numPlayers);
+    sortRanking(ranking, playerNames, galaxyProduction, numberShips, numPlayers);
 
     // Print out ranking of players.
     printCeremony(numPlayers, playerNames, galaxyProduction, numberShips);

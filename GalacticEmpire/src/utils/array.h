@@ -2,14 +2,19 @@
 #define GALACTIC_EMPIRE_PI_ARRAY_H
 
 /**
- * Swaps two elements in an array.
+ * Swaps two unsigned elements in an array.
  */
 void swap(unsigned *xp, unsigned *yp);
 
 /**
+ * Swaps two string elements in an array.
+ */
+void swapStrings(char *xp, char *yp);
+
+/**
  * SelectionSort algorithm to sort winners.
  */
-void sortRanking(unsigned ranking[], unsigned galaxyProduction[], unsigned numberShips[], unsigned n);
+void sortRanking(unsigned ranking[], char **playerNames, unsigned galaxyProduction[], unsigned numberShips[], unsigned n);
 
 /**
  * Shuffle array in-place.

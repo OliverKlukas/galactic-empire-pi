@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
 #include <cc65.h>
 #include <conio.h>
 #include "array.h"
@@ -11,7 +12,7 @@
 
 
 /**
- * Swaps two elements in an array.
+ * Swaps two unsigned elements in an array.
  *
  * <p>Adapted from: https://www.geeksforgeeks.org/selection-sort/
  *
@@ -25,6 +26,22 @@ void swap(unsigned *xp, unsigned *yp) {
 }
 
 /**
+ * Swaps two string elements in an array.
+ *
+ * <p>Adapted from: https://www.geeksforgeeks.org/swap-strings-in-c/
+ *
+ * @param xp - Pointer to first element.
+ * @param yp - Pointer to second element.
+ */
+void swapStrings(char *str1, char *str2) {
+    char *temp = (char *)malloc((strlen(str1) + 1) * sizeof(char));
+    strcpy(temp, str1);
+    strcpy(str1, str2);
+    strcpy(str2, temp);
+    free(temp);
+}
+
+/**
  * SelectionSort algorithm to sort winners.
  *
  * <p>Adapted from: https://www.geeksforgeeks.org/selection-sort/
@@ -34,7 +51,7 @@ void swap(unsigned *xp, unsigned *yp) {
  * @param numberShips - Number of ships array.
  * @param n - Length of array.
  */
-void sortRanking(unsigned ranking[], unsigned galaxyProduction[], unsigned numberShips[], unsigned n) {
+void sortRanking(unsigned ranking[], char **playerNames, unsigned galaxyProduction[], unsigned numberShips[], unsigned n) {
     unsigned i, j, min_idx;
 
     // One by one move boundary of unsorted subarray.
@@ -51,6 +68,7 @@ void sortRanking(unsigned ranking[], unsigned galaxyProduction[], unsigned numbe
         swap(&ranking[min_idx], &ranking[i]);
         swap(&galaxyProduction[min_idx], &galaxyProduction[i]);
         swap(&numberShips[min_idx], &numberShips[i]);
+        swapStrings(playerNames[1 + min_idx], playerNames[1 + i]);
     }
 }
 
