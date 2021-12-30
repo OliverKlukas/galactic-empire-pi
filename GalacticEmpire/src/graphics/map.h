@@ -3,11 +3,8 @@
 
 /**
  * Updates the map with the current galaxy state.
- *
- * @param galaxy - Current state of galaxy.
- * @param numWorlds - Number of overall worlds.
  */
-void updateMap();
+void updateMap(world **galaxy, unsigned numWorlds);
 
 /**
  * Clears the map completely of entries.

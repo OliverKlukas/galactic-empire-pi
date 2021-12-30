@@ -1,7 +1,5 @@
-/*****************************************************************************/
-/*                            Custom datatypes                               */
-/*****************************************************************************/
-
+#ifndef GALACTIC_EMPIRE_GCC_TESTS_MAIN_H
+#define GALACTIC_EMPIRE_GCC_TESTS_MAIN_H
 
 typedef struct {
     unsigned x;             // 0-19 x axis position on map
@@ -10,3 +8,5 @@ typedef struct {
     unsigned prod;          // 0 - x production
     unsigned ships;         // 0 - x number of ships
 } world;
+
+#endif

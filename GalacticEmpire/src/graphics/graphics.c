@@ -75,9 +75,9 @@ void placeColoredLetter(unsigned x, unsigned y, char character, int player) {
  */
 void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player) {
     // Copy variables.
-    int digit;
-    int num = number;
-    int i = 0;
+    unsigned digit;
+    unsigned num = number;
+    unsigned i = 0;
 
     // Set text color according to selected player.
     textcolor(playerColors[player]);

@@ -151,7 +151,7 @@ int readNumber() {
  * @param numWorlds
  * @return - Returns integer array with [(player, origin, destination, ships), ...] that contains the inputs. returns [-1,-1,-1,-1] if the player is done putting in inputs and it is the next one's turn.
  */
-int *retrieveInputs(int playerIter, char* playerName, world *galaxy, int numWorlds) {
+int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWorlds) {
     static int inputs [4];
 
     char readChar;
@@ -192,7 +192,7 @@ int *retrieveInputs(int playerIter, char* playerName, world *galaxy, int numWorl
                     origin = -1;
                     break;
                 }
-            } else if (!(galaxy[origin].owner == playerIter)) {
+            } else if (!(galaxy[origin]->owner == playerIter)) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not your world!");
@@ -286,7 +286,7 @@ int *retrieveInputs(int playerIter, char* playerName, world *galaxy, int numWorl
                 sleep(2);
                 clearTextIOField();
                 break;
-            } else if (nShips > galaxy[origin].ships) {
+            } else if (nShips > galaxy[origin]->ships) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
                 cputsxy(textLine2X, textLine2Y, "Not enough ships!");
@@ -358,7 +358,7 @@ void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nSh
  * @param attacker - Integer value of attacker player.
  * @param numShips - Number of ships the attacker is attacking with.
  */
-void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned attacker, unsigned numShips){
+void simulateFight(world **galaxy, char **allNames, unsigned world, unsigned attacker, unsigned numShips){
     // Attack variables.
     unsigned prevColor;
     unsigned fightValue;
@@ -369,9 +369,9 @@ void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned atta
     // Attack message.
     cputsxy(textLine1X, textLine1Y, "Attack on world: ");
     if(world < 20){
-        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, galaxy[world].owner);
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 65, galaxy[world]->owner);
     } else{
-        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, galaxy[world].owner);
+        placeColoredLetter(textLine1X + 16, textLine1Y, world + 173, galaxy[world]->owner);
     }
     sleep(3);
 
@@ -380,9 +380,9 @@ void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned atta
     gotoxy(textLine1X, textLine1Y);
     prevColor = textcolor(playerColors[attacker]);
     cprintf("Attacker: %s", allNames[attacker]);
-    textcolor(playerColors[galaxy[world].owner]);
+    textcolor(playerColors[galaxy[world]->owner]);
     gotoxy(textLine2X, textLine2Y);
-    cprintf("Defender: %s", allNames[galaxy[world].owner]);
+    cprintf("Defender: %s", allNames[galaxy[world]->owner]);
     textcolor(prevColor);
     sleep(3);
 
@@ -392,17 +392,17 @@ void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned atta
     textcolor(playerColors[attacker]);
     cprintf("Attacker: %d", attackerShips);
     gotoxy(textLine2X, textLine2Y);
-    textcolor(playerColors[galaxy[world].owner]);
-    cprintf("Defender: %d", galaxy[world].ships);
+    textcolor(playerColors[galaxy[world]->owner]);
+    cprintf("Defender: %d", galaxy[world]->ships);
     sleep(1);
 
     // Simulate attack and give out state of battle.
-    while(attackerShips > 0 && galaxy[world].ships > 0){
+    while(attackerShips > 0 && galaxy[world]->ships > 0){
         // Set shipsLostPerLoss dynamically with the number of ships left.
-        if(attackerShips < galaxy[world].ships && attackerShips > 31){
+        if(attackerShips < galaxy[world]->ships && attackerShips > 31){
             shipsLostPerLoss = attackerShips / 8;
-        } else if(attackerShips >= galaxy[world].ships && galaxy[world].ships > 31){
-            shipsLostPerLoss = galaxy[world].ships / 8;
+        } else if(attackerShips >= galaxy[world]->ships && galaxy[world]->ships > 31){
+            shipsLostPerLoss = galaxy[world]->ships / 8;
         } else {
             shipsLostPerLoss = 3;
         }
@@ -417,10 +417,10 @@ void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned atta
             }
         } else{
             // Defender loses ships.
-            if(shipsLostPerLoss >= galaxy[world].ships){
+            if(shipsLostPerLoss >= galaxy[world]->ships){
                 break;
             }
-            galaxy[world].ships -= shipsLostPerLoss;
+            galaxy[world]->ships -= shipsLostPerLoss;
         }
 
         // Slowly change decider value so that attacker loses more.
@@ -434,22 +434,22 @@ void simulateFight(world *galaxy, char **allNames, unsigned world, unsigned atta
         textcolor(playerColors[attacker]);
         cprintf("Attacker: %d", attackerShips);
         gotoxy(textLine2X, textLine2Y);
-        textcolor(playerColors[galaxy[world].owner]);
-        cprintf("Defender: %d", galaxy[world].ships);
+        textcolor(playerColors[galaxy[world]->owner]);
+        cprintf("Defender: %d", galaxy[world]->ships);
         sleep(1);
     }
 
     // Check if attacker won.
     if(attackerShips > 0){
-        galaxy[world].owner = attacker;
-        galaxy[world].ships = attackerShips;
+        galaxy[world]->owner = attacker;
+        galaxy[world]->ships = attackerShips;
     }
 
     // End message.
     textcolor(prevColor);
     clearTextIOField();
     gotoxy(textLine1X, textLine1Y);
-    cprintf("%s won!", allNames[galaxy[world].owner]);
+    cprintf("%s won!", allNames[galaxy[world]->owner]);
     sleep(3);
 }
 

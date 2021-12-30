@@ -33,7 +33,7 @@ void clearTable() {
  * @param year - Current game year.
  * @param numWorlds - Total years of game.
  */
-void updateTable(world *galaxy, unsigned numWorlds) {
+void updateTable(world **galaxy, unsigned numWorlds) {
     // Loop variables.
     int i;
 
@@ -42,24 +42,25 @@ void updateTable(world *galaxy, unsigned numWorlds) {
 
     // Place to be updated worlds on map.
     for (i = 0; i < numWorlds; i++) {
+
         // Differentiate between first and second column.
         if (i < 20) {
             // Plot world name, production and ships.
-            placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i].owner);
+            placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i]->owner);
 
             // Only show planets not owned by pirates.
-            if (galaxy[i].owner != 0) {
-                placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i].prod, galaxy[i].owner);
-                placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i].ships, galaxy[i].owner);
+            if (galaxy[i]->owner != 0) {
+                placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i]->prod, galaxy[i]->owner);
+                placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i]->ships, galaxy[i]->owner);
             }
         } else {
             // Plot world name, production and ships.
-            placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i].owner);
+            placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i]->owner);
 
             // Only show planets not owned by pirates.
-            if (galaxy[i].owner != 0) {
-                placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i].prod, galaxy[i].owner);
-                placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i].ships, galaxy[i].owner);
+            if (galaxy[i]->owner != 0) {
+                placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i]->prod, galaxy[i]->owner);
+                placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i]->ships, galaxy[i]->owner);
             }
         }
     }
