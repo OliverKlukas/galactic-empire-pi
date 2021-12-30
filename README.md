@@ -1,44 +1,68 @@
 # galactic-empire-pi
-<b>Reverse engineered implementation of Galactic Empire for C64 that natively runs on a VICE powered raspberry pi.</b>
+Reverse engineered implementation of Galactic Empire for C64. Implemented in C and cross-compiled via [CC65](https://cc65.github.io/) into 6502 Assembly compatible .c64 executables. Engineered to natively run on a VICE powered raspberry pi build into a rebuild of the original [Commodore 64](https://en.wikipedia.org/wiki/Commodore_64). Game idea credits belong to the [original](http://www.gamebase64.com/game.php?id=9564) C64 Galactic Empire version.
 
-# instructions
-## compile
+# product at a glance
+
+
+# technical documentation
+## project structure
+```bash
+.
+├── GalacticEmpire
+│   ├── GalacticEmpire.c64              # C64 executable
+│   ├── Makefile
+│   └── src                                     
+│       ├── graphics                    
+│       │   ├── box.c                     # player input box
+│       │   ├── box.h     
+│       │   ├── graphics.c                # global game
+│       │   ├── graphics.h
+│       │   ├── map.c                     # game map
+│       │   ├── map.h
+│       │   ├── questions.c               # initial setup question
+│       │   ├── questions.h       
+│       │   ├── ranking.c                 # award ceremony
+│       │   ├── ranking.h
+│       │   ├── startscreen.c             # start screen
+│       │   ├── startscreen.h
+│       │   ├── table.c                   # game table
+│       │   └── table.h
+│       ├── main.c                      # main game logic
+│       ├── main.h
+│       └── utils
+│           ├── array.c                   # special array operations
+│           ├── array.h
+│           ├── queue.c                   # mission data structure 
+│           └── queue.h
+└── README.md
+```
+
+## requirements
+- [VICE emulator (^3.5)](https://vice-emu.sourceforge.io/)
+- [CC65 (V2.19)](https://www.cc65.org/)
+
+## compile instructions
 ```bash
 # Compile as .c64 file
 cd GalacticEmpire
 make
 ```
 
-## run
+## run instructions
 ```bash
-# Option 1: execute on VICE c64 real time simulation
-x64sc GalacticEmpire.prg
-
-# Option 2: execute on VICE c64 warp simulation
-x64 GalacticEmpire.prg
+# Depending on vice installation, choose emulator run commands like:
+vice-jz.x64 GalacticEmpire.c64
+x64dtv GalacticEmpire.c64
 ```
 
-# c64 specifications
-- 320x200 pixels resolution
-- available TGI colors:
-  1. TGI_COLOR_BLACK
-  2. TGI_COLOR_WHITE
-  3. TGI_COLOR_RED
-  4. TGI_COLOR_BLUE
-  5. TGI_COLOR_GREEN
-  6. TGI_COLOR_ORANGE
 
-
-# requirements
-- [VICE emulator (^3.5)](https://vice-emu.sourceforge.io/)
-- [CC65 (V2.19)](https://www.cc65.org/)
-
-# design
-[![figma file](https://user-images.githubusercontent.com/39443615/146673103-c91f6679-2e21-4eb4-a8cf-3425f44cd46c.png)](https://www.figma.com/file/eUCdAuNY5zCJLcmdWapxJb/Galactic-Empire?node-id=0%3A1)
-
-# useful links
-- [VICE Debugger](https://codebase64.org/doku.php?id=base:using_the_vice_monitor)
+## useful links
 - [CC65 main page](https://cc65.github.io/)
 - [CC65 all header files references](https://www.cc65.org/doc/funcref.html#toc2)
-- [tgi.h reference](https://www.cc65.org/doc/funcref-40.html) or [tgi.h wiki](https://cc65.github.io/doc/tgi.html)
-- [GEOSLib](https://www.cc65.org/doc/geos.html#toc3)
+- [Original C64 Galactic Empire](http://www.gamebase64.com/game.php?id=9564)
+
+# game documentation
+- Supports 1-5 individual players
+- 10-99 years of game time
+- 10-40 distinct worlds in the galaxy
+- utilize the enter key to navigate

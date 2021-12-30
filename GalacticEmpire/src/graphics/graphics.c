@@ -103,12 +103,10 @@ void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player
  */
 void initGameGraphics() {
     int i, j;
-
     int tableXMin = mapNLinesVertical;
     int tableXMax = maxX;
     int tableYMin = 0;
     int tableYMax = tableYMin + 20 + 3;
-
     int textFieldXMin = 0;
     int textFieldXMax = mapNLinesVertical - 1;
     int textFieldYMin = mapNLinesHorizontal;
@@ -117,13 +115,11 @@ void initGameGraphics() {
     // Set colors for the game.
     bgcolor(backgroundColor);
     textcolor(textColor);
-
     clrscr();
-    //// 1. Draw map grid
-    // y
-    for (i = 0; i < mapNLinesHorizontal; ++i) {
-        // x
-        for (j = 0; j < mapNLinesVertical; ++j) {
+
+    // Draw the map grid.
+    for (i = 0; i < mapNLinesHorizontal; ++i) { // y
+        for (j = 0; j < mapNLinesVertical; ++j) { // x
             if (j == 0 && i == 0) {
                 cputcxy(j, i, CH_ULCORNER);
             } else if (j == mapNLinesVertical - 1 && i == 0) {
@@ -147,8 +143,7 @@ void initGameGraphics() {
         }
     }
 
-    /// draw table
-    // border
+    // Draw the table border.
     cputcxy(tableXMin, tableYMin, CH_ULCORNER);
     chlinexy(tableXMin + 1, tableYMin, tableXMax - tableXMin - 1);
     cputcxy(tableXMax, tableYMin, CH_URCORNER);
@@ -157,20 +152,18 @@ void initGameGraphics() {
     chlinexy(tableXMin + 1, tableYMax, tableXMax - tableXMin - 1);
     cputcxy(tableXMin, tableYMax, CH_LLCORNER);
     cvlinexy(tableXMin, tableYMin + 1, tableYMax - tableYMin - 1);
-
     tableColumn1XMin = tableXMin + 1;
 
-    // middle lines
+    // Draw the table middle lines.
     cvlinexy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 1, tableYMax - tableYMin - 1);
     cvlinexy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
     cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin, CH_TTEE);
     cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin, CH_TTEE);
     cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMax, CH_BTEE);
     cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMax, CH_BTEE);
-
     tableColumn2XMin = tableXMin + (tableXMax - tableXMin) / 2 + 2;
 
-    // header
+    // Draw the table header.
     cputsxy(tableXMin + 1, tableYMin + 1, "W Pr Shp");
     cputsxy(tableXMin + (tableXMax - tableXMin) / 2 + 2, tableYMin + 1, "W Pr Shp");
     chlinexy(tableXMin + 1, tableYMin + 2, tableXMax - tableXMin - 1);
@@ -180,12 +173,12 @@ void initGameGraphics() {
     cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 2, CH_CROSS);
     tableFirstRowYMin = tableYMin + 3;
 
-    /// Year 
+    // Draw the year.
     yearLineX = tableXMin + 1;
     yearLineY = tableYMax + 1;
     cputsxy(yearLineX, yearLineY, "Year:");
 
-    /// Input text field
+    // Draw input text box.
     cputcxy(textFieldXMin, textFieldYMin, CH_ULCORNER);
     chlinexy(textFieldXMin + 1, textFieldYMin, textFieldXMax - textFieldXMin - 1);
     cputcxy(textFieldXMax, textFieldYMin, CH_URCORNER);

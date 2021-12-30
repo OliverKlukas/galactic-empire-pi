@@ -46,7 +46,6 @@ int convertPlanetLetterToNumberIndex(char planetLetter) {
  * @return Returns index or failure code.
  */
 int readSinglePlanetLetter() {
-
     char planet;
     char readChar;
     unsigned numChars = 0;
@@ -111,13 +110,6 @@ int readNumber() {
 
                     // calc remaining zeros in read digits to convert to int number
                     nZerosReadIn = 5 - numChars;
-
-                    // for debuggin:
-                    /*
-                    gotoxy(textLine1X, textLine1Y);
-                    cprintf("nZerosReadIn: %01d", nZerosReadIn);
-                    sleep(2);
-                    */
                     for (i = 0; i < 5 - nZerosReadIn; ++i) {
                         number += multiplyBy[i + nZerosReadIn] * readDigits[i];
                     }
@@ -162,7 +154,7 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
     while (1) {
         // 1st question: Origin
         while (origin < 0) {
-            textcolor(textColor); // todo: should already be defined somewhere else!
+            textcolor(textColor);
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
             cputs(playerName);
@@ -174,9 +166,6 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
             if (origin == -1 || (origin > (numWorlds - 1))) {
                 clearTextIOField();
                 cputsxy(textLine1X, textLine1Y, "Wrong input!");
-                // for debugging:
-                // gotoxy(textLine2X, textLine2Y);
-                // cprintf("Origin Idx: %01d", origin);
                 sleep(2);
                 clearTextIOField();
             } else if (origin == -2) {
@@ -202,20 +191,10 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
             }
         }
 
-        // for debugging:
-        /*
-        clearTextIOField();
-        cputsxy(textLine1X, textLine1Y, "Success!");
-        gotoxy(textLine2X, textLine2Y);
-        cprintf("Origin Idx: %01d", origin);
-        sleep(1);
-        clearTextIOField();
-        */
-
         // 2nd question: Destination
         while (destination < 0 && origin >= 0) {
             clearTextIOField();
-            textcolor(textColor); // todo: should already be defined somewhere else!
+            textcolor(textColor);
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
             cputs(playerName);
@@ -247,33 +226,21 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
                 break;
             }
         }
-
         if (destination == -2) {
             origin = -1;
             continue;
         }
 
-        // for debugging:
-        /*
-        clearTextIOField();
-        cputsxy(textLine1X, textLine1Y, "Success!");
-        gotoxy(textLine2X, textLine2Y);
-        cprintf("Destination Idx: %01d", destination);
-        sleep(1);
-        clearTextIOField();
-        */
-
         // 3rd Question: # ships:
         while (nShips < 0 && origin >= 0) {
             clearTextIOField();
-            textcolor(textColor); // todo: should already be defined somewhere else!
+            textcolor(textColor);
             cputsxy(textLine1X, textLine1Y, "Admiral ");
             textcolor(playerColors[playerIter]);
             cputs(playerName);
             textcolor(textColor);
             cputcxy(textLine1X + 11, textLine1Y, ':');
             cputsxy(textLine2X, textLine2Y, "# Ships ?");
-
             nShips = readNumber();
             if (nShips == -1) {
                 clearTextIOField();
@@ -302,17 +269,6 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
             destination = -1;
             continue;
         }
-
-        // for debugging:
-        /*
-        clearTextIOField();
-        cputsxy(textLine1X, textLine1Y, "Success!");
-        gotoxy(textLine2X, textLine2Y);
-        cprintf("nShips: %05d", nShips);
-        sleep(1);
-        clearTextIOField();
-        */
-
         break;
     }
 
@@ -320,7 +276,6 @@ int *retrieveInputs(int playerIter, char* playerName, world **galaxy, int numWor
     inputs[1] = origin;
     inputs[2] = destination;
     inputs[3] = nShips;
-
     return inputs;
 }
 
@@ -335,15 +290,12 @@ void displayReinforcements(unsigned playerIter, unsigned worldIter, unsigned nSh
 {
     clearTextIOField();
     cputsxy(textLine1X, textLine1Y, "World");
-
     if (worldIter < 20) {
         placeColoredLetter(textLine1X + 6, textLine1Y, worldIter + 65, playerIter);
     } else {
         placeColoredLetter(textLine1X + 6, textLine1Y, worldIter + 173, playerIter);
     }
-
     cputsxy(textLine1X + 7, textLine1Y, ": ");
-    // cputsxy(textLine1X + 9, textLine1Y, nShips);
     gotoxy(textLine1X + 9, textLine1Y);
     cprintf("%hi", nShips);
     cputsxy(textLine2X, textLine2Y, "ships arrived!");
@@ -484,7 +436,6 @@ void supernova(unsigned world, unsigned numShips, unsigned player, char **allNam
  * @return - Returns 1 for not accepting and 0 for acceptance.
 */
 unsigned mapAcceptance() {
-
     unsigned answer = 2;
     char input;
 
@@ -524,7 +475,7 @@ unsigned mapAcceptance() {
         }
     } while (input != CH_ENTER);
 
-    // erase text IO field
+    // Erase text IO field.
     clearTextIOField();
 
     return answer;

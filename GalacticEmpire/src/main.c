@@ -12,6 +12,7 @@
 #include "graphics/ranking.h"
 #include "graphics/table.h"
 #include "utils/queue.h"
+#include "utils/array.h"
 
 
 /*****************************************************************************/
@@ -82,6 +83,7 @@ unsigned numWorldsPerSphere[5];
 unsigned piratePlanetInitialShipsFactor = 1;
 unsigned availableProduction[5];
 
+
 /*****************************************************************************/
 /*                              Functions                                    */
 /*****************************************************************************/
@@ -100,26 +102,6 @@ unsigned occupyLocation(unsigned x, unsigned y) {
         // Location is available, occupy it.
         availableLocations[x + y * 20] = 1;
         return 0;
-    }
-}
-
-/**
- * Shuffle array in-place.
- *
- * <p>Source: https://stackoverflow.com/questions/6127503/shuffle-array-in-c
- *
- * @param array - Reference to array.
- * @param n - Length of array.
- */
-void shuffle(unsigned *array, size_t n) {
-    if (n > 1) {
-        size_t i;
-        for (i = 0; i < n - 1; i++) {
-            size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-            unsigned t = array[j];
-            array[j] = array[i];
-            array[i] = t;
-        }
     }
 }
 
@@ -149,16 +131,20 @@ void generateGalaxy() {
     for (i = 0; i < numPlayers; i++) {
         // Place home planet with border distance into sphere.
         do {
-            galaxy[i]->x = rand() %
-                           (sphereDivisions[numPlayers - 1][i][2] - (2 * homePlanetBorderDistance[numPlayers - 1]) -
-                            sphereDivisions[numPlayers - 1][i][0]);
-            galaxy[i]->x =
-                    galaxy[i]->x + homePlanetBorderDistance[numPlayers - 1] + sphereDivisions[numPlayers - 1][i][0];
-            galaxy[i]->y = rand() %
-                           (sphereDivisions[numPlayers - 1][i][3] - (2 * homePlanetBorderDistance[numPlayers - 1]) -
-                            sphereDivisions[numPlayers - 1][i][1]);
-            galaxy[i]->y =
-                    galaxy[i]->y + homePlanetBorderDistance[numPlayers - 1] + sphereDivisions[numPlayers - 1][i][1];
+            galaxy[i]->x = rand()
+                           % (sphereDivisions[numPlayers - 1][i][2]
+                              - (2 * homePlanetBorderDistance[numPlayers - 1])
+                              - sphereDivisions[numPlayers - 1][i][0]);
+            galaxy[i]->x = galaxy[i]->x
+                           + homePlanetBorderDistance[numPlayers - 1]
+                           + sphereDivisions[numPlayers - 1][i][0];
+            galaxy[i]->y = rand()
+                           % (sphereDivisions[numPlayers - 1][i][3]
+                              - (2 * homePlanetBorderDistance[numPlayers - 1])
+                              - sphereDivisions[numPlayers - 1][i][1]);
+            galaxy[i]->y = galaxy[i]->y
+                           + homePlanetBorderDistance[numPlayers - 1]
+                           + sphereDivisions[numPlayers - 1][i][1];
         } while (occupyLocation(galaxy[i]->x, galaxy[i]->y));
 
         // Set home planet production.
@@ -174,11 +160,11 @@ void generateGalaxy() {
 
             // Randomly place planet into sphere.
             do {
-                galaxy[planetIndex]->x =
-                        rand() % (sphereDivisions[numPlayers - 1][i][2] - sphereDivisions[numPlayers - 1][i][0]);
+                galaxy[planetIndex]->x = rand() % (sphereDivisions[numPlayers - 1][i][2]
+                                                   - sphereDivisions[numPlayers - 1][i][0]);
                 galaxy[planetIndex]->x = galaxy[planetIndex]->x + sphereDivisions[numPlayers - 1][i][0];
-                galaxy[planetIndex]->y =
-                        rand() % (sphereDivisions[numPlayers - 1][i][3] - sphereDivisions[numPlayers - 1][i][1]);
+                galaxy[planetIndex]->y = rand() % (sphereDivisions[numPlayers - 1][i][3]
+                                                   - sphereDivisions[numPlayers - 1][i][1]);
                 galaxy[planetIndex]->y = galaxy[planetIndex]->y + sphereDivisions[numPlayers - 1][i][1];
             } while (occupyLocation(galaxy[planetIndex]->x, galaxy[planetIndex]->y));
 
@@ -201,50 +187,6 @@ void generateGalaxy() {
     // Calculate initial ships of home planets based amount of production in their sphere.
     for (i = 0; i < numPlayers; i++) {
         galaxy[i]->ships = homePlanetInitialShips + (availableProduction[i] * excessProductionBonus);
-    }
-}
-
-/**
- * Swap two elements in an array.
- *
- * <p>Adapted from: https://www.geeksforgeeks.org/selection-sort/
- *
- * @param xp - Pointer to first element.
- * @param yp - Pointer to second element.
- */
-void swap(unsigned *xp, unsigned *yp) {
-    unsigned temp = *xp;
-    *xp = *yp;
-    *yp = temp;
-}
-
-/**
- * SelectionSort algorithm to sort winners.
- *
- * <p>Adapted from: https://www.geeksforgeeks.org/selection-sort/
- *
- * @param ranking - Ranking array that is used to calculate ranking.
- * @param galaxyProduction - Galaxy used to calculate production.
- * @param numberShips - Number of ships array.
- * @param n - Length of array.
- */
-void sortRanking(unsigned ranking[], unsigned galaxyProduction[], unsigned numberShips[], unsigned n) {
-    unsigned i, j, min_idx;
-
-    // One by one move boundary of unsorted subarray.
-    for (i = 0; i < n - 1; i++) {
-        // Find the minimum element in unsorted array.
-        min_idx = i;
-        for (j = i + 1; j < n; j++) {
-            if (ranking[j] > ranking[min_idx]) {
-                min_idx = j;
-            }
-        }
-
-        // Swap the found minimum element with the first element for all arrays.
-        swap(&ranking[min_idx], &ranking[i]);
-        swap(&galaxyProduction[min_idx], &galaxyProduction[i]);
-        swap(&numberShips[min_idx], &numberShips[i]);
     }
 }
 
@@ -318,7 +260,7 @@ void initGameInputs() {
 }
 
 /**
- * This function calculates the distance between two planets given by their indices in the galaxy struct.
+ * Calculates the distance between two planets given by their indices in the galaxy struct.
  *
  * @param planetAIdx
  * @param planetBIdx
@@ -327,16 +269,12 @@ void initGameInputs() {
 unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx) {
     int xDistance;
     int yDistance;
-
     unsigned absXDistance;
     unsigned absYDistance;
-
     xDistance = galaxy[planetAIdx]->x - galaxy[planetBIdx]->x;
     absXDistance = (xDistance >= 0 ? xDistance : -xDistance);
-
     yDistance = galaxy[planetAIdx]->y - galaxy[planetBIdx]->y;
     absYDistance = (yDistance >= 0 ? yDistance : -yDistance);
-
     return absXDistance + absYDistance;
 }
 
@@ -346,12 +284,12 @@ unsigned calcDistance(unsigned planetAIdx, unsigned planetBIdx) {
 void retrieveInputsFromAllPlayers() {
     int i;
     unsigned distance;
-    unsigned spaceShipSpeed = 2; // should be made global
+    unsigned spaceShipSpeed = 2;
     unsigned timeToArrival;
     unsigned *playerSequence = malloc(numPlayers * sizeof(unsigned));
 
-    int *playerInputs; // retrieved inputs from player: [playerIter, origin, destination, nShips]
-
+    // retrieved inputs from player: [playerIter, origin, destination, nShips].
+    int *playerInputs;
     for (i = 0; i < 4; i++) {
         playerInputs[i] = -1;
     }
@@ -370,21 +308,23 @@ void retrieveInputsFromAllPlayers() {
                 break;
             }
 
-            // calc distance and arrival time 
+            // Calculate distance and arrival time.
             distance = calcDistance(playerInputs[1], playerInputs[2]);
             timeToArrival = distance / spaceShipSpeed;
-
             if (year + timeToArrival > totalYears) {
                 break;
             } else if (timeToArrival < 1) {
                 timeToArrival = 1;
             }
 
-            // add to mission table
-            // timeToArrival = 1; // debugging 
-            enqueue(&missionTable[year + timeToArrival][0], playerInputs[0]); // global player index
-            enqueue(&missionTable[year + timeToArrival][1], playerInputs[2]); // destination index
-            enqueue(&missionTable[year + timeToArrival][2], playerInputs[3]); // number of ships
+            // Add to mission table: global player index.
+            enqueue(&missionTable[year + timeToArrival][0], playerInputs[0]);
+
+            // Add to mission table: destination index.
+            enqueue(&missionTable[year + timeToArrival][1], playerInputs[2]);
+
+            // Add to mission table: number of ships.
+            enqueue(&missionTable[year + timeToArrival][2], playerInputs[3]);
         }
     }
 }
@@ -396,11 +336,11 @@ void evaluateMissions() {
     int player, dest, nShips;
     int i;
 
-    // Trigger supernova randomly.
-    unsigned probSupernova = 5;         // Supernova probability at x%
+    // Trigger supernova randomly with probability at x%.
+    unsigned probSupernova = 5;
     unsigned superOccurrence;
 
-    // test latest input from mission Table 
+    // Latest input from mission table.
     for (i = 0; i < missionTable[year][0].size; i++) {
         player = dequeue(&missionTable[year][0]);
         dest = dequeue(&missionTable[year][1]);
@@ -413,21 +353,30 @@ void evaluateMissions() {
             continue;
         }
 
-        // if (galaxy[dest].owner == player || 1) // debugging
+        // Either reinforcements or a fight occurs.
         if (galaxy[dest]->owner == player) {
             galaxy[dest]->ships += nShips;
             displayReinforcements(player, dest, nShips);
         } else {
-            // fighting
             simulateFight(galaxy, playerNames, dest, player, nShips);
         }
+
+        // Update table on what's happening.
+        updateTable(galaxy, numWorlds);
+        updateMap(galaxy, numWorlds);
     }
 }
 
+/**
+ * Initializes the mission table that holds all player game missions.
+ */
 void initializeMissionTable() {
     int i, j;
-    int capacity = 100; // a maximum of 500 missions per 
 
+    // Maximum number of missions per year due to C64 memory restrictions.
+    int capacity = 100;
+
+    // Iteratively allocate mission table.
     missionTable = (Queue **) malloc(totalYears * sizeof(Queue *));
     for (i = 0; i < totalYears; ++i) {
         missionTable[i] = (Queue *) malloc(3 * sizeof(Queue));
@@ -514,9 +463,11 @@ void game() {
     awardCeremony();
 }
 
+
 /*****************************************************************************/
 /*                                Main                                       */
 /*****************************************************************************/
+
 
 /**
  * Saves C64 colors and starts the game.
@@ -554,7 +505,6 @@ int main() {
         free(galaxy[i]);
     }
     free(galaxy);
-
 
     // Reset the colors.
     bordercolor(prevBorder);
