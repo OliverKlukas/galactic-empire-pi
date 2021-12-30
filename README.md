@@ -2,6 +2,7 @@
 Reverse engineered implementation of Galactic Empire for C64. Implemented in C and cross-compiled via [CC65](https://cc65.github.io/) into 6502 Assembly compatible .c64 executables. Engineered to natively run on a VICE powered raspberry pi build into a rebuild of the original [Commodore 64](https://en.wikipedia.org/wiki/Commodore_64). Game idea credits belong to the [original](http://www.gamebase64.com/game.php?id=9564) C64 Galactic Empire version.
 
 # product at a glance
+![galactic_empire](https://user-images.githubusercontent.com/39443615/147767990-e4d528eb-bad2-4c0d-bbca-c972ca7e1685.gif)
 
 
 # technical documentation
