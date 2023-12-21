@@ -304,6 +304,7 @@ void retrieveInputsFromAllPlayers() {
     for (i = 0; i < numPlayers; i++) {
         while (1) {
             playerInputs = retrieveInputs(playerSequence[i] + 1, playerNames[1 + playerSequence[i]], galaxy, numWorlds);
+
             if (playerInputs[1] == -1) {
                 break;
             }
@@ -327,7 +328,7 @@ void retrieveInputsFromAllPlayers() {
             enqueue(&missionTable[year + timeToArrival][2], playerInputs[3]);
 
             // Remove numShips from galaxy.
-            galaxy[playerInputs[1]] -= playerInputs[3];
+            galaxy[playerInputs[1]]->ships -= playerInputs[3];
         }
     }
 }
