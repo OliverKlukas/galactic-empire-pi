@@ -409,12 +409,43 @@ void updateProduction() {
 }
 
 /**
+ * Allocates memory for the galaxy.
+ */
+void allocateGalaxyMemory() {
+    int i,j;
+    galaxy = (world **) malloc(numWorlds * sizeof(world *));
+    if (galaxy == NULL) {
+        // Handle memory allocation error
+        exit(1);
+    }
+    for (i = 0; i < numWorlds; i++) {
+        galaxy[i] = (world *) calloc(1, sizeof(world));
+        if (galaxy[i] == NULL) {
+            // Handle memory allocation error
+            for (j = 0; j < i; j++) {
+                free(galaxy[j]);
+            }
+            free(galaxy);
+            exit(1);
+        }
+    }
+}
+
+/**
+ * Frees the memory of the galaxy.
+ */
+void freeGalaxyMemory() {
+    int i;
+    for (i = 0; i < numWorlds; i++) {
+        free(galaxy[i]);
+    }
+    free(galaxy);
+}
+
+/**
  * Main galactic empire game logic.
  */
 void game() {
-    // Loop variables.
-    int i;
-
     // Plot start screen.
     startScreen();
 
@@ -424,26 +455,22 @@ void game() {
     // Initialize mission matrix that manages trips.
     initializeMissionTable();
 
-    // Allocate galaxy memory.
-    galaxy = (world **) malloc(numWorlds * sizeof(world *));
-    for (i = 0; i < numWorlds; i++) {
-        galaxy[i] = (world *) calloc(1, sizeof(world));
-    }
-
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
-    // Initialize world and map based on player acceptance.
-    generateGalaxy();
-    updateTable(galaxy, numWorlds);
-    updateMap(galaxy, numWorlds);
+    // Generate galaxy and update until map acceptance.
+    allocateGalaxyMemory();
     updateYear(year);
-    while (!mapAcceptance()) {
-        clearMap();
+    do {
+        clearMap(); // TODO: this is broken and you are still running out of memory after 10 rounds.
         generateGalaxy();
         updateTable(galaxy, numWorlds);
         updateMap(galaxy, numWorlds);
-    }
+        if (!mapAcceptance()) {
+            freeGalaxyMemory();
+            allocateGalaxyMemory();
+        }
+    } while (!mapAcceptance());
 
     // Play the game until running out of years.
     while (year <= totalYears) {
@@ -492,7 +519,7 @@ int main() {
     prevTextColor = textcolor(COLOR_WHITE);
 
     // Seed the random numbers arbitrary.
-    srand(time(0));
+    srand(time(0)); // TODO: this seems to be broken, always the same seed.
 
     // Call main game function.
     game();
