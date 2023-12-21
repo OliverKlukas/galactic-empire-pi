@@ -325,6 +325,9 @@ void retrieveInputsFromAllPlayers() {
 
             // Add to mission table: number of ships.
             enqueue(&missionTable[year + timeToArrival][2], playerInputs[3]);
+
+            // Remove numShips from galaxy.
+            galaxy[playerInputs[1]] -= playerInputs[3];
         }
     }
 }
@@ -457,6 +460,7 @@ void game() {
         retrieveInputsFromAllPlayers();
         year++;
         updateYear(year);
+        updateTable(galaxy, numWorlds);
     }
 
     // Final screen and award ceremony.

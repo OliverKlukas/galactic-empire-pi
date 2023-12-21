@@ -9,6 +9,6 @@
  * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
  * @param numberShips - Sorted list of total number of ships.
  */
-void printCeremony(unsigned numPlayer, char *playerNames[5], unsigned *galaxyProduction, unsigned *numberShips);
+void printCeremony(unsigned numPlayer, char **playerNames, unsigned *galaxyProduction, unsigned *numberShips);
 
 #endif
