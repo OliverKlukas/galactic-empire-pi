@@ -459,18 +459,18 @@ void game() {
     initGameGraphics();
 
     // Generate galaxy and update until map acceptance.
-    allocateGalaxyMemory();
     updateYear(year);
     do {
-        clearMap(); // TODO: this is broken and you are still running out of memory after 10 rounds.
+        allocateGalaxyMemory();
+        clearMap();
         generateGalaxy();
         updateTable(galaxy, numWorlds);
         updateMap(galaxy, numWorlds);
-        if (!mapAcceptance()) {
-            freeGalaxyMemory();
-            allocateGalaxyMemory();
+        if(mapAcceptance()){
+            break;
         }
-    } while (!mapAcceptance());
+        freeGalaxyMemory();
+    } while (1);
 
     // Play the game until running out of years.
     while (year <= totalYears) {
