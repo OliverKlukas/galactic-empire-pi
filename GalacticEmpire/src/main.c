@@ -460,7 +460,7 @@ void game() {
 
     // Generate galaxy and update until map acceptance.
     updateYear(year);
-    do {
+    do { // TODO: after about 10 new generations, the game freezes, probably memory or cpu related.
         allocateGalaxyMemory();
         clearMap();
         generateGalaxy();
@@ -473,7 +473,7 @@ void game() {
     } while (1);
 
     // Play the game until running out of years.
-    while (year <= totalYears) {
+    while (year <= totalYears) { // TODO: check game mechanics, balancing and memory issues.
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
         evaluateMissions();
 
@@ -519,7 +519,7 @@ int main() {
     prevTextColor = textcolor(COLOR_WHITE);
 
     // Seed the random numbers arbitrary.
-    srand(time(0)); // TODO: this seems to be broken, always the same seed.
+    srand(time(0)); // TODO: this returns always 0, can we use pid to seed in vice?
 
     // Call main game function.
     game();
