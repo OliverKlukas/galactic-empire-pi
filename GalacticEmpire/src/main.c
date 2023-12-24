@@ -331,6 +331,9 @@ void retrieveInputsFromAllPlayers() {
             galaxy[playerInputs[1]]->ships -= playerInputs[3];
         }
     }
+
+    // Free allocated storage.
+    free(playerSequence);
 }
 
 /**
@@ -369,6 +372,9 @@ void evaluateMissions() {
         updateTable(galaxy, numWorlds);
         updateMap(galaxy, numWorlds);
     }
+
+    // Free mission table of passed year.
+    free(missionTable[year]);   // TODO: there might be leaking memory with the array of the queue.
 }
 
 /**
@@ -488,7 +494,7 @@ void game() {
         retrieveInputsFromAllPlayers();
         year++;
         updateYear(year);
-        updateTable(galaxy, numWorlds);
+        updateTable(galaxy, numWorlds); // TODO: also show ships in transit?
     }
 
     // Final screen and award ceremony.
@@ -529,9 +535,6 @@ int main() {
         free(playerNames[i]);
     }
     free(playerNames);
-    for (i = 0; i < totalYears + 1; i++) {
-        free(missionTable[i]);
-    }
     free(missionTable);
     for (i = 0; i < numWorlds; i++) {
         free(galaxy[i]);
