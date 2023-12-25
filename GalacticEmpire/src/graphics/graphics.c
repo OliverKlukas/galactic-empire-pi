@@ -12,21 +12,6 @@
 /*                        Global graphics variables                          */
 /*****************************************************************************/
 
-// Year settings.
-int yearLineX = 0;
-int yearLineY = 0;
-
-// Text field coordinates.
-int textLine1X = 0;
-int textLine1Y = 0;
-int textLine2X = 0;
-int textLine2Y = 0;
-
-// Table coordinates.
-int tableColumn1XMin = 0;
-int tableColumn2XMin = 0;
-int tableFirstRowYMin = 0;
-
 // Globally used color Palettes.
 const unsigned startTextColor = COLOR_WHITE;
 const unsigned startBackgroundColor = COLOR_GREEN;
@@ -34,11 +19,9 @@ const unsigned textColor = COLOR_BLACK;
 const unsigned backgroundColor = COLOR_WHITE;
 const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_GREEN, COLOR_RED, COLOR_BROWN};
 
-
 /*****************************************************************************/
 /*                        Global graphics functions                          */
 /*****************************************************************************/
-
 
 /**
  * Places colored letter on screen.
@@ -135,7 +118,6 @@ void initGameGraphics() {
     chlinexy(MAP_N_LINES_VERTICAL + 1, 23, MAX_X - MAP_N_LINES_VERTICAL - 1);
     cputcxy(MAP_N_LINES_VERTICAL, 23, CH_LLCORNER);
     cvlinexy(MAP_N_LINES_VERTICAL, 1, 22);
-    tableColumn1XMin = MAP_N_LINES_VERTICAL + 1;
 
     // Draw the table middle lines.
     cvlinexy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 1, 22);
@@ -144,7 +126,6 @@ void initGameGraphics() {
     cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 0, CH_TTEE);
     cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 23, CH_BTEE);
     cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 23, CH_BTEE);
-    tableColumn2XMin = MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 2;
 
     // Draw the table header.
     cputsxy(MAP_N_LINES_VERTICAL + 1, 1, "W Pr Shp");
@@ -154,12 +135,9 @@ void initGameGraphics() {
     cputcxy(MAX_X, 2, CH_RTEE);
     cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 2, CH_CROSS);
     cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 2, CH_CROSS);
-    tableFirstRowYMin = 3;
 
     // Draw the year.
-    yearLineX = MAP_N_LINES_VERTICAL + 1;
-    yearLineY = 24;
-    cputsxy(yearLineX, yearLineY, "Year:");
+    cputsxy(YEAR_LINE_X, YEAR_LINE_Y, "Year:");
 
     // Draw input text box.
     cputcxy(0, MAP_N_LINES_HORIZONTAL, CH_ULCORNER);
@@ -170,8 +148,4 @@ void initGameGraphics() {
     chlinexy(1, MAX_Y, MAP_N_LINES_VERTICAL - 2);
     cputcxy(0, MAX_Y, CH_LLCORNER);
     cvlinexy(0, MAP_N_LINES_HORIZONTAL + 1, MAX_Y - MAP_N_LINES_HORIZONTAL - 1);
-    textLine1X = 1;
-    textLine1Y = MAP_N_LINES_HORIZONTAL + 1;
-    textLine2X = textLine1X;
-    textLine2Y = textLine1Y + 1;
 }

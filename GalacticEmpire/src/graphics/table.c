@@ -20,8 +20,8 @@
 void clearTable() {
     int i;
     for (i = 0; i < 20; i++) {
-        cclearxy(tableColumn1XMin, tableFirstRowYMin + i, 8);
-        cclearxy(tableColumn2XMin, tableFirstRowYMin + i, 8);
+        cclearxy(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
+        cclearxy(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
     }
 }
 
@@ -46,21 +46,21 @@ void updateTable(world **galaxy, unsigned numWorlds) {
         // Differentiate between first and second column.
         if (i < 20) {
             // Plot world name, production and ships.
-            placeColoredLetter(tableColumn1XMin, tableFirstRowYMin + i, i + 65, galaxy[i]->owner);
+            placeColoredLetter(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, i + 65, galaxy[i]->owner);
 
             // Only show planets not owned by pirates.
             if (galaxy[i]->owner != 0) {
-                placeColoredNumber(tableColumn1XMin + 3, tableFirstRowYMin + i, galaxy[i]->prod, galaxy[i]->owner);
-                placeColoredNumber(tableColumn1XMin + 7, tableFirstRowYMin + i, galaxy[i]->ships, galaxy[i]->owner);
+                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i, galaxy[i]->prod, galaxy[i]->owner);
+                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i, galaxy[i]->ships, galaxy[i]->owner);
             }
         } else {
             // Plot world name, production and ships.
-            placeColoredLetter(tableColumn2XMin, tableFirstRowYMin + i - 20, i + 173, galaxy[i]->owner);
+            placeColoredLetter(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i - 20, i + 173, galaxy[i]->owner);
 
             // Only show planets not owned by pirates.
             if (galaxy[i]->owner != 0) {
-                placeColoredNumber(tableColumn2XMin + 3, tableFirstRowYMin + i - 20, galaxy[i]->prod, galaxy[i]->owner);
-                placeColoredNumber(tableColumn2XMin + 7, tableFirstRowYMin + i - 20, galaxy[i]->ships, galaxy[i]->owner);
+                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i - 20, galaxy[i]->prod, galaxy[i]->owner);
+                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i - 20, galaxy[i]->ships, galaxy[i]->owner);
             }
         }
     }
@@ -72,6 +72,6 @@ void updateTable(world **galaxy, unsigned numWorlds) {
 void updateYear(unsigned year)
 {
     // Update current year.
-    gotoxy(yearLineX, yearLineY);
+    gotoxy(YEAR_LINE_X, YEAR_LINE_Y);
     cprintf("Year: %d", year);
 }

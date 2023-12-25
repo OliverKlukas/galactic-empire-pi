@@ -10,19 +10,19 @@
 #define MAP_N_LINES_HORIZONTAL 20
 
 // Year settings.
-extern int yearLineX;
-extern int yearLineY;
+#define YEAR_LINE_X 21
+#define YEAR_LINE_Y 24
 
 // Text field coordinates.
-extern int textLine1X;
-extern int textLine1Y;
-extern int textLine2X;
-extern int textLine2Y;
+#define TEXT_LINE_1_X 1
+#define TEXT_LINE_1_Y 21
+#define TEXT_LINE_2_X 1
+#define TEXT_LINE_2_Y 22
 
 // Table coordinates.
-extern int tableColumn1XMin;
-extern int tableColumn2XMin;
-extern int tableFirstRowYMin;
+#define TABLE_COLUMN_1_X_MIN 21
+#define TABLE_COLUMN_2_X_MIN 31
+#define TABLE_FIRST_ROW_Y_MIN 3
 
 // Globally used color Palettes.
 extern const unsigned startTextColor;
