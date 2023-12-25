@@ -64,7 +64,7 @@ void placeColoredNumber(unsigned char x, unsigned char y, unsigned number, unsig
             digit = num % 10;
             cputcxy(x - i, y, digit + '0');
             num = num / 10;
-            i++;
+            ++i;
         }
     }
 

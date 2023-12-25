@@ -54,10 +54,10 @@ void sortRanking(unsigned ranking[], char *playerNames, unsigned galaxyProductio
     unsigned i, j, min_idx;
 
     // One by one move boundary of unsorted subarray.
-    for (i = 0; i < n - 1; i++) {
+    for (i = 0; i < n - 1; ++i) {
         // Find the minimum element in unsorted array.
         min_idx = i;
-        for (j = i + 1; j < n; j++) {
+        for (j = i + 1; j < n; ++j) {
             if (ranking[j] > ranking[min_idx]) {
                 min_idx = j;
             }
@@ -82,7 +82,7 @@ void sortRanking(unsigned ranking[], char *playerNames, unsigned galaxyProductio
 void shuffle(unsigned *array, size_t n) {
     if (n > 1) {
         size_t i;
-        for (i = 0; i < n - 1; i++) {
+        for (i = 0; i < n - 1; ++i) {
             size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
             unsigned t = array[j];
             array[j] = array[i];

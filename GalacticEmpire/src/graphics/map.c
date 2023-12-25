@@ -25,7 +25,7 @@ void updateMap(Galaxy *empire, unsigned char numWorlds) {
     unsigned char i;
 
     // Place to be updated worlds on map.
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
         // Differentiate between small and capital letters.
         if (i < 20) {
             placeColoredLetter(empire->x[i], empire->y[i], i + 65, empire->owner[i]);

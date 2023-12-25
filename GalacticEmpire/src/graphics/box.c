@@ -68,7 +68,7 @@ int readSinglePlanetLetter() {
                 // Check if input is valid
                 if (numChars < 1 && ((readChar >= 'a' && readChar <= 'z') || (readChar >= 'A' && readChar <= 'Z'))) {
                     planet = readChar;
-                    numChars++;
+                    ++numChars;
                 } else {
                     return -1;
                 }
@@ -125,7 +125,7 @@ int readNumber() {
                 // Check if input is valid
                 if (numChars < 5 && isdigit(readChar)) {
                     readDigits[numChars] = readChar - '0';
-                    numChars++;
+                    ++numChars;
                 } else {
                     return -1;
                 }

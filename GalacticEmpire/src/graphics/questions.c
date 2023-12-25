@@ -115,17 +115,17 @@ void getPlayerName(unsigned player, char* name) {
                     case 1:
                         cclearxy(20, 0, 1);
                         gotoxy(20, 0);
-                        numChars--;
+                        --numChars;
                         break;
                     case 2:
                         cclearxy(21, 0, 1);
                         gotoxy(21, 0);
-                        numChars--;
+                        --numChars;
                         break;
                     case 3:
                         cclearxy(22, 0, 1);
                         gotoxy(22, 0);
-                        numChars--;
+                        --numChars;
                 }
                 break;
             default:
@@ -133,7 +133,7 @@ void getPlayerName(unsigned player, char* name) {
                 if (numChars < 3 && ((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z'))) {
                     name[numChars] = input;
                     cputcxy(20 + numChars, 0, input);
-                    numChars++;
+                    ++numChars;
                 } else {
                     // Warn player if wrong input format.
                     cputsxy(0, 2, "Name needs to be 3 letters!");
@@ -175,12 +175,12 @@ unsigned char getNumWorlds() {
             switch (numDigits) {
                 case 0:
                     cputcxy(25, 0, input);
-                    numDigits++;
+                    ++numDigits;
                     numWorlds = 10 * (input - '0');
                     break;
                 case 1:
                     cputcxy(26, 0, input);
-                    numDigits++;
+                    ++numDigits;
                     numWorlds += input - '0';
                     break;
                 default:
@@ -256,12 +256,12 @@ unsigned char getYears() {
             switch (numDigits) {
                 case 0:
                     cputcxy(36, 0, input);
-                    numDigits++;
+                    ++numDigits;
                     numYears = 10 * (input - '0');
                     break;
                 case 1:
                     cputcxy(37, 0, input);
-                    numDigits++;
+                    ++numDigits;
                     numYears += input - '0';
                     break;
                 default:

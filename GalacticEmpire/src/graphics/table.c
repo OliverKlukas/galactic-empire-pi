@@ -19,7 +19,7 @@
  */
 void clearTable() {
     unsigned char i;
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < 20; ++i) {
         cclearxy(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
         cclearxy(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
     }
@@ -41,7 +41,7 @@ void updateTable(Galaxy *empire, unsigned char numWorlds) {
     clearTable();
 
     // Place to be updated worlds on map.
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
 
         // Differentiate between first and second column.
         if (i < 20) {

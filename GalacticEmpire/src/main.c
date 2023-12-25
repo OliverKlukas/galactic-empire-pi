@@ -112,7 +112,7 @@ void generateGalaxy() {
     unsigned totalProductionCapacity = MAX_PRODUCTION * (numWorlds / 2);
 
     // Divide galaxy into spheres depending on player number.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         numWorldsPerSphere[i] = numWorlds / numPlayers;
         availableProduction[i] = totalProductionCapacity / numPlayers;
     }
@@ -123,7 +123,7 @@ void generateGalaxy() {
     }
 
     // Build all player spheres.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         // Place home planet with border distance into sphere.
         do {
             empire.x[i] = rand() % (sphereDivisions[numPlayers - 1][i][2]
@@ -147,7 +147,7 @@ void generateGalaxy() {
         empire.owner[i] = i + 1;
 
         // Generate sphere of current player.
-        for (j = 0; j < numWorldsPerSphere[i] - 1; j++) {
+        for (j = 0; j < numWorldsPerSphere[i] - 1; ++j) {
             // Set owner of planet to pirate.
             empire.owner[planetIndex] = 0;
 
@@ -174,12 +174,12 @@ void generateGalaxy() {
             empire.ships[planetIndex] = empire.prod[planetIndex] * PIRATE_PRODUCTION_FACTOR;
 
             // Increment planet index.
-            planetIndex++;
+            ++planetIndex;
         }
     }
 
     // Calculate initial ships of home planets based amount of production in their sphere.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         empire.ships[i] = HOME_PLANET_INITIAL_SHIPS + (availableProduction[i] * EXCESS_PRODUCTION_BONUS);
     }
 }
@@ -197,7 +197,7 @@ void awardCeremony() {
     unsigned *ranking = calloc(numPlayers, sizeof(unsigned));
 
     // Collect state of galaxy.
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
         if(empire.owner[i] > 0) {
             // Total Production hold in galaxy.
             galaxyProduction[empire.owner[i] - 1] += empire.prod[i];
@@ -207,7 +207,7 @@ void awardCeremony() {
     }
 
     // Calculate achievements of players.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         ranking[i] = galaxyProduction[i] + (numberShips[i] / MAX_PRODUCTION);
     }
 
@@ -293,18 +293,18 @@ void retrieveInputsFromAllPlayers() {
 
     // retrieved inputs from player: [playerIter, origin, destination, nShips].
     int *playerInputs;
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < 4; ++i) {
         playerInputs[i] = -1;
     }
 
     // Create randomized player sequence.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         playerSequence[i] = i;
     }
     shuffle(playerSequence, numPlayers);
 
     // Retrieve missions of all players.
-    for (i = 0; i < numPlayers; i++) {
+    for (i = 0; i < numPlayers; ++i) {
         while (1) {
             playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], &empire, numWorlds);
 
@@ -351,7 +351,7 @@ void evaluateMissions() {
     unsigned superOccurrence;
 
     // Latest input from mission table.
-    for (i = 0; i < missionTable[year][0].size; i++) {
+    for (i = 0; i < missionTable[year][0].size; ++i) {
         player = dequeue(&missionTable[year][0]);
         dest = dequeue(&missionTable[year][1]);
         nShips = dequeue(&missionTable[year][2]);
@@ -410,7 +410,7 @@ void updateProduction() {
     unsigned char i;
 
     // Let whole galaxy produce its ships.
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
         if (defensiveShips || empire.owner[i] != 0) {
             empire.ships[i] += empire.prod[i];
         }
@@ -422,7 +422,7 @@ void updateProduction() {
  */
 void clearGalaxyMemory() {
     unsigned char i;
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
         empire.x[i] = 0;
         empire.y[i] = 0;
         empire.prod[i] = 0;
@@ -474,7 +474,7 @@ void game() {
 
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
-        year++;
+        ++year;
         updateYear(year);
         updateTable(&empire, numWorlds);
     }

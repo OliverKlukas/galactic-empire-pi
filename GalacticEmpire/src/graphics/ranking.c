@@ -39,7 +39,7 @@ void printCeremony(unsigned numPlayer, char *playerNames, unsigned *galaxyProduc
     cputs("Place   Admiral   Prod   Ships");
 
     // Iterate over players.
-    for (i = 0; i < numPlayer; i++) {
+    for (i = 0; i < numPlayer; ++i) {
         gotoxy(0, 4 + i);
         cprintf("%d.      %s       %d      %d", i + 1, &playerNames[4*i+4], galaxyProduction[i], numberShips[i]);
     }
