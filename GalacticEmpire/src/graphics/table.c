@@ -33,7 +33,7 @@ void clearTable() {
  * @param year - Current game year.
  * @param numWorlds - Total years of game.
  */
-void updateTable(world **galaxy, unsigned char numWorlds) {
+void updateTable(Galaxy *empire, unsigned char numWorlds) {
     // Loop variables.
     unsigned char i;
 
@@ -46,21 +46,21 @@ void updateTable(world **galaxy, unsigned char numWorlds) {
         // Differentiate between first and second column.
         if (i < 20) {
             // Plot world name, production and ships.
-            placeColoredLetter(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, i + 65, galaxy[i]->owner);
+            placeColoredLetter(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, i + 65, empire->owner[i]);
 
             // Only show planets not owned by pirates.
-            if (galaxy[i]->owner != 0) {
-                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i, galaxy[i]->prod, galaxy[i]->owner);
-                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i, galaxy[i]->ships, galaxy[i]->owner);
+            if (empire->owner[i] != 0) {
+                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i, empire->prod[i], empire->owner[i]);
+                placeColoredNumber(TABLE_COLUMN_1_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i, empire->ships[i], empire->owner[i]);
             }
         } else {
             // Plot world name, production and ships.
-            placeColoredLetter(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i - 20, i + 173, galaxy[i]->owner);
+            placeColoredLetter(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i - 20, i + 173, empire->owner[i]);
 
             // Only show planets not owned by pirates.
-            if (galaxy[i]->owner != 0) {
-                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i - 20, galaxy[i]->prod, galaxy[i]->owner);
-                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i - 20, galaxy[i]->ships, galaxy[i]->owner);
+            if (empire->owner[i] != 0) {
+                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 3, TABLE_FIRST_ROW_Y_MIN + i - 20, empire->prod[i], empire->owner[i]);
+                placeColoredNumber(TABLE_COLUMN_2_X_MIN + 7, TABLE_FIRST_ROW_Y_MIN + i - 20, empire->ships[i], empire->owner[i]);
             }
         }
     }

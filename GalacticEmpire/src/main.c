@@ -29,7 +29,6 @@ unsigned char defensiveShips = 1;
 unsigned char events = 1;
 
 char playerNames[4 * (MAX_PLAYERS + 1)];
-world **galaxy;
 Galaxy empire;  // TODO: support galaxies with less than MAX_PLANETS planets.
 Queue **missionTable;
 
@@ -307,7 +306,7 @@ void retrieveInputsFromAllPlayers() {
     // Retrieve missions of all players.
     for (i = 0; i < numPlayers; i++) {
         while (1) {
-            playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], galaxy, numWorlds); // TODO galaxy
+            playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], &empire, numWorlds);
 
             if (playerInputs[1] == -1) {
                 break;
@@ -344,8 +343,8 @@ void retrieveInputsFromAllPlayers() {
  * Evaluates the mission array, triggers reinforcements and fights.
  */
 void evaluateMissions() {
-    int player, dest, nShips;
-    unsigned char i;
+    unsigned nShips;
+    unsigned char i, player, dest;
 
     // Trigger supernova randomly with probability at x%.
     unsigned probSupernova = 5;
@@ -369,12 +368,12 @@ void evaluateMissions() {
             empire.ships[dest] += nShips;
             displayReinforcements(player, dest, nShips);
         } else {
-            simulateFight(galaxy, playerNames, dest, player, nShips); // TODO galaxy
+            simulateFight(&empire, playerNames, dest, player, nShips);
         }
 
         // Update table on what's happening.
-        updateTable(galaxy, numWorlds); // TODO galaxy
-        updateMap(galaxy, numWorlds); // TODO galaxy
+        updateTable(&empire, numWorlds);
+        updateMap(&empire, numWorlds);
     }
 
     // Free mission table of passed year.
@@ -453,8 +452,8 @@ void game() {
     do {
         clearMap();
         generateGalaxy();
-        updateTable(galaxy, numWorlds); // TODO galaxy
-        updateMap(galaxy, numWorlds); // TODO galaxy
+        updateTable(&empire, numWorlds);
+        updateMap(&empire, numWorlds);
         if(mapAcceptance()){
             break;
         }
@@ -470,14 +469,14 @@ void game() {
         updateProduction();
 
         // Update map based on state, in the first round special treatment.
-        updateTable(galaxy, numWorlds); // TODO galaxy
-        updateMap(galaxy, numWorlds); // TODO galaxy
+        updateTable(&empire, numWorlds);
+        updateMap(&empire, numWorlds);
 
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
         year++;
         updateYear(year);
-        updateTable(galaxy, numWorlds); // TODO galaxy
+        updateTable(&empire, numWorlds);
     }
 
     // Final screen and award ceremony.
