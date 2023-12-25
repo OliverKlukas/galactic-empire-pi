@@ -15,7 +15,6 @@
 #include "utils/queue.h"
 #include "utils/array.h"
 
-
 /*****************************************************************************/
 /*                            Global variables                               */
 /*****************************************************************************/
@@ -29,7 +28,7 @@ unsigned char defensiveShips = 1;
 unsigned char events = 1;
 
 char playerNames[4 * (MAX_PLAYERS + 1)];
-Galaxy empire;  // TODO: support galaxies with less than MAX_PLANETS planets.
+Galaxy galaxy;
 Queue **missionTable;
 
 // Available planet locations.
@@ -126,52 +125,52 @@ void generateGalaxy() {
     for (i = 0; i < numPlayers; ++i) {
         // Place home planet with border distance into sphere.
         do {
-            empire.x[i] = rand() % (sphereDivisions[numPlayers - 1][i][2]
+            galaxy.x[i] = rand() % (sphereDivisions[numPlayers - 1][i][2]
                                     - (2 * homePlanetBorderDistance[numPlayers - 1])
                                     - sphereDivisions[numPlayers - 1][i][0]);
-            empire.x[i] = empire.x[i]
+            galaxy.x[i] = galaxy.x[i]
                             + homePlanetBorderDistance[numPlayers - 1]
                             + sphereDivisions[numPlayers - 1][i][0];
-            empire.y[i] = rand() % (sphereDivisions[numPlayers - 1][i][3]
+            galaxy.y[i] = rand() % (sphereDivisions[numPlayers - 1][i][3]
                                     - (2 * homePlanetBorderDistance[numPlayers - 1])
                                     - sphereDivisions[numPlayers - 1][i][1]);
-            empire.y[i] = empire.y[i]
+            galaxy.y[i] = galaxy.y[i]
                             + homePlanetBorderDistance[numPlayers - 1]
                             + sphereDivisions[numPlayers - 1][i][1];
-        } while (occupyLocation(empire.x[i], empire.y[i]));
+        } while (occupyLocation(galaxy.x[i], galaxy.y[i]));
 
         // Set home planet production.
-        empire.prod[i] = HOME_PLANET_PRODUCTION;
+        galaxy.prod[i] = HOME_PLANET_PRODUCTION;
 
         // Set owner of home planet to current player.
-        empire.owner[i] = i + 1;
+        galaxy.owner[i] = i + 1;
 
         // Generate sphere of current player.
         for (j = 0; j < numWorldsPerSphere[i] - 1; ++j) {
             // Set owner of planet to pirate.
-            empire.owner[planetIndex] = 0;
+            galaxy.owner[planetIndex] = 0;
 
             // Randomly place planet into sphere.
             do {
-                empire.x[planetIndex] = rand() % (sphereDivisions[numPlayers - 1][i][2]
+                galaxy.x[planetIndex] = rand() % (sphereDivisions[numPlayers - 1][i][2]
                                                    - sphereDivisions[numPlayers - 1][i][0]);
-                empire.x[planetIndex] = empire.x[planetIndex] + sphereDivisions[numPlayers - 1][i][0];
-                empire.y[planetIndex] = rand() % (sphereDivisions[numPlayers - 1][i][3]
+                galaxy.x[planetIndex] = galaxy.x[planetIndex] + sphereDivisions[numPlayers - 1][i][0];
+                galaxy.y[planetIndex] = rand() % (sphereDivisions[numPlayers - 1][i][3]
                                                    - sphereDivisions[numPlayers - 1][i][1]);
-                empire.y[planetIndex] = empire.y[planetIndex] + sphereDivisions[numPlayers - 1][i][1];
-            } while (occupyLocation(empire.x[planetIndex], empire.y[planetIndex]));
+                galaxy.y[planetIndex] = galaxy.y[planetIndex] + sphereDivisions[numPlayers - 1][i][1];
+            } while (occupyLocation(galaxy.x[planetIndex], galaxy.y[planetIndex]));
 
             // Assign placed planet random amount of production based on sphereLimit.
-            empire.prod[planetIndex] = rand() % MAX_PRODUCTION;
-            if(availableProduction[i] < empire.prod[planetIndex]) {
-                empire.prod[planetIndex] = 0;
+            galaxy.prod[planetIndex] = rand() % MAX_PRODUCTION;
+            if(availableProduction[i] < galaxy.prod[planetIndex]) {
+                galaxy.prod[planetIndex] = 0;
             }
             else {
-                availableProduction[i] -= empire.prod[planetIndex];
+                availableProduction[i] -= galaxy.prod[planetIndex];
             }
 
             // Give every planet their production as start ships.
-            empire.ships[planetIndex] = empire.prod[planetIndex] * PIRATE_PRODUCTION_FACTOR;
+            galaxy.ships[planetIndex] = galaxy.prod[planetIndex] * PIRATE_PRODUCTION_FACTOR;
 
             // Increment planet index.
             ++planetIndex;
@@ -180,7 +179,7 @@ void generateGalaxy() {
 
     // Calculate initial ships of home planets based amount of production in their sphere.
     for (i = 0; i < numPlayers; ++i) {
-        empire.ships[i] = HOME_PLANET_INITIAL_SHIPS + (availableProduction[i] * EXCESS_PRODUCTION_BONUS);
+        galaxy.ships[i] = HOME_PLANET_INITIAL_SHIPS + (availableProduction[i] * EXCESS_PRODUCTION_BONUS);
     }
 }
 
@@ -198,11 +197,11 @@ void awardCeremony() {
 
     // Collect state of galaxy.
     for (i = 0; i < numWorlds; ++i) {
-        if(empire.owner[i] > 0) {
+        if(galaxy.owner[i] > 0) {
             // Total Production hold in galaxy.
-            galaxyProduction[empire.owner[i] - 1] += empire.prod[i];
+            galaxyProduction[galaxy.owner[i] - 1] += galaxy.prod[i];
             // Total number of ships per player and overall.
-            numberShips[empire.owner[i] - 1] += empire.ships[i];
+            numberShips[galaxy.owner[i] - 1] += galaxy.ships[i];
         }
     }
 
@@ -268,16 +267,16 @@ unsigned char calcDistance(unsigned char planetAIdx, unsigned char planetBIdx) {
         return 0;
     }
 
-    // Check which empire is further away in x and y direction to not overflow.f
-    if(empire.x[planetAIdx] < empire.x[planetBIdx]) {
-        xDistance = empire.x[planetBIdx] - empire.x[planetAIdx];
+    // Check which galaxy is further away in x and y direction to not overflow.f
+    if(galaxy.x[planetAIdx] < galaxy.x[planetBIdx]) {
+        xDistance = galaxy.x[planetBIdx] - galaxy.x[planetAIdx];
     } else {
-        xDistance = empire.x[planetAIdx] - empire.x[planetBIdx];
+        xDistance = galaxy.x[planetAIdx] - galaxy.x[planetBIdx];
     }
-    if(empire.y[planetAIdx] < empire.y[planetBIdx]) {
-        yDistance = empire.y[planetBIdx] - empire.y[planetAIdx];
+    if(galaxy.y[planetAIdx] < galaxy.y[planetBIdx]) {
+        yDistance = galaxy.y[planetBIdx] - galaxy.y[planetAIdx];
     } else {
-        yDistance = empire.y[planetAIdx] - empire.y[planetBIdx];
+        yDistance = galaxy.y[planetAIdx] - galaxy.y[planetBIdx];
     }
     return xDistance + yDistance;
 }
@@ -289,7 +288,7 @@ void retrieveInputsFromAllPlayers() {
     unsigned char i;
     unsigned char distance;
     unsigned char timeToArrival;
-    unsigned *playerSequence = malloc(numPlayers * sizeof(unsigned));
+    unsigned char playerSequence[MAX_PLAYERS];
 
     // retrieved inputs from player: [playerIter, origin, destination, nShips].
     int *playerInputs;
@@ -301,12 +300,19 @@ void retrieveInputsFromAllPlayers() {
     for (i = 0; i < numPlayers; ++i) {
         playerSequence[i] = i;
     }
+    while(i < MAX_PLAYERS) {
+        playerSequence[i] = 255;
+        ++i;
+    }
     shuffle(playerSequence, numPlayers);
 
     // Retrieve missions of all players.
-    for (i = 0; i < numPlayers; ++i) {
+    for (i = 0; i < MAX_PLAYERS; ++i) {
         while (1) {
-            playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], &empire, numWorlds);
+            if (playerSequence[i] == 255) {
+                break;
+            }
+            playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], &galaxy, numWorlds);
 
             if (playerInputs[1] == -1) {
                 break;
@@ -331,12 +337,9 @@ void retrieveInputsFromAllPlayers() {
             enqueue(&missionTable[year + timeToArrival][2], playerInputs[3]);
 
             // Remove numShips from galaxy.
-            empire.ships[playerInputs[1]] -= playerInputs[3];
+            galaxy.ships[playerInputs[1]] -= playerInputs[3];
         }
     }
-
-    // Free allocated storage.
-    free(playerSequence);
 }
 
 /**
@@ -364,16 +367,16 @@ void evaluateMissions() {
         }
 
         // Either reinforcements or a fight occurs.
-        if(empire.owner[dest] == player) {
-            empire.ships[dest] += nShips;
+        if(galaxy.owner[dest] == player) {
+            galaxy.ships[dest] += nShips;
             displayReinforcements(player, dest, nShips);
         } else {
-            simulateFight(&empire, playerNames, dest, player, nShips);
+            simulateFight(&galaxy, playerNames, dest, player, nShips);
         }
 
         // Update table on what's happening.
-        updateTable(&empire, numWorlds);
-        updateMap(&empire, numWorlds);
+        updateTable(&galaxy, numWorlds);
+        updateMap(&galaxy, numWorlds);
     }
 
     // Free mission table of passed year.
@@ -411,8 +414,8 @@ void updateProduction() {
 
     // Let whole galaxy produce its ships.
     for (i = 0; i < numWorlds; ++i) {
-        if (defensiveShips || empire.owner[i] != 0) {
-            empire.ships[i] += empire.prod[i];
+        if (defensiveShips || galaxy.owner[i] != 0) {
+            galaxy.ships[i] += galaxy.prod[i];
         }
     }
 }
@@ -420,19 +423,19 @@ void updateProduction() {
 /**
  * Clears the memory of the galaxy.
  */
-void clearGalaxyMemory() {
+void resetGalaxy() {
     unsigned char i;
     for (i = 0; i < numWorlds; ++i) {
-        empire.x[i] = 0;
-        empire.y[i] = 0;
-        empire.prod[i] = 0;
-        empire.ships[i] = 0;
-        empire.owner[i] = 0;
+        galaxy.x[i] = 0;
+        galaxy.y[i] = 0;
+        galaxy.prod[i] = 0;
+        galaxy.ships[i] = 0;
+        galaxy.owner[i] = 0;
     }
 }
 
 /**
- * Main galactic empire game logic.
+ * Main galactic galaxy game logic.
  */
 void game() {
     // Plot start screen.
@@ -452,12 +455,12 @@ void game() {
     do {
         clearMap();
         generateGalaxy();
-        updateTable(&empire, numWorlds);
-        updateMap(&empire, numWorlds);
+        updateTable(&galaxy, numWorlds);
+        updateMap(&galaxy, numWorlds);
         if(mapAcceptance()){
             break;
         }
-        clearGalaxyMemory();
+        resetGalaxy();
     } while (1);
 
     // Play the game until running out of years.
@@ -469,14 +472,14 @@ void game() {
         updateProduction();
 
         // Update map based on state, in the first round special treatment.
-        updateTable(&empire, numWorlds);
-        updateMap(&empire, numWorlds);
+        updateTable(&galaxy, numWorlds);
+        updateMap(&galaxy, numWorlds);
 
         // Retrieve inputs of all players.
         retrieveInputsFromAllPlayers();
         ++year;
         updateYear(year);
-        updateTable(&empire, numWorlds);
+        updateTable(&galaxy, numWorlds);
     }
 
     // Final screen and award ceremony.

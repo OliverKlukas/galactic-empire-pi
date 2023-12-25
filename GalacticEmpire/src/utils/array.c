@@ -79,7 +79,7 @@ void sortRanking(unsigned ranking[], char *playerNames, unsigned galaxyProductio
  * @param array - Reference to array.
  * @param n - Length of array.
  */
-void shuffle(unsigned *array, size_t n) {
+void shuffle(unsigned char *array, size_t n) {
     if (n > 1) {
         size_t i;
         for (i = 0; i < n - 1; ++i) {

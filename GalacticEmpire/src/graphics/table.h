@@ -9,7 +9,7 @@ void clearTable();
 /**
  * Draws the latest game table and year.
  */
-void updateTable(Galaxy *empire, unsigned char numWorlds);
+void updateTable(Galaxy *galaxy, unsigned char numWorlds);
 
 /**
  * Updates the current game year.

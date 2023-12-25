@@ -24,7 +24,7 @@ int readNumber();
 /**
  * Retrieves the inputs of all players in one round.
  */
-int *retrieveInputs(unsigned char playerIter, char* playerName, Galaxy *empire, unsigned char numWorlds);
+int *retrieveInputs(unsigned char playerIter, char* playerName, Galaxy *galaxy, unsigned char numWorlds);
 
 /**
  * Displays reinforcements arriving at planets.
@@ -34,7 +34,7 @@ void displayReinforcements(unsigned char playerIter, unsigned char worldIter, un
 /**
  * Simulates attack on a planet and updates the galaxy.
  */
-void simulateFight(Galaxy *empire, char *allNames, unsigned char world, unsigned char attacker, unsigned numShips);
+void simulateFight(Galaxy *galaxy, char *allNames, unsigned char world, unsigned char attacker, unsigned numShips);
 
 /**
  * Display supernova information, special events.

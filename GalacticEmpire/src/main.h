@@ -12,14 +12,6 @@
 
 // Struct definitions.
 typedef struct {
-    unsigned char x;             // 0-19 x axis position on map
-    unsigned char y;             // 0-19 y axis position on map
-    unsigned char owner;         // 0 is pirate, 1 - 5 players
-    unsigned prod;          // 0 - x production
-    unsigned ships;         // 0 - x number of ships
-} world;
-
-typedef struct {
     unsigned char x[MAX_WORLDS];    // 0-19 x axis position on map
     unsigned char y[MAX_WORLDS];    // 0-19 y axis position on map
     unsigned char owner[MAX_WORLDS];    // 0 is pirate, 1 - 5 players

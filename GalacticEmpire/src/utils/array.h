@@ -19,6 +19,6 @@ void sortRanking(unsigned ranking[], char *playerNames, unsigned galaxyProductio
 /**
  * Shuffle array in-place.
  */
-void shuffle(unsigned *array, size_t n);
+void shuffle(unsigned char *array, size_t n);
 
 #endif

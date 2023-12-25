@@ -20,7 +20,7 @@
  * @param galaxy - Current state of galaxy.
  * @param numWorlds - Number of overall worlds.
  */
-void updateMap(Galaxy *empire, unsigned char numWorlds) {
+void updateMap(Galaxy *galaxy, unsigned char numWorlds) {
     // Loop variable.
     unsigned char i;
 
@@ -28,9 +28,9 @@ void updateMap(Galaxy *empire, unsigned char numWorlds) {
     for (i = 0; i < numWorlds; ++i) {
         // Differentiate between small and capital letters.
         if (i < 20) {
-            placeColoredLetter(empire->x[i], empire->y[i], i + 65, empire->owner[i]);
+            placeColoredLetter(galaxy->x[i], galaxy->y[i], i + 65, galaxy->owner[i]);
         } else {
-            placeColoredLetter(empire->x[i], empire->y[i], i + 173, empire->owner[i]);
+            placeColoredLetter(galaxy->x[i], galaxy->y[i], i + 173, galaxy->owner[i]);
         }
     }
 }
