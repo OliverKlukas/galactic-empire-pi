@@ -34,11 +34,10 @@ void swap(unsigned *xp, unsigned *yp) {
  * @param yp - Pointer to second element.
  */
 void swapStrings(char *str1, char *str2) {
-    char *temp = (char *)malloc((strlen(str1) + 1) * sizeof(char));
+    char temp[4];
     strcpy(temp, str1);
     strcpy(str1, str2);
     strcpy(str2, temp);
-    free(temp);
 }
 
 /**
@@ -51,7 +50,7 @@ void swapStrings(char *str1, char *str2) {
  * @param numberShips - Number of ships array.
  * @param n - Length of array.
  */
-void sortRanking(unsigned ranking[], char **playerNames, unsigned galaxyProduction[], unsigned numberShips[], unsigned n) {
+void sortRanking(unsigned ranking[], char *playerNames, unsigned galaxyProduction[], unsigned numberShips[], unsigned n) {
     unsigned i, j, min_idx;
 
     // One by one move boundary of unsorted subarray.
@@ -68,7 +67,7 @@ void sortRanking(unsigned ranking[], char **playerNames, unsigned galaxyProducti
         swap(&ranking[min_idx], &ranking[i]);
         swap(&galaxyProduction[min_idx], &galaxyProduction[i]);
         swap(&numberShips[min_idx], &numberShips[i]);
-        swapStrings(playerNames[1 + min_idx], playerNames[1 + i]);
+        swapStrings(&playerNames[4 + min_idx*4], &playerNames[4 + i*4]);
     }
 }
 

@@ -1,6 +1,10 @@
 #ifndef GALACTIC_EMPIRE_GCC_TESTS_MAIN_H
 #define GALACTIC_EMPIRE_GCC_TESTS_MAIN_H
 
+// Constants.
+#define MAX_PLAYERS 5       // Maximum number of players.
+
+// Struct definitions.
 typedef struct {
     unsigned x;             // 0-19 x axis position on map
     unsigned y;             // 0-19 y axis position on map

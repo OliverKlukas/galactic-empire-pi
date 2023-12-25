@@ -413,7 +413,7 @@ void simulateFight(world **galaxy, char **allNames, unsigned world, unsigned att
  * @param player - Player who lost the ships as string.
  * @param allNames - All player names 1-x and Me at 0.
  */
-void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames){
+void supernova(unsigned world, unsigned numShips, unsigned player, char *allNames){
     clearTextIOField();
     cputsxy(textLine1X, textLine1Y, "SUPERNOVA world: ");
     if(world < 20){
@@ -423,7 +423,7 @@ void supernova(unsigned world, unsigned numShips, unsigned player, char **allNam
     }
     gotoxy(textLine2X, textLine2Y);
     textcolor(playerColors[player]);
-    cputs(allNames[player]);
+    cputs(&allNames[player*4]);
     textcolor(textColor);
     cprintf(" lost %d ships", numShips);
     cgetc();

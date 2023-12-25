@@ -39,7 +39,7 @@ void simulateFight();
 /**
  * Display supernova information, special events.
  */
-void supernova(unsigned world, unsigned numShips, unsigned player, char **allNames);
+void supernova(unsigned world, unsigned numShips, unsigned player, char *allNames);
 
 /**
  * Asks for acceptance of map.

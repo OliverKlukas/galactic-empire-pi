@@ -21,7 +21,7 @@
  * @param galaxyProduction - Sorted list of percentages of galaxy production ownership.
  * @param numberShips - Sorted list of total number of ships.
  */
-void printCeremony(unsigned numPlayer, char **playerNames, unsigned *galaxyProduction, unsigned *numberShips) {
+void printCeremony(unsigned numPlayer, char *playerNames, unsigned *galaxyProduction, unsigned *numberShips) {
     // Loop variables.
     int i;
     char input;
@@ -41,7 +41,7 @@ void printCeremony(unsigned numPlayer, char **playerNames, unsigned *galaxyProdu
     // Iterate over players.
     for (i = 0; i < numPlayer; i++) {
         gotoxy(0, 4 + i);
-        cprintf("%d.      %s       %d      %d", i + 1, playerNames[i+1], galaxyProduction[i], numberShips[i]);
+        cprintf("%d.      %s       %d      %d", i + 1, &playerNames[4*i+4], galaxyProduction[i], numberShips[i]);
     }
 
     // Wait for f before finishing.

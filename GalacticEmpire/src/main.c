@@ -3,6 +3,7 @@
 #include <cc65.h>
 #include <conio.h>
 #include <time.h>
+#include <string.h>
 #include "main.h"
 #include "graphics/graphics.h"
 #include "graphics/startscreen.h"
@@ -21,21 +22,22 @@
 
 
 // Game specific variables.
-unsigned numPlayers = 5;
-unsigned numWorlds = 10;
-unsigned year = 0;
-unsigned totalYears = 0;
-int defensiveShips = 1;
-int events = 1;
-char **playerNames;
+unsigned char numPlayers = 5;
+unsigned char numWorlds = 10;
+unsigned char year = 0;
+unsigned char totalYears = 0;
+unsigned char defensiveShips = 1;
+unsigned char events = 1;
+
+char playerNames[4 * (MAX_PLAYERS + 1)];
 world **galaxy;
 Queue **missionTable;
 
 // Available planet locations.
-int availableLocations[400];
+unsigned availableLocations[400];
 
 // Available sphere divisions.
-unsigned sphereDivisions[5][5][4] = {
+unsigned char sphereDivisions[5][5][4] = {
         {
                 {0, 0, 19, 19},             // 1 player
                 {0,  0,  0,  0},
@@ -74,7 +76,7 @@ unsigned sphereDivisions[5][5][4] = {
 };
 
 // Scenario variables.
-unsigned maxProduction = 10;
+unsigned maxProduction = 10;    // TODO: all into const vars
 unsigned homePlanetProduction = 10;
 unsigned homePlanetBorderDistance[5] = {2, 2, 2, 2, 1};
 unsigned homePlanetInitialShips = 200;
@@ -234,18 +236,17 @@ void awardCeremony() {
  */
 void initGameInputs() {
     // Loop variables.
-    int i;
+    char name[4];
+    unsigned char i;
 
     // Get number of players.
     numPlayers = getNumPlayers();
 
     // Get player names.
-    playerNames = (char **) malloc((numPlayers + 1) * sizeof(char *));
-    playerNames[0] = (char *) malloc(4 * sizeof(char));
-    playerNames[0] = "me";
-    for (i = 0; i < numPlayers; i++) {
-        playerNames[i + 1] = (char *) malloc(4 * sizeof(char));
-        playerNames[i + 1] = getPlayerName(i);
+    strcpy(playerNames, "Bot");
+    for (i = 0; i < numPlayers; ++i) {
+        getPlayerName(i, name);
+        strcpy(playerNames + 4 * (i+1), name);
     }
 
     // Get number of worlds.
@@ -303,7 +304,7 @@ void retrieveInputsFromAllPlayers() {
     // Retrieve missions of all players.
     for (i = 0; i < numPlayers; i++) {
         while (1) {
-            playerInputs = retrieveInputs(playerSequence[i] + 1, playerNames[1 + playerSequence[i]], galaxy, numWorlds);
+            playerInputs = retrieveInputs(playerSequence[i] + 1, &playerNames[4 + playerSequence[i]*4], galaxy, numWorlds);
 
             if (playerInputs[1] == -1) {
                 break;
@@ -514,7 +515,7 @@ void game() {
  */
 int main() {
     // Loop variables.
-    int i;
+    unsigned char i;
 
     // Save the previous color to reset later on.
     unsigned char prevBorder, prevTextColor, prevBackgroundColor;
@@ -531,12 +532,8 @@ int main() {
     game();
 
     // Free globally allocated variables.
-    for (i = 0; i < (numPlayers + 1); i++) {
-        free(playerNames[i]);
-    }
-    free(playerNames);
     free(missionTable);
-    for (i = 0; i < numWorlds; i++) {
+    for (i = 0; i < numWorlds; ++i) {
         free(galaxy[i]);
     }
     free(galaxy);

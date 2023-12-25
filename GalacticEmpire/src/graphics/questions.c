@@ -30,8 +30,8 @@ void clearLine(unsigned y) {
  *
  * @return - Returns number of players.
  */
-unsigned getNumPlayers() {
-    unsigned numPlayer = 0;
+unsigned char getNumPlayers() {
+    unsigned char numPlayer = 0;
     char input;
 
     // Clear screen and go to start.
@@ -79,10 +79,9 @@ unsigned getNumPlayers() {
  * @player - Number of player.
  * @return - Returns the name of the Player as string.
  */
-char *getPlayerName(unsigned player) {
+void getPlayerName(unsigned player, char* name) {
     int numChars = 0;
     char input;
-    char *name = malloc(4 * sizeof(char));
 
     // Clear screen and go to start.
     clrscr();
@@ -144,10 +143,7 @@ char *getPlayerName(unsigned player) {
                 }
         }
     } while (input != CH_ENTER);
-
-    // Insert terminal symbol for string.
     name[3] = '\0';
-    return name;
 }
 
 /**
@@ -157,9 +153,9 @@ char *getPlayerName(unsigned player) {
  *
  * @return - Returns number of worlds.
  */
-unsigned getNumWorlds() {
-    unsigned numWorlds = 0;
-    unsigned numDigits = 0;
+unsigned char getNumWorlds() {
+    unsigned char numWorlds = 0;
+    unsigned char numDigits = 0;
     char input;
 
     // Clear screen and go to start.
@@ -238,9 +234,9 @@ unsigned getNumWorlds() {
  *
  * @return - Returns number of years.
  */
-unsigned getYears() {
-    unsigned numYears = 0;
-    unsigned numDigits = 0;
+unsigned char getYears() {
+    unsigned char numYears = 0;
+    unsigned char numDigits = 0;
     char input;
 
     // Clear screen and go to start.
@@ -317,8 +313,8 @@ unsigned getYears() {
  *
  * @return - Returns 1 for true or 0 for false.
  */
-unsigned getDefensive() {
-    unsigned answer = 2;
+unsigned char getDefensive() {
+    unsigned char answer = 2;
     char input;
 
     // Clear screen and go to start.
@@ -365,8 +361,8 @@ unsigned getDefensive() {
  *
  * @return - Returns 1 for true or 0 for false.
 */
-unsigned getEvents() {
-    unsigned answer = 2;
+unsigned char getEvents() {
+    unsigned char answer = 2;
     char input;
 
     // Clear screen and go to start.

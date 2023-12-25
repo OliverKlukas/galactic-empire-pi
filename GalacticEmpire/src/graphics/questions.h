@@ -13,7 +13,7 @@ void clearLine(unsigned y);
  *
  * @return - Returns the number of players retrieved from the input.
  */
-unsigned getNumPlayers();
+unsigned char getNumPlayers();
 
 /**
  * Retrieve a player name.
@@ -21,34 +21,34 @@ unsigned getNumPlayers();
  * @param player - Number of respective player.
  * @return - Returns the name of the player as a String.
  */
-char *getPlayerName(unsigned player);
+void getPlayerName(unsigned player, char* name);
 
 /**
  * Retrieve the number of worlds.
  *
  * @return - Returns the number of worlds set by the player.
  */
-unsigned getNumWorlds();
+unsigned char getNumWorlds();
 
 /**
  * Retrieve the number of years.
  *
  * @return - Returns the number of years set by the player.
  */
-unsigned getYears();
+unsigned char getYears();
 
 /**
  * Retrieve if defensive ships should be build on pirate planets.
  *
  * @return - Returns if defensive ships should be build by pirates.
  */
-unsigned getDefensive();
+unsigned char getDefensive();
 
 /**
  * Retrieve if special events should occur.
  *
  * @return - Returns if special events should occur.
  */
-unsigned getEvents();
+unsigned char getEvents();
 
 #endif
