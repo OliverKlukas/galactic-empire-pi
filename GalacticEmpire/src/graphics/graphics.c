@@ -12,15 +12,6 @@
 /*                        Global graphics variables                          */
 /*****************************************************************************/
 
-
-// Screen dimensions: these are the maximum pixel positions displayable
-const unsigned maxX = 39;
-const unsigned maxY = 24;
-
-// Map settings.
-const int mapNLinesVertical = 20;
-const int mapNLinesHorizontal = 20;
-
 // Year settings.
 int yearLineX = 0;
 int yearLineY = 0;
@@ -102,15 +93,7 @@ void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player
  * Initializes the standard game graphics.
  */
 void initGameGraphics() {
-    int i, j;
-    int tableXMin = mapNLinesVertical;
-    int tableXMax = maxX;
-    int tableYMin = 0;
-    int tableYMax = tableYMin + 20 + 3;
-    int textFieldXMin = 0;
-    int textFieldXMax = mapNLinesVertical - 1;
-    int textFieldYMin = mapNLinesHorizontal;
-    int textFieldYMax = maxY;
+    unsigned char i, j;
 
     // Set colors for the game.
     bgcolor(backgroundColor);
@@ -118,23 +101,23 @@ void initGameGraphics() {
     clrscr();
 
     // Draw the map grid.
-    for (i = 0; i < mapNLinesHorizontal; ++i) { // y
-        for (j = 0; j < mapNLinesVertical; ++j) { // x
+    for (i = 0; i < MAP_N_LINES_HORIZONTAL; ++i) { // y
+        for (j = 0; j < MAP_N_LINES_VERTICAL; ++j) { // x
             if (j == 0 && i == 0) {
                 cputcxy(j, i, CH_ULCORNER);
-            } else if (j == mapNLinesVertical - 1 && i == 0) {
+            } else if (j == MAP_N_LINES_VERTICAL - 1 && i == 0) {
                 cputcxy(j, i, CH_URCORNER);
             } else if (i == 0) {
                 cputcxy(j, i, CH_TTEE);
-            } else if (i == mapNLinesHorizontal - 1 && j == 0) {
+            } else if (i == MAP_N_LINES_HORIZONTAL - 1 && j == 0) {
                 cputcxy(j, i, CH_LLCORNER);
-            } else if (i == mapNLinesHorizontal - 1 && j == mapNLinesVertical - 1) {
+            } else if (i == MAP_N_LINES_HORIZONTAL - 1 && j == MAP_N_LINES_VERTICAL - 1) {
                 cputcxy(j, i, CH_LRCORNER);
             } else if (j == 0) {
                 cputcxy(j, i, CH_LTEE);
-            } else if (i == mapNLinesHorizontal - 1) {
+            } else if (i == MAP_N_LINES_HORIZONTAL - 1) {
                 cputcxy(j, i, CH_BTEE);
-            } else if (j == mapNLinesVertical - 1) {
+            } else if (j == MAP_N_LINES_VERTICAL - 1) {
                 cputcxy(j, i, CH_RTEE);
             } else {
                 cputcxy(j, i, CH_CROSS);
@@ -144,51 +127,51 @@ void initGameGraphics() {
     }
 
     // Draw the table border.
-    cputcxy(tableXMin, tableYMin, CH_ULCORNER);
-    chlinexy(tableXMin + 1, tableYMin, tableXMax - tableXMin - 1);
-    cputcxy(tableXMax, tableYMin, CH_URCORNER);
-    cvlinexy(tableXMax, tableYMin + 1, tableYMax - tableYMin - 1);
-    cputcxy(tableXMax, tableYMax, CH_LRCORNER);
-    chlinexy(tableXMin + 1, tableYMax, tableXMax - tableXMin - 1);
-    cputcxy(tableXMin, tableYMax, CH_LLCORNER);
-    cvlinexy(tableXMin, tableYMin + 1, tableYMax - tableYMin - 1);
-    tableColumn1XMin = tableXMin + 1;
+    cputcxy(MAP_N_LINES_VERTICAL, 0, CH_ULCORNER);
+    chlinexy(MAP_N_LINES_VERTICAL + 1, 0, MAX_X - MAP_N_LINES_VERTICAL - 1);
+    cputcxy(MAX_X, 0, CH_URCORNER);
+    cvlinexy(MAX_X, 1, 22);
+    cputcxy(MAX_X, 23, CH_LRCORNER);
+    chlinexy(MAP_N_LINES_VERTICAL + 1, 23, MAX_X - MAP_N_LINES_VERTICAL - 1);
+    cputcxy(MAP_N_LINES_VERTICAL, 23, CH_LLCORNER);
+    cvlinexy(MAP_N_LINES_VERTICAL, 1, 22);
+    tableColumn1XMin = MAP_N_LINES_VERTICAL + 1;
 
     // Draw the table middle lines.
-    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 1, tableYMax - tableYMin - 1);
-    cvlinexy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 1, tableYMax - tableYMin - 1);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin, CH_TTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMax, CH_BTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMax, CH_BTEE);
-    tableColumn2XMin = tableXMin + (tableXMax - tableXMin) / 2 + 2;
+    cvlinexy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 1, 22);
+    cvlinexy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 1, 22);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 0, CH_TTEE);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 0, CH_TTEE);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 23, CH_BTEE);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 23, CH_BTEE);
+    tableColumn2XMin = MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 2;
 
     // Draw the table header.
-    cputsxy(tableXMin + 1, tableYMin + 1, "W Pr Shp");
-    cputsxy(tableXMin + (tableXMax - tableXMin) / 2 + 2, tableYMin + 1, "W Pr Shp");
-    chlinexy(tableXMin + 1, tableYMin + 2, tableXMax - tableXMin - 1);
-    cputcxy(tableXMin, tableYMin + 2, CH_LTEE);
-    cputcxy(tableXMax, tableYMin + 2, CH_RTEE);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2, tableYMin + 2, CH_CROSS);
-    cputcxy(tableXMin + (tableXMax - tableXMin) / 2 + 1, tableYMin + 2, CH_CROSS);
-    tableFirstRowYMin = tableYMin + 3;
+    cputsxy(MAP_N_LINES_VERTICAL + 1, 1, "W Pr Shp");
+    cputsxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 2, 1, "W Pr Shp");
+    chlinexy(MAP_N_LINES_VERTICAL + 1, 2, MAX_X - MAP_N_LINES_VERTICAL - 1);
+    cputcxy(MAP_N_LINES_VERTICAL, 2, CH_LTEE);
+    cputcxy(MAX_X, 2, CH_RTEE);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2, 2, CH_CROSS);
+    cputcxy(MAP_N_LINES_VERTICAL + (MAX_X - MAP_N_LINES_VERTICAL) / 2 + 1, 2, CH_CROSS);
+    tableFirstRowYMin = 3;
 
     // Draw the year.
-    yearLineX = tableXMin + 1;
-    yearLineY = tableYMax + 1;
+    yearLineX = MAP_N_LINES_VERTICAL + 1;
+    yearLineY = 24;
     cputsxy(yearLineX, yearLineY, "Year:");
 
     // Draw input text box.
-    cputcxy(textFieldXMin, textFieldYMin, CH_ULCORNER);
-    chlinexy(textFieldXMin + 1, textFieldYMin, textFieldXMax - textFieldXMin - 1);
-    cputcxy(textFieldXMax, textFieldYMin, CH_URCORNER);
-    cvlinexy(textFieldXMax, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
-    cputcxy(textFieldXMax, textFieldYMax, CH_LRCORNER);
-    chlinexy(textFieldXMin + 1, textFieldYMax, textFieldXMax - textFieldXMin - 1);
-    cputcxy(textFieldXMin, textFieldYMax, CH_LLCORNER);
-    cvlinexy(textFieldXMin, textFieldYMin + 1, textFieldYMax - textFieldYMin - 1);
-    textLine1X = textFieldXMin + 1;
-    textLine1Y = textFieldYMin + 1;
+    cputcxy(0, MAP_N_LINES_HORIZONTAL, CH_ULCORNER);
+    chlinexy(1, MAP_N_LINES_HORIZONTAL, MAP_N_LINES_VERTICAL - 2);
+    cputcxy(MAP_N_LINES_VERTICAL - 1, MAP_N_LINES_HORIZONTAL, CH_URCORNER);
+    cvlinexy(MAP_N_LINES_VERTICAL - 1, MAP_N_LINES_HORIZONTAL + 1, MAX_Y - MAP_N_LINES_HORIZONTAL - 1);
+    cputcxy(MAP_N_LINES_VERTICAL - 1, MAX_Y, CH_LRCORNER);
+    chlinexy(1, MAX_Y, MAP_N_LINES_VERTICAL - 2);
+    cputcxy(0, MAX_Y, CH_LLCORNER);
+    cvlinexy(0, MAP_N_LINES_HORIZONTAL + 1, MAX_Y - MAP_N_LINES_HORIZONTAL - 1);
+    textLine1X = 1;
+    textLine1Y = MAP_N_LINES_HORIZONTAL + 1;
     textLine2X = textLine1X;
     textLine2Y = textLine1Y + 1;
 }

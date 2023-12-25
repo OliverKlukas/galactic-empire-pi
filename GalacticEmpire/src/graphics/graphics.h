@@ -1,13 +1,13 @@
 #ifndef GALACTIC_EMPIRE_PI_GRAPHICS_H
 #define GALACTIC_EMPIRE_PI_GRAPHICS_H
 
-// Screen dimensions: these are the maximum pixel positions displayable.
-extern const unsigned maxX;
-extern const unsigned maxY;
+// Screen dimensions: these are the maximum pixel positions displayable
+#define MAX_X 39
+#define MAX_Y 24
 
 // Map settings.
-extern const int mapNLinesVertical;
-extern const int mapNLinesHorizontal;
+#define MAP_N_LINES_VERTICAL 20
+#define MAP_N_LINES_HORIZONTAL 20
 
 // Year settings.
 extern int yearLineX;

@@ -460,14 +460,14 @@ void game() {
     initGameInputs();
 
     // Initialize mission matrix that manages trips.
-    initializeMissionTable();
+    initializeMissionTable();   // TODO fix it as one dimensional non malloc array.
 
     // Initialize everything that shouldn't be changed on the map.
     initGameGraphics();
 
     // Generate galaxy and update until map acceptance.
     updateYear(year);
-    do { // TODO: after about 10 new generations, the game freezes, probably memory or cpu related.
+    do {
         allocateGalaxyMemory();
         clearMap();
         generateGalaxy();
@@ -480,7 +480,7 @@ void game() {
     } while (1);
 
     // Play the game until running out of years.
-    while (year <= totalYears) { // TODO: check game mechanics, balancing and memory issues.
+    while (year <= totalYears) {
         // Fight & Updates Production mechanics of ships that should reach their destination in that year.
         evaluateMissions();
 

@@ -4,7 +4,7 @@
 /**
  * Clears a line at given coordinate y.
  *
- * @param y - Line that should be cleared 0 - maxY.
+ * @param y - Line that should be cleared 0 - MAX_Y.
  */
 void clearLine(unsigned y);
 

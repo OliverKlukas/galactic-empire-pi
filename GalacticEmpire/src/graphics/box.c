@@ -18,8 +18,8 @@
  *  Deletes current text in input field.
  */
 void clearTextIOField() {
-    cclearxy(textLine1X, textLine1Y, mapNLinesVertical - 2);
-    cclearxy(textLine2X, textLine2Y, mapNLinesVertical - 2);
+    cclearxy(textLine1X, textLine1Y, MAP_N_LINES_VERTICAL - 2);
+    cclearxy(textLine2X, textLine2Y, MAP_N_LINES_VERTICAL - 2);
 }
 
 /**

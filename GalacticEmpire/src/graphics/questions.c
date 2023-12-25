@@ -16,11 +16,11 @@
 /**
  * Clears a line at given coordinate y.
  *
- * @param y - Line that should be cleared 0 - maxY.
+ * @param y - Line that should be cleared 0 - MAX_Y.
  */
 void clearLine(unsigned y) {
     gotoxy(0, y);
-    cclear(maxX);
+    cclear(MAX_X);
 }
 
 /**
