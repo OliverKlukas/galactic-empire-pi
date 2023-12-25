@@ -20,9 +20,9 @@
  * @param galaxy - Current state of galaxy.
  * @param numWorlds - Number of overall worlds.
  */
-void updateMap(world **galaxy, unsigned numWorlds) {
+void updateMap(world **galaxy, unsigned char numWorlds) {
     // Loop variable.
-    int i;
+    unsigned char i;
 
     // Place to be updated worlds on map.
     for (i = 0; i < numWorlds; i++) {
@@ -40,7 +40,7 @@ void updateMap(world **galaxy, unsigned numWorlds) {
  */
 void clearMap() {
     // Loop variables.
-    int i, j;
+    unsigned char i, j;
 
     // Draw map grid.
     for (i = 0; i < MAP_N_LINES_HORIZONTAL; ++i) {

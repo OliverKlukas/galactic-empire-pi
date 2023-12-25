@@ -23,7 +23,7 @@
  */
 void printCeremony(unsigned numPlayer, char *playerNames, unsigned *galaxyProduction, unsigned *numberShips) {
     // Loop variables.
-    int i;
+    unsigned char i;
     char input;
 
     // Clear screen.

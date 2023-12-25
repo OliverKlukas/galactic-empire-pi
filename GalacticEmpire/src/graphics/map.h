@@ -4,7 +4,7 @@
 /**
  * Updates the map with the current galaxy state.
  */
-void updateMap(world **galaxy, unsigned numWorlds);
+void updateMap(world **galaxy, unsigned char numWorlds);
 
 /**
  * Clears the map completely of entries.

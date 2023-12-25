@@ -88,7 +88,7 @@ int readSinglePlanetLetter() {
  * @return Returns fitting int number.
  */
 int readNumber() {
-    int i;
+    unsigned char i;
     int readDigits[5] = {0, 0, 0, 0, 0};
     int multiplyBy[5] = {10000, 1000, 100, 10, 1};
     int number = 0;

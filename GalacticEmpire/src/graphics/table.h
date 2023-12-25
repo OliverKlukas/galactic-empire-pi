@@ -9,11 +9,11 @@ void clearTable();
 /**
  * Draws the latest game table and year.
  */
-void updateTable();
+void updateTable(world **galaxy, unsigned char numWorlds);
 
 /**
  * Updates the current game year.
  */
-void updateYear(unsigned year);
+void updateYear(unsigned char year);
 
 #endif

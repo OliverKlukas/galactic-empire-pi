@@ -31,7 +31,7 @@ const unsigned playerColors[6] = {COLOR_BLACK, COLOR_BLUE, COLOR_PURPLE, COLOR_G
  * @param character - Character that should be plotted.
  * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
  */
-void placeColoredLetter(unsigned x, unsigned y, char character, int player) {
+void placeColoredLetter(unsigned char x, unsigned char y, char character, unsigned char player) {
     textcolor(playerColors[player]);
     cputcxy(x, y, character);
     textcolor(textColor);
@@ -47,11 +47,11 @@ void placeColoredLetter(unsigned x, unsigned y, char character, int player) {
  * @param number - Number that should be plotted.
  * @param player - Player that owns the character plotted, 0 = pirate, 1-5 = players.
  */
-void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player) {
+void placeColoredNumber(unsigned char x, unsigned char y, unsigned number, unsigned char player) {
     // Copy variables.
     unsigned digit;
     unsigned num = number;
-    unsigned i = 0;
+    unsigned char i = 0;
 
     // Set text color according to selected player.
     textcolor(playerColors[player]);

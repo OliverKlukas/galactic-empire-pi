@@ -34,12 +34,12 @@ extern const unsigned playerColors[6];
 /**
  * Places colored letter on screen.
  */
-void placeColoredLetter(unsigned x, unsigned y, char character, int player);
+void placeColoredLetter(unsigned char x, unsigned char y, char character, unsigned char player);
 
 /**
  *  Places colored number on screen.
  */
-void placeColoredNumber(unsigned x, unsigned y, unsigned number, unsigned player);
+void placeColoredNumber(unsigned char x, unsigned char y, unsigned number, unsigned char player);
 
 /**
  * Initializes the standard game graphics.

@@ -18,7 +18,7 @@
  *  Deletes current text in table.
  */
 void clearTable() {
-    int i;
+    unsigned char i;
     for (i = 0; i < 20; i++) {
         cclearxy(TABLE_COLUMN_1_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
         cclearxy(TABLE_COLUMN_2_X_MIN, TABLE_FIRST_ROW_Y_MIN + i, 8);
@@ -33,9 +33,9 @@ void clearTable() {
  * @param year - Current game year.
  * @param numWorlds - Total years of game.
  */
-void updateTable(world **galaxy, unsigned numWorlds) {
+void updateTable(world **galaxy, unsigned char numWorlds) {
     // Loop variables.
-    int i;
+    unsigned char i;
 
     // Clear table before update.
     clearTable();
@@ -69,7 +69,7 @@ void updateTable(world **galaxy, unsigned numWorlds) {
 /**
  * Updates the current game year.
  */
-void updateYear(unsigned year)
+void updateYear(unsigned char year)
 {
     // Update current year.
     gotoxy(YEAR_LINE_X, YEAR_LINE_Y);
